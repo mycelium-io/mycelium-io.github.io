@@ -24,25 +24,12 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
-  body::before {
-    content: '';
+  #mycelium-bg {
     position: fixed;
-    inset: -20%;
+    inset: 0;
     z-index: -1;
-    background:
-      radial-gradient(ellipse 60% 50% at 75% 15%, rgba(192,132,252,0.25) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(56,189,248,0.25) 0%, transparent 55%),
-      radial-gradient(ellipse 70% 50% at 50% 50%, rgba(10,74,92,0.50) 0%, transparent 65%),
-      radial-gradient(ellipse 40% 40% at 85% 70%, rgba(56,189,248,0.15) 0%, transparent 50%),
-      radial-gradient(ellipse 45% 35% at 25% 30%, rgba(129,140,248,0.15) 0%, transparent 50%);
-    animation: drift 25s ease-in-out infinite alternate;
-  }
-  @keyframes drift {
-    0%   { transform: translate(0, 0) scale(1); }
-    25%  { transform: translate(-3%, 2%) scale(1.05); }
-    50%  { transform: translate(2%, -2%) scale(0.97); }
-    75%  { transform: translate(-1.5%, -1%) scale(1.03); }
-    100% { transform: translate(2%, 3%) scale(1.01); }
+    width: 100%;
+    height: 100%;
   }
   body {
     background: var(--bg);
@@ -178,6 +165,7 @@
 </style>
 </head>
 <body>
+<canvas id="mycelium-bg"></canvas>
 <div class="wrap">
   <img src="logo.png" alt="Mycelium" class="logo">
   <div class="eyebrow">Internet of Cognition</div>
@@ -211,6 +199,172 @@ function copyInstall() {
     setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
   });
 }
+</script>
+<script>
+(function() {
+  const canvas = document.getElementById('mycelium-bg');
+  const ctx = canvas.getContext('2d');
+
+  const CELL = 8;
+  const cols = 480, rows = 270;
+  var trail = new Float32Array(cols * rows);
+  var colorIdx = new Uint8Array(cols * rows);
+
+  const BG = { r: 5, g: 9, b: 15 };
+  const COLORS = [
+    { r: 56, g: 189, b: 248 },
+    { r: 129, g: 140, b: 248 },
+    { r: 192, g: 132, b: 252 },
+  ];
+
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  canvas.style.imageRendering = 'pixelated';
+
+  var viewCols, viewRows;
+  function resize() {
+    viewCols = Math.min(Math.ceil(window.innerWidth / CELL), cols);
+    viewRows = Math.min(Math.ceil(window.innerHeight / CELL), rows);
+    canvas.width = viewCols;
+    canvas.height = viewRows;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const agents = [];
+  const MAX_AGENTS = 5000;
+
+  function Agent(x, y, angle, ci) {
+    this.x = x; this.y = y; this.angle = angle; this.ci = ci;
+    this.life = 200 + Math.random() * 400; this.age = 0;
+    this.speed = 0.08 + Math.random() * 0.12;
+  }
+
+  function spawnAgent() {
+    var x, y;
+    if (Math.random() < 0.3) {
+      var side = Math.floor(Math.random() * 4);
+      if (side === 0) { x = Math.random() * cols; y = 0; }
+      else if (side === 1) { x = Math.random() * cols; y = rows - 1; }
+      else if (side === 2) { x = 0; y = Math.random() * rows; }
+      else { x = cols - 1; y = Math.random() * rows; }
+    } else { x = Math.random() * cols; y = Math.random() * rows; }
+    agents.push(new Agent(x, y, Math.random() * Math.PI * 2, Math.floor(Math.random() * COLORS.length)));
+  }
+
+  var numClusters = 120;
+  for (var c = 0; c < numClusters; c++) {
+    var cx = Math.random() * cols, cy = Math.random() * rows;
+    var ci = Math.floor(Math.random() * COLORS.length);
+    var clusterSize = 30 + Math.floor(Math.random() * 20);
+    for (var j = 0; j < clusterSize; j++) {
+      var ax = cx + (Math.random() - 0.5) * 30;
+      var ay = cy + (Math.random() - 0.5) * 30;
+      if (ax < 0) ax += cols; if (ax >= cols) ax -= cols;
+      if (ay < 0) ay += rows; if (ay >= rows) ay -= rows;
+      agents.push(new Agent(ax, ay, Math.random() * Math.PI * 2, ci));
+    }
+  }
+
+  var SENSOR_DIST = 16, SENSOR_ANGLE = 1.2;
+  function sense(agent, angleOffset) {
+    var sx = Math.floor(agent.x + Math.cos(agent.angle + angleOffset) * SENSOR_DIST);
+    var sy = Math.floor(agent.y + Math.sin(agent.angle + angleOffset) * SENSOR_DIST);
+    if (sx < 0 || sx >= cols || sy < 0 || sy >= rows) return 0;
+    return trail[sy * cols + sx];
+  }
+
+  var lastFrame = 0, frameInterval = 1000 / 20, frameCount = 0;
+
+  function animate(timestamp) {
+    requestAnimationFrame(animate);
+    if (timestamp - lastFrame < frameInterval) return;
+    lastFrame = timestamp; frameCount++;
+
+    for (var i = 0; i < trail.length; i++) {
+      trail[i] *= 0.997;
+      if (trail[i] < 0.005) trail[i] = 0;
+    }
+
+    if (frameCount % 6 === 0 && agents.length < MAX_AGENTS) {
+      var count = 1 + Math.floor(Math.random() * 2);
+      for (var s = 0; s < count; s++) spawnAgent();
+    }
+
+    for (var i = agents.length - 1; i >= 0; i--) {
+      var a = agents[i];
+      a.age++;
+      if (a.age > a.life) { agents.splice(i, 1); continue; }
+      var sL = sense(a, -SENSOR_ANGLE), sC = sense(a, 0), sR = sense(a, SENSOR_ANGLE);
+      var turnSpeed = 0.08 + Math.random() * 0.06;
+      if (sC >= sL && sC >= sR) { a.angle += (Math.random() - 0.5) * 0.3; }
+      else if (sL > sR) { a.angle -= turnSpeed; }
+      else if (sR > sL) { a.angle += turnSpeed; }
+      else { a.angle += (Math.random() < 0.5 ? -1 : 1) * turnSpeed; }
+      a.angle += Math.sin(frameCount * 0.002 + a.x * 0.03 + a.y * 0.04) * 0.02;
+      a.x += Math.cos(a.angle) * a.speed;
+      a.y += Math.sin(a.angle) * a.speed;
+      if (a.x < 0) a.x += cols; if (a.x >= cols) a.x -= cols;
+      if (a.y < 0) a.y += rows; if (a.y >= rows) a.y -= rows;
+      var gx = Math.floor(a.x), gy = Math.floor(a.y);
+      for (var dy = -1; dy <= 1; dy++) {
+        for (var dx = -1; dx <= 1; dx++) {
+          var px = gx + dx, py = gy + dy;
+          if (px >= 0 && px < cols && py >= 0 && py < rows) {
+            var pidx = py * cols + px;
+            trail[pidx] = Math.min(1.0, trail[pidx] + ((dx === 0 && dy === 0) ? 0.06 : 0.02));
+            colorIdx[pidx] = a.ci;
+          }
+        }
+      }
+    }
+
+    if (frameCount % 3 === 0) {
+      var lw = Math.min(viewCols, cols), lh = Math.min(viewRows, rows);
+      for (var y = 1; y < lh - 1; y++) {
+        for (var x = 1; x < lw - 1; x++) {
+          var idx = y * cols + x, val = trail[idx], neighbors = 0;
+          for (var dy = -1; dy <= 1; dy++) {
+            for (var dx = -1; dx <= 1; dx++) {
+              if (dx === 0 && dy === 0) continue;
+              if (trail[(y + dy) * cols + (x + dx)] > 0.05) neighbors++;
+            }
+          }
+          if (val < 0.05) {
+            if (neighbors === 3 && Math.random() < 0.04) {
+              for (var dy2 = -1; dy2 <= 1; dy2++) {
+                for (var dx2 = -1; dx2 <= 1; dx2++) {
+                  var ni = (y + dy2) * cols + (x + dx2);
+                  if (trail[ni] > 0.05) { colorIdx[idx] = colorIdx[ni]; dy2 = 2; break; }
+                }
+              }
+              trail[idx] = 0.25 + Math.random() * 0.1;
+            }
+          } else {
+            if (neighbors > 5) trail[idx] *= 0.9;
+            else if (neighbors < 1) trail[idx] *= 0.95;
+          }
+        }
+      }
+    }
+
+    ctx.fillStyle = 'rgb(' + BG.r + ',' + BG.g + ',' + BG.b + ')';
+    ctx.fillRect(0, 0, viewCols, viewRows);
+    var renderW = Math.min(viewCols, cols), renderH = Math.min(viewRows, rows);
+    for (var y = 0; y < renderH; y++) {
+      for (var x = 0; x < renderW; x++) {
+        var val = trail[y * cols + x];
+        if (val < 0.01) continue;
+        var cc = COLORS[colorIdx[y * cols + x]];
+        var alpha = val * 0.1;
+        ctx.fillStyle = 'rgba(' + cc.r + ',' + cc.g + ',' + cc.b + ',' + alpha + ')';
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+
+  requestAnimationFrame(animate);
+})();
 </script>
 </body>
 </html>
