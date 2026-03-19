@@ -49,14 +49,12 @@
     text-align: center;
     position: relative;
     z-index: 1;
-  }
-  /* Vignette — radial fade from center pushes the mycelium to the edges */
-  .vignette {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    background: radial-gradient(ellipse at center, rgba(5,9,15,0.95) 0%, rgba(5,9,15,0.55) 55%, transparent 85%);
-    pointer-events: none;
+    background: rgba(5, 9, 15, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 60px 48px;
+    box-shadow: 0 0 80px 40px rgba(5, 9, 15, 0.6);
   }
 
   .logo {
@@ -168,7 +166,6 @@
 </head>
 <body>
 <canvas id="mycelium-bg"></canvas>
-<div class="vignette"></div>
 <div class="wrap">
   <img src="logo.png" alt="Mycelium" class="logo">
   <div class="eyebrow">Internet of Cognition</div>
