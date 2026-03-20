@@ -11,6 +11,7 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://mycelium-io.github.io/og.png">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -113,6 +114,12 @@
     margin-bottom: 16px;
     text-align: left;
   }
+  .install-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
   .install-label {
     font-size: 12px;
     font-weight: 700;
@@ -120,8 +127,24 @@
     text-transform: uppercase;
     color: var(--muted);
     font-family: 'SF Mono', monospace;
-    margin-bottom: 14px;
   }
+  .toggle-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .toggle-tab {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+    font-size: 11px;
+    font-family: 'SF Mono', monospace;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .toggle-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .toggle-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.08); }
   .install-cmd {
     display: flex;
     align-items: center;
@@ -139,17 +162,19 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--muted);
-    font-size: 12px;
-    font-family: 'SF Mono', monospace;
-    padding: 6px 0;
-    width: 68px;
-    text-align: center;
+    padding: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: border-color 0.2s, color 0.2s;
     flex-shrink: 0;
   }
   .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
   .copy-btn.copied { border-color: #34d399; color: #34d399; }
+  .copy-btn svg { width: 15px; height: 15px; stroke: currentColor; }
 
   .links {
     display: flex;
@@ -182,10 +207,15 @@
   <p class="tagline">Coordination layer for multi-agent systems.<br>Semantic negotiation, persistent memory, collective intelligence.</p>
 
   <div class="install-block">
-    <div class="install-label">Install</div>
+    <div class="toggle-tabs" style="margin-bottom:14px">
+      <button class="toggle-tab active" onclick="setTab('curl', this)">curl</button>
+      <button class="toggle-tab" onclick="setTab('brew', this)">brew</button>
+    </div>
     <div class="install-cmd">
       <code id="install-cmd">curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash</code>
-      <button class="copy-btn" onclick="copyInstall()">copy</button>
+      <button class="copy-btn" onclick="copyInstall(this)" title="Copy">
+        <i data-lucide="copy"></i>
+      </button>
     </div>
   </div>
 
@@ -193,18 +223,40 @@
     <a href="https://github.com/mycelium-io/mycelium">GitHub</a>
     <a href="https://mycelium-io.github.io/mycelium/">Docs</a>
     <a href="https://github.com/mycelium-io/mycelium/releases">Releases</a>
+    <a href="https://clawhub.ai/skills/mycelium-io">ClawHub</a>
   </div>
 
 </div>
 
 <script>
-function copyInstall() {
+const CMDS = {
+  curl: 'curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash',
+  brew: 'brew install mycelium-io/tap/mycelium',
+};
+
+document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+
+function setTab(tab, el) {
+  document.getElementById('install-cmd').textContent = CMDS[tab];
+  document.querySelectorAll('.toggle-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const btn = document.querySelector('.copy-btn');
+  btn.innerHTML = '<i data-lucide="copy"></i>';
+  btn.classList.remove('copied');
+  lucide.createIcons();
+}
+
+function copyInstall(btn) {
   const cmd = document.getElementById('install-cmd').textContent;
   navigator.clipboard.writeText(cmd).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = 'copied!';
+    btn.innerHTML = '<i data-lucide="check"></i>';
     btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    lucide.createIcons();
+    setTimeout(() => {
+      btn.innerHTML = '<i data-lucide="copy"></i>';
+      btn.classList.remove('copied');
+      lucide.createIcons();
+    }, 2000);
   });
 }
 </script>
