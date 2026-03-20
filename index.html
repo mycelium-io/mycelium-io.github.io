@@ -210,6 +210,7 @@
     <div class="toggle-tabs" style="margin-bottom:14px">
       <button class="toggle-tab active" onclick="setTab('curl', this)">curl</button>
       <button class="toggle-tab" onclick="setTab('brew', this)">brew</button>
+      <button class="toggle-tab" onclick="setTab('clawhub', this)">clawhub</button>
     </div>
     <div class="install-cmd">
       <code id="install-cmd">curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash</code>
@@ -232,6 +233,7 @@
 const CMDS = {
   curl: 'curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash',
   brew: 'brew install mycelium-io/tap/mycelium',
+  clawhub: 'Tell your agent: "install https://clawhub.ai/juliarvalenti/mycelium-io"',
 };
 
 document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
