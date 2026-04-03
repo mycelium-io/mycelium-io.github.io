@@ -95,6 +95,18 @@
     font-family: 'Cormorant Garamond', Georgia, serif;
   }
 
+  .version-badge {
+    display: inline-block;
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .version-badge:hover { color: var(--accent); }
+
   .tagline {
     font-size: clamp(15px, 2.5vw, 18px);
     color: var(--muted);
@@ -204,6 +216,7 @@
   <img src="logo.png" alt="Mycelium" class="logo">
   <div class="eyebrow">Internet of Cognition</div>
   <h1>mycelium</h1>
+  <a id="version-badge" class="version-badge" href="https://github.com/mycelium-io/mycelium/releases" target="_blank"></a>
   <p class="tagline">Coordination layer for multi-agent systems.<br>Semantic negotiation, persistent memory, collective intelligence.</p>
 
   <div class="install-block">
@@ -236,7 +249,18 @@ const CMDS = {
   clawhub: 'Tell your agent: "install https://clawhub.ai/juliarvalenti/mycelium-io"',
 };
 
-document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  fetch('https://api.github.com/repos/mycelium-io/mycelium/releases/latest')
+    .then(r => r.json())
+    .then(d => {
+      if (d.tag_name) {
+        const badge = document.getElementById('version-badge');
+        badge.textContent = d.tag_name;
+      }
+    })
+    .catch(() => {});
+});
 
 function setTab(tab, el) {
   document.getElementById('install-cmd').textContent = CMDS[tab];
