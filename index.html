@@ -16,12 +16,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #05090f;
-    --accent: #38bdf8;
-    --text: #e2eaf6;
-    --muted: #4a6080;
-    --border: #162035;
-    --card: #0c1524;
+    --bg: #0c0d10;             /* warm near-black, no blue cast */
+    --accent: #5dd4e0;         /* pale cyan (Onyx) */
+    --text: #eaeaea;           /* chalk-white primary */
+    --text2: #a8a6a0;          /* softer chalk (lead, secondary copy) */
+    --muted: #898781;          /* dimmed warm gray */
+    --border: rgba(234, 234, 234, 0.10);
+    --card: #14161b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -61,8 +62,8 @@
     pointer-events: none;
     background: radial-gradient(
       ellipse 60% 70% at 50% 45%,
-      rgba(5, 9, 15, 0.88) 0%,
-      rgba(5, 9, 15, 0.5) 60%,
+      rgba(12, 13, 16, 0.88) 0%,
+      rgba(12, 13, 16, 0.5) 60%,
       transparent 100%
     );
   }
@@ -109,7 +110,7 @@
 
   .tagline {
     font-size: clamp(15px, 2.5vw, 18px);
-    color: var(--muted);
+    color: var(--text2);
     line-height: 1.65;
     margin-bottom: 48px;
     font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -117,7 +118,7 @@
   }
 
   .install-block {
-    background: rgba(12, 21, 36, 0.55);
+    background: rgba(20, 22, 27, 0.55);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
     border: 1px solid var(--border);
@@ -299,7 +300,7 @@ function copyInstall(btn) {
   var trail = new Float32Array(cols * rows);       // animated nutrient flow
   var colorIdx = new Uint8Array(cols * rows);
 
-  const BG = { r: 5, g: 9, b: 15 };
+  const BG = { r: 12, g: 13, b: 16 };
   const COLORS = [
     { r: 56, g: 189, b: 248 },   // cyan
     { r: 129, g: 140, b: 248 },   // indigo
