@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mycelium — multi-agent coordination</title>
+<title>mycelium · a shared space for humans and agents</title>
 <meta property="og:title" content="mycelium">
-<meta property="og:description" content="Coordination layer for multi-agent systems. Semantic negotiation, persistent memory, collective intelligence.">
+<meta property="og:description" content="A shared space for humans and agents. Share memory, keep up with each other, and coordinate.">
 <meta property="og:image" content="https://mycelium-io.github.io/og.png">
 <meta property="og:url" content="https://mycelium-io.github.io">
 <meta property="og:type" content="website">
@@ -17,7 +17,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* Light is the default; dark is applied via .dark on <html>. Shares the
+     'mycelium-theme' localStorage key with the docs site (same origin), so the
+     two stay in sync and the landing->docs jump never flashes. */
   :root {
+    --bg: #f4ecda;             /* warm cream, not stark white */
+    --accent: #0c7d8f;
+    --text: #2a2419;
+    --text2: #5c5443;
+    --muted: #8a8069;
+    --border: rgba(58, 46, 22, 0.14);
+    --card: #fbf5e6;
+    --glass: rgba(251, 245, 230, 0.62);
+    --mask: 244, 236, 218;
+    --canvas-bg: 244, 236, 218;
+    --canvas-c1: 14, 120, 135;
+    --canvas-c2: 92, 96, 176;
+    --canvas-c3: 150, 96, 190;
+  }
+  html.dark {
     --bg: #0c0d10;             /* warm near-black, no blue cast */
     --accent: #5dd4e0;         /* pale cyan (Onyx) */
     --text: #eaeaea;           /* chalk-white primary */
@@ -25,6 +43,12 @@
     --muted: #898781;          /* dimmed warm gray */
     --border: rgba(234, 234, 234, 0.10);
     --card: #14161b;
+    --glass: rgba(20, 22, 27, 0.55);
+    --mask: 12, 13, 16;
+    --canvas-bg: 12, 13, 16;
+    --canvas-c1: 56, 189, 248;
+    --canvas-c2: 129, 140, 248;
+    --canvas-c3: 192, 132, 252;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -64,8 +88,8 @@
     pointer-events: none;
     background: radial-gradient(
       ellipse 60% 70% at 50% 45%,
-      rgba(12, 13, 16, 0.88) 0%,
-      rgba(12, 13, 16, 0.5) 60%,
+      rgba(var(--mask), 0.88) 0%,
+      rgba(var(--mask), 0.5) 60%,
       transparent 100%
     );
   }
@@ -120,7 +144,7 @@
   }
 
   .install-block {
-    background: rgba(20, 22, 27, 0.55);
+    background: var(--glass);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
     border: 1px solid var(--border);
@@ -159,7 +183,7 @@
     transition: border-color 0.2s, color 0.2s, background 0.2s;
   }
   .toggle-tab:hover { border-color: var(--accent); color: var(--accent); }
-  .toggle-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.08); }
+  .toggle-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(93,212,224,0.08); }
   .install-cmd {
     display: flex;
     align-items: center;
@@ -208,28 +232,63 @@
   }
   .links a:hover { color: var(--accent); }
 
+  .theme-toggle {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 3;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .theme-toggle svg { width: 16px; height: 16px; stroke: currentColor; }
+
   @media (max-width: 480px) {
     .install-cmd code { font-size: 11px; }
   }
 </style>
+<script>
+// Resolve the theme before first paint so the page never flashes the wrong one.
+// Default dark; shares the docs site's 'mycelium-theme' key (same origin).
+(function () {
+  try {
+    var t = localStorage.getItem('mycelium-theme') || 'dark';
+    var dark = t !== 'light'
+      && (t === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.classList.add('dark');
+  } catch (e) {
+    document.documentElement.classList.add('dark');
+  }
+})();
+</script>
 </head>
 <body>
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" onclick="toggleTheme()"><i data-lucide="moon"></i></button>
 <canvas id="mycelium-bg"></canvas>
 <div class="wrap">
   <img src="logo.png" alt="Mycelium" class="logo">
-  <div class="eyebrow">multi-agent coordination</div>
+  <div class="eyebrow">humans + agents</div>
   <h1>mycelium</h1>
   <a id="version-badge" class="version-badge" href="https://github.com/mycelium-io/mycelium/releases" target="_blank"></a>
-  <p class="tagline">Coordination layer for multi-agent systems.<br>Semantic negotiation, persistent memory, collective intelligence.</p>
+  <p class="tagline">A shared space for humans and agents.<br>Share memory, keep up with each other, and coordinate.</p>
 
   <div class="install-block">
     <div class="toggle-tabs" style="margin-bottom:14px">
-      <button class="toggle-tab active" onclick="setTab('curl', this)">curl</button>
+      <button class="toggle-tab active" onclick="setTab('prompt', this)">prompt</button>
+      <button class="toggle-tab" onclick="setTab('curl', this)">curl</button>
       <button class="toggle-tab" onclick="setTab('brew', this)">brew</button>
-      <button class="toggle-tab" onclick="setTab('clawhub', this)">clawhub</button>
     </div>
     <div class="install-cmd">
-      <code id="install-cmd">curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash</code>
+      <code id="install-cmd">Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium</code>
       <button class="copy-btn" onclick="copyInstall(this)" title="Copy">
         <i data-lucide="copy"></i>
       </button>
@@ -240,7 +299,6 @@
     <a href="https://github.com/mycelium-io/mycelium">GitHub</a>
     <a href="https://mycelium-io.github.io/mycelium/">Docs</a>
     <a href="https://github.com/mycelium-io/mycelium/releases">Releases</a>
-    <a href="https://clawhub.ai/juliarvalenti/mycelium-io">ClawHub</a>
   </div>
 
 </div>
@@ -249,11 +307,32 @@
 const CMDS = {
   curl: 'curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash',
   brew: 'brew install mycelium-io/tap/mycelium',
-  clawhub: 'Tell your agent: "install https://clawhub.ai/juliarvalenti/mycelium-io"',
+  prompt: 'Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium',
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+function currentPref() {
+  try { return localStorage.getItem('mycelium-theme') || 'dark'; } catch (e) { return 'dark'; }
+}
+function applyTheme(pref) {
+  const dark = pref === 'dark'
+    || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.classList.toggle('dark', dark);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.innerHTML = dark ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
   lucide.createIcons();
+  window.dispatchEvent(new CustomEvent('mycelium:theme'));
+}
+function toggleTheme() {
+  const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+  try { localStorage.setItem('mycelium-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (currentPref() === 'system') applyTheme('system');
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  applyTheme(currentPref());
   fetch('https://api.github.com/repos/mycelium-io/mycelium/releases/latest')
     .then(r => r.json())
     .then(d => {
@@ -302,12 +381,28 @@ function copyInstall(btn) {
   var trail = new Float32Array(cols * rows);       // animated nutrient flow
   var colorIdx = new Uint8Array(cols * rows);
 
-  const BG = { r: 12, g: 13, b: 16 };
-  const COLORS = [
-    { r: 56, g: 189, b: 248 },   // cyan
-    { r: 129, g: 140, b: 248 },   // indigo
-    { r: 192, g: 132, b: 252 },   // purple
+  // Palette is read from CSS custom properties so it tracks the active theme.
+  var BG = { r: 12, g: 13, b: 16 };
+  var COLORS = [
+    { r: 56, g: 189, b: 248 },
+    { r: 129, g: 140, b: 248 },
+    { r: 192, g: 132, b: 252 },
   ];
+  var isDark = true;
+  function readPalette() {
+    var cs = getComputedStyle(document.documentElement);
+    function rgb(name, fb) {
+      var v = cs.getPropertyValue(name).trim();
+      if (!v) return fb;
+      var p = v.split(',').map(function (s) { return parseInt(s, 10); });
+      return { r: p[0], g: p[1], b: p[2] };
+    }
+    BG = rgb('--canvas-bg', BG);
+    COLORS = [rgb('--canvas-c1', COLORS[0]), rgb('--canvas-c2', COLORS[1]), rgb('--canvas-c3', COLORS[2])];
+    isDark = document.documentElement.classList.contains('dark');
+  }
+  readPalette();
+  window.addEventListener('mycelium:theme', readPalette);
 
   canvas.style.width = '100%';
   canvas.style.height = '100%';
@@ -505,7 +600,8 @@ function copyInstall(btn) {
         var sVal = structure[idx], tVal = trail[idx];
         if (sVal < 0.01 && tVal < 0.01) continue;
         var c = COLORS[colorIdx[idx]];
-        var alpha = sVal * 0.02 + tVal * 0.2;
+        // Light mode paints dark veins on a light field, so it needs more opacity.
+        var alpha = isDark ? (sVal * 0.02 + tVal * 0.2) : (sVal * 0.05 + tVal * 0.34);
         ctx.fillStyle = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + alpha + ')';
         ctx.fillRect(x, y, 1, 1);
       }
