@@ -53,24 +53,51 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
 // a bit of tactile feedback. Muted for reduced-motion, since that pref is
 // the closest signal we have to "please don't add sensory extras."
 
-var clickCtx;
-function playClick() {
+// A noise burst through a live gain-ramp reads as a hollow plastic "tock",
+// no matter how the ramp/filter are tuned. The fix: bake the decay directly
+// into the buffer's samples (noise * exp(-t/25), a 4ms impulse) instead of
+// shaping a flat noise buffer with gain automation, then run that impulse
+// through one resonant bandpass filter. (Same technique as the click on
+// hermes-agent.nousresearch.com, whose click this is ported from.)
+var clickCtx, clickFilter, clickGain, clickBuffer;
+function ensureClickAudio() {
+  if (clickCtx || !(window.AudioContext || window.webkitAudioContext)) return;
+  clickCtx = new (window.AudioContext || window.webkitAudioContext)();
+  clickFilter = clickCtx.createBiquadFilter();
+  clickFilter.type = 'bandpass';
+  clickFilter.frequency.value = 4000;
+  clickFilter.Q.value = 8;
+  clickGain = clickCtx.createGain();
+  clickFilter.connect(clickGain);
+  clickGain.connect(clickCtx.destination);
+  clickBuffer = clickCtx.createBuffer(1, Math.round(0.004 * clickCtx.sampleRate), clickCtx.sampleRate);
+  var data = clickBuffer.getChannelData(0);
+  for (var i = 0; i < data.length; i++) data[i] = (2 * Math.random() - 1) * Math.exp(-i / 25);
+}
+// `intensity` (0-1) drives both volume and pitch together.
+function playTick(intensity) {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   try {
-    clickCtx = clickCtx || new (window.AudioContext || window.webkitAudioContext)();
+    ensureClickAudio();
+    if (!clickCtx) return;
     if (clickCtx.state === 'suspended') clickCtx.resume();
-    var t = clickCtx.currentTime;
-    var osc = clickCtx.createOscillator();
-    var gain = clickCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(1400, t);
-    osc.frequency.exponentialRampToValueAtTime(500, t + 0.035);
-    gain.gain.setValueAtTime(0.05, t);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
-    osc.connect(gain).connect(clickCtx.destination);
-    osc.start(t);
-    osc.stop(t + 0.05);
+    clickGain.gain.value = 0.5 * intensity;
+    var jitter = 1 + (Math.random() - 0.5) * 0.3;
+    clickFilter.frequency.value = (2000 + 2000 * intensity) * jitter;
+    var src = clickCtx.createBufferSource();
+    src.buffer = clickBuffer;
+    src.connect(clickFilter);
+    src.onended = function () { src.disconnect(); };
+    src.start();
   } catch (e) {}
+}
+function playClick() { playTick(0.9); }
+
+function wireClickSounds() {
+  document.querySelectorAll('.toggle-tab, .copy-btn').forEach(function (el) {
+    // mousedown, not click: a sound that lands on release reads as laggy.
+    el.addEventListener('mousedown', playClick);
+  });
 }
 
 // ── INSTALL BLOCK ──
@@ -84,7 +111,6 @@ var CMDS = {
 };
 
 function setTab(tab, el) {
-  playClick();
   document.querySelectorAll('#install-cmd, #install-cmd-2').forEach(function (node) {
     node.textContent = CMDS[tab];
   });
@@ -103,7 +129,6 @@ function resetCopyBtn(btn) {
 }
 
 function copyInstall(btn) {
-  playClick();
   var code = btn.parentElement.querySelector('code');
   if (!code) return;
   navigator.clipboard.writeText(code.textContent).then(function () {
@@ -211,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
   wireScroll();
   wireReveal();
   wireBentoReveal();
+  wireClickSounds();
   wireVersion();
   if (window.lucide) window.lucide.createIcons();
 });
