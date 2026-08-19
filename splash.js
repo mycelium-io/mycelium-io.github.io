@@ -136,6 +136,31 @@ function wireReveal() {
   els.forEach(function (e) { obs.observe(e); });
 }
 
+// ── BENTO STAGGER ──
+// Each cell fades in as it crosses into view, staggered by position,
+// instead of the whole grid appearing at once.
+
+function wireBentoReveal() {
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.bento').forEach(function (grid) {
+    var cells = grid.querySelectorAll('.cell');
+    if (reduced || !('IntersectionObserver' in window)) {
+      cells.forEach(function (c) { c.classList.add('in'); });
+      return;
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var i = Array.prototype.indexOf.call(cells, entry.target);
+        entry.target.style.setProperty('--stagger', i % 6);
+        entry.target.classList.add('in');
+        obs.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
+    cells.forEach(function (c) { obs.observe(c); });
+  });
+}
+
 // ── VERSION ──
 
 function wireVersion() {
@@ -152,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
   wirePlates();
   wireScroll();
   wireReveal();
+  wireBentoReveal();
   wireVersion();
   if (window.lucide) window.lucide.createIcons();
 });

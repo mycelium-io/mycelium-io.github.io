@@ -582,13 +582,20 @@ p { max-width: var(--measure); }
   margin-bottom: 6px;
 }
 
-/* ── BENTO OF PLATES ──
- * A 6-column bed. Figures get an image plate and a caption; the text cells
- * carry the concepts that are better read than illustrated. */
+/* ── TIGHT BENTO ──
+ * A mosaic of mixed-width cells (illustration, UI vignette, note) that share
+ * single hairlines at every join instead of each carrying its own bordered,
+ * rounded, shadowed card. The trick: a 1px grid gap over a hairline-colored
+ * background — the gap itself becomes the dividing rule, so a shared edge
+ * never doubles up the way two adjacent borders would. Hard corners
+ * throughout: no radius, no shadow, no hover lift anywhere in this section. */
 .bento {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: var(--space-3);
+  grid-auto-flow: dense;
+  gap: 1px;
+  background: var(--border);
+  border: var(--rule);
   margin-top: var(--space-6);
 }
 .cell {
@@ -596,19 +603,24 @@ p { max-width: var(--measure); }
   display: flex;
   flex-direction: column;
   background: var(--surface);
-  border: var(--rule);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: border-color 0.2s, background 0.2s, transform 0.2s ease, box-shadow 0.2s ease;
 }
-.cell:hover {
-  border-color: var(--border2);
-  background: var(--muted-bg);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--fg) 20%, transparent);
-}
-.cell--wide { grid-column: span 3; }   /* free slot in the grid vocabulary */
+.cell--wide { grid-column: span 3; }
+.cell--big { grid-column: span 4; }   /* a size between wide and full, for irregular mosaics */
 .cell--full { grid-column: span 6; }
+
+/* Scroll-in stagger: a quiet fade only (no lift, no scale — motion here
+ * shouldn't read as a card announcing itself). See wireBentoReveal in
+ * splash.js; this is the static-page stand-in for Framer Motion's
+ * whileInView + staggerChildren. */
+.bento .cell {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transition-delay: calc(var(--stagger, 0) * 60ms);
+}
+.bento .cell.in { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .bento .cell { opacity: 1; transition: none; }
+}
 
 .cell-media {
   display: block;
@@ -618,9 +630,9 @@ p { max-width: var(--measure); }
   object-position: center;
   border-bottom: var(--rule);
   background: var(--muted-bg);
-  transition: transform 0.35s ease;
+  transition: transform 0.4s ease;
 }
-.cell:hover .cell-media { transform: scale(1.05); }
+.cell:hover .cell-media { transform: scale(1.03); }
 
 .cell-body { padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .cell-fig {
@@ -636,7 +648,6 @@ p { max-width: var(--measure); }
   font-size: 12.5px;
   background: var(--paper);
   border: var(--rule);
-  border-radius: var(--radius-sm);
   padding: 0.5px 5px;
   color: var(--accent);
 }
@@ -649,6 +660,165 @@ p { max-width: var(--measure); }
 }
 .cell-foot a { color: var(--muted-foreground); }
 .cell-foot a:hover { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 1100px) {
+  .bento { grid-template-columns: repeat(4, 1fr); }
+  .cell, .cell--wide { grid-column: span 2; }
+  .cell--big, .cell--full { grid-column: span 4; }
+}
+@media (max-width: 620px) {
+  .bento { grid-template-columns: 1fr; }
+  .cell, .cell--wide, .cell--big, .cell--full { grid-column: span 1; }
+  .cell-media, .plate-pending { aspect-ratio: 16 / 10; }
+}
+
+/* ── GUI VIGNETTES ──
+ * Hand-built mockups of the room UI, not screenshots (so they never drift
+ * out of sync with the real app). Only the chrome/content strip is fixed
+ * dark (standing in for the always-dark product surface); the caption below
+ * it stays on .cell-body's normal surface tokens, so it still follows the
+ * site's light/dark theme like every other cell. Motion here is ambient
+ * (plays on its own, on a loop) rather than hover-triggered — these aren't
+ * links, so nothing about them should react to the cursor the way a
+ * clickable card would. */
+.cell--gui {
+  --gv-bg: #0b0d12;
+  --gv-panel: #12151b;
+  --gv-line: rgba(255, 255, 255, 0.08);
+  --gv-text: #d7dae0;
+  --gv-muted: #7d8590;
+  --gv-accent: #5dd4e0;
+  --gv-green: #4fc296;
+  --gv-yellow: #d9a94e;
+}
+.gui-chrome,
+.gui-chat,
+.gui-l9,
+.gui-list {
+  background: var(--gv-bg);
+}
+.gui-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gv-line);
+  background: var(--gv-panel);
+}
+.gui-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gv-line); }
+.gui-dot--live { background: var(--gv-accent); animation: gv-pulse 2.4s ease-in-out infinite; }
+.gui-room {
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gv-muted);
+}
+.gui-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gv-muted);
+}
+.gui-count--live { color: var(--gv-accent); }
+@keyframes gv-pulse {
+  0%, 100% { opacity: 0.45; box-shadow: 0 0 0 0 color-mix(in srgb, var(--gv-accent) 40%, transparent); }
+  50% { opacity: 1; box-shadow: 0 0 0 4px color-mix(in srgb, var(--gv-accent) 0%, transparent); }
+}
+.gui-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 13px;
+  margin-left: 2px;
+  background: var(--gv-accent);
+  vertical-align: -2px;
+  animation: gv-blink 1.1s step-end infinite;
+}
+@keyframes gv-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .gui-dot--live, .gui-cursor, .gui-ep-dot--live { animation: none; }
+}
+.gui-chat { padding: var(--space-4); display: flex; flex-direction: column; gap: 12px; }
+.gui-msg { display: flex; gap: 10px; }
+.gui-avatar {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--gv-text);
+  background: var(--gv-panel);
+  border: 1px solid var(--gv-line);
+}
+.gui-avatar--agent { color: var(--gv-accent); border-color: color-mix(in srgb, var(--gv-accent) 40%, transparent); }
+.gui-name { font-size: 12px; color: var(--gv-muted); margin-bottom: 2px; }
+.gui-name .gui-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gv-accent);
+  margin-left: 4px;
+}
+.gui-text { font-size: 13px; line-height: 1.5; color: var(--gv-text); }
+.gui-l9 { padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 12px; }
+.gui-l9-row { display: flex; justify-content: space-between; gap: var(--space-3); }
+.gui-l9-row .k { color: var(--gv-muted); }
+.gui-l9-row .v { color: var(--gv-accent); }
+
+.gui-list { padding: 6px var(--space-4) var(--space-3); display: flex; flex-direction: column; }
+.gui-ep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--gv-line);
+  font-size: 12px;
+}
+.gui-ep:last-child { border-bottom: none; }
+.gui-ep-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gv-muted); }
+.gui-ep-dot--live { background: var(--gv-accent); animation: gv-pulse 2.4s ease-in-out infinite; }
+.gui-ep-id { font-family: var(--font-mono); color: var(--gv-muted); }
+.gui-ep-msg { font-family: var(--font-mono); font-size: 11px; color: var(--gv-muted); margin-left: auto; }
+.gui-ep-state {
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 1px 6px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+.gui-ep-who { font-size: 11px; color: var(--gv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.gui-member {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--gv-line);
+  font-size: 12px;
+}
+.gui-member:last-child { border-bottom: none; }
+.gui-mono-name { font-family: var(--font-mono); font-weight: 600; color: var(--gv-text); }
+.gui-member--agent .gui-mono-name { color: var(--gv-accent); }
+.gui-you {
+  font-family: var(--font-sans, inherit);
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--gv-accent);
+  margin-left: 6px;
+}
+.gui-owner {
+  font-family: var(--font-sans, inherit);
+  font-weight: 400;
+  font-size: 10.5px;
+  color: var(--gv-muted);
+  margin-left: 6px;
+}
+.gui-member-sub { font-size: 11px; color: var(--gv-muted); text-align: right; white-space: nowrap; }
 
 /* Plate awaiting art. The <img> is real: drop the named file into the repo root
  * and it replaces this frame with no markup change. Until then the frame states
@@ -695,15 +865,60 @@ p { max-width: var(--measure); }
   color: var(--faint);
 }
 
-@media (max-width: 900px) {
-  .bento { grid-template-columns: repeat(4, 1fr); }
-  .cell, .cell--wide { grid-column: span 2; }
-  .cell--full { grid-column: span 4; }
+/* ── PLATE VARIANTS ──
+ * Three ways a plate carries its caption, so the mosaic reads as a set of
+ * specimens rather than one template stamped five times. Hard corners and
+ * hairline dividers throughout — no radius, no shadow, matching the rest
+ * of the tight bento. */
+
+/* Overlay: the image fills the whole cell; the caption sits on a scrim at
+ * the bottom rather than a separate block below it. */
+.plate--overlay { aspect-ratio: 3 / 4; }
+.plate--overlay .cell-media,
+.plate--overlay .plate-pending {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-bottom: none;
 }
+.plate--overlay .cell-body {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  background: linear-gradient(to top, rgba(10, 8, 4, 0.86) 0%, rgba(10, 8, 4, 0.5) 60%, transparent 100%);
+}
+.plate--overlay .cell-body h3 { color: #fdf9ed; }
+.plate--overlay .cell-body .cell-desc { color: rgba(253, 249, 237, 0.8); }
+
+/* Split: a square thumbnail beside the caption, sharing a hairline instead
+ * of stacking above it. */
+.plate--split,
+.plate--split-reverse { flex-direction: row; }
+.plate--split-reverse { flex-direction: row-reverse; }
+.plate--split .cell-media,
+.plate--split .plate-pending,
+.plate--split-reverse .cell-media,
+.plate--split-reverse .plate-pending {
+  flex: 0 0 38%;
+  width: 38%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-bottom: none;
+}
+.plate--split .cell-media, .plate--split .plate-pending { border-right: var(--rule); }
+.plate--split-reverse .cell-media, .plate--split-reverse .plate-pending { border-left: var(--rule); }
+.plate--split .cell-body,
+.plate--split-reverse .cell-body { justify-content: center; }
+
 @media (max-width: 620px) {
-  .bento { grid-template-columns: 1fr; }
-  .cell, .cell--wide, .cell--full { grid-column: span 1; }
-  .cell-media, .plate-pending { aspect-ratio: 16 / 10; }
+  .plate--overlay { aspect-ratio: 4 / 3; }
+  .plate--split, .plate--split-reverse { flex-direction: column; }
+  .plate--split .cell-media, .plate--split .plate-pending,
+  .plate--split-reverse .cell-media, .plate--split-reverse .plate-pending {
+    flex: none; width: 100%; aspect-ratio: 16 / 10; border: none; border-bottom: var(--rule);
+  }
 }
 
 /* A compact term/definition list, set like a glossary column. */
@@ -768,19 +983,7 @@ pre .f { color: var(--code-flag); }
 pre .s { color: var(--code-str); }
 pre .a { color: var(--code-arg); font-style: italic; }
 
-/* ── METHOD · the arc, as numbered steps on a spine ── */
-.steps {
-  margin-top: var(--space-6);
-  border-top: var(--rule);
-}
-.step {
-  display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) minmax(0, 1.25fr);
-  gap: var(--space-5);
-  align-items: start;
-  padding: var(--space-5) 0;
-  border-bottom: var(--rule);
-}
+/* ── METHOD · numbered steps, each its own bento cell ── */
 .step-n {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -788,22 +991,16 @@ pre .a { color: var(--code-arg); font-style: italic; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--accent2);
-  padding-top: 3px;
 }
-.step-title { font-family: var(--font-serif); font-style: italic; font-weight: 600; font-size: 24px; letter-spacing: -0.01em; line-height: 1.2; }
-.step-desc { font-size: 14.5px; color: var(--muted-foreground); line-height: 1.6; margin-top: 4px; }
-.step-code { min-width: 0; }
-@media (max-width: 860px) {
-  .step { grid-template-columns: 64px minmax(0, 1fr); }
-  .step-code { grid-column: 2; }
-}
+.step-title { font-family: var(--font-serif); font-style: italic; font-weight: 600; font-size: 22px; letter-spacing: -0.01em; line-height: 1.2; }
+.step-desc { font-size: 14px; color: var(--muted-foreground); line-height: 1.6; margin-top: 4px; }
+.step-code { min-width: 0; margin-top: 8px; }
 
 /* ── APPARATUS · the room on disk ── */
 .tree {
   white-space: pre;
   background: var(--paper);
   border: var(--rule);
-  border-radius: var(--radius-lg);
   padding: var(--space-5);
   font-family: var(--font-mono);
   font-size: 12.5px;
@@ -815,9 +1012,7 @@ pre .a { color: var(--code-arg); font-style: italic; }
 .tree .note { color: var(--faint); }
 .tree .root { color: var(--accent); }
 
-.facts { display: grid; gap: var(--space-4); margin-top: var(--space-5); }
-.fact { border-top: var(--rule); padding-top: var(--space-3); }
-.fact:first-child { border-top: none; padding-top: 0; }
+/* Facts, one per bento cell — no divider needed, the cell edge is the divider. */
 .fact-k {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -834,10 +1029,9 @@ pre .a { color: var(--code-arg); font-style: italic; }
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: var(--space-5);
-  font-size: 14.5px;
+  font-size: 14px;
 }
-th, td { text-align: left; padding: 11px 14px; border-bottom: var(--rule); vertical-align: top; }
+th, td { text-align: left; padding: 9px 0; border-bottom: var(--rule); vertical-align: top; }
 th {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -851,13 +1045,9 @@ td:first-child { font-family: var(--font-mono); font-size: 13px; color: var(--te
 td { color: var(--muted-foreground); }
 tr:hover td { background: var(--hairline); }
 
-/* Two negotiations that both ended "accept", side by side. */
-.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-5); }
-@media (max-width: 700px) { .readouts { grid-template-columns: 1fr; } }
 .readout {
   border: var(--rule);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: var(--paper);
   padding: var(--space-4);
 }
 .readout-head {
