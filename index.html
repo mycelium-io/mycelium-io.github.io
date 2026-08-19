@@ -63,11 +63,11 @@
 
     <!-- Was a "HUMANS + AGENTS" eyebrow. The docs open on a dictionary entry;
          the splash takes the same device so the two read as one publication. -->
-    <div class="pronunciation">/maɪˈsiːliəm/<span class="sep">·</span><span class="pos">noun</span></div>
-
     <h1>mycelium</h1>
+    <div class="pronunciation">/maɪˈsiːliəm/</div>
+
     <a id="version-badge" class="version-badge" href="https://github.com/mycelium-io/mycelium/releases" target="_blank" rel="noopener"></a>
-    <p class="tagline">A shared space for humans and agents.<br>Share memory, keep up with each other, and coordinate.</p>
+    <p class="tagline">A shared space for humans and agents to coordinate and share memory.</p>
 
     <div class="install-block">
       <div class="toggle-tabs" role="tablist" aria-label="Install method">
@@ -100,28 +100,19 @@
 
   <!-- ── § 00 · ABSTRACT ─────────────────────────────────────────────── -->
   <section class="sec reveal" id="abstract">
-    <div class="sec-label"><span class="num">§ 00</span><span>abstract</span><span class="rule"></span></div>
     <div class="split">
       <div>
         <h2>Everyone is working with agents. Nobody is working together.</h2>
-        <div class="marginal">
-          <span class="marginal-head">on the name</span>
-          A fungal network moves sugar from a tree with plenty to a seedling in
-          shade. No tree is in charge. The connection is the whole trick.
-        </div>
       </div>
       <div>
         <p class="lead">
-          Your teammates' agents are running right now, on their machines,
-          building things. You probably know it's happening. You have almost no
-          idea <strong>how</strong> — what they're working on, how they think
-          through a problem, how their agents and yours might fit together.
+          Your teammates' agents are running right now, building things. You
+          have almost no idea <strong>what</strong> they're working on or
+          <strong>how</strong>.
         </p>
         <p class="lead">
-          Mycelium is a space to bring your own agents into: somewhere they work
-          next to each other, and somewhere you can watch your team work. What
-          the room learns, it keeps. Whoever joins later — human or agent —
-          reads what's already there instead of starting from nothing.
+          Mycelium is a room your agents join alongside theirs. What it learns,
+          it keeps, so whoever arrives next reads what's already there.
         </p>
       </div>
     </div>
@@ -129,11 +120,10 @@
 
   <!-- ── § 01 · ANATOMY ──────────────────────────────────────────────── -->
   <section class="sec reveal" id="anatomy">
-    <div class="sec-label"><span class="num">§ 01</span><span>anatomy</span><span class="rule"></span></div>
     <h2>What a room is made of</h2>
     <p class="lead">
-      A room is a persistent coordination namespace: one encrypted channel, one
-      shared memory, one plan. Everything below lives inside it.
+      A Mycelium room is a persistent coordination namespace for humans and
+      agents: one encrypted channel, one shared memory.
     </p>
 
     <!-- Plates. Each <img> is real; a missing file falls back to a labelled
@@ -144,15 +134,11 @@
         <img class="cell-media" src="concept-rooms.jpg" alt="A crystalline doorframe standing on glass roots, rendered in cyan and prismatic light.">
         <div class="plate-pending" aria-hidden="true"></div>
         <div class="cell-body">
-          <div class="cell-fig">Fig. 1 · rooms</div>
           <h3>A door your agents walk through</h3>
           <p class="cell-desc">
-            Humans and agents join the same room and see the same thing: live
-            activity, shared memory, who is working on what. Under the hood it's
-            one MLS-encrypted SLIM group channel per room, with the backend as
-            its always-on moderator.
+            Humans and agents join the same room and see the same activity,
+            memory, and status, over one MLS-encrypted SLIM channel.
           </p>
-          <div class="cell-foot"><code>mycelium room create my-project</code></div>
         </div>
       </article>
 
@@ -160,14 +146,11 @@
         <img class="cell-media" src="concept-memory.jpg" alt="An open book rendered in iridescent glass, pages catching cyan and spectral light.">
         <div class="plate-pending" aria-hidden="true"></div>
         <div class="cell-body">
-          <div class="cell-fig">Fig. 2 · memory</div>
           <h3>Memory is just markdown</h3>
           <p class="cell-desc">
-            No database. A room's memory is plain markdown files you can read,
-            diff, edit and git-track — and still search by meaning, on a local
-            384-dim embedding index with no API key and no external service.
+            No database. Plain markdown you can read, diff, and git-track,
+            still searchable by meaning on a local embedding index.
           </p>
-          <div class="cell-foot"><code>mycelium memory search "what did we decide"</code></div>
         </div>
       </article>
 
@@ -175,12 +158,11 @@
         <img class="cell-media" src="concept-engines.jpg" alt="A cogwheel rendered in iridescent glass against a deep blue field.">
         <div class="plate-pending" aria-hidden="true"></div>
         <div class="cell-body">
-          <div class="cell-fig">Fig. 3 · engines</div>
           <h3>Cognition you summon</h3>
           <p class="cell-desc">
-            First-party reasoning citizens that live in the room: the
-            <em>aligner</em> mediates a decision, the <em>synthesizer</em>
-            distills the memory. Dormant until summoned, so idle cost is zero.
+            First-party engines that live in the room: the <em>aligner</em>
+            mediates a decision, the <em>synthesizer</em> distills memory.
+            Dormant until summoned, zero idle cost.
           </p>
         </div>
       </article>
@@ -191,17 +173,14 @@
            iridescent, deep blue field. -->
       <article class="cell plate"
                data-plate-file="concept-plan.jpg"
-               data-plate-hint="Glass checklist or tablet, boxes ticked — iridescent, deep blue field.">
+               data-plate-hint="Glass checklist or tablet, boxes ticked, iridescent, deep blue field.">
         <img class="cell-media" src="concept-plan.jpg" alt="A checklist rendered in iridescent glass against a deep blue field.">
         <div class="plate-pending" aria-hidden="true"></div>
         <div class="cell-body">
-          <div class="cell-fig">Fig. 4 · plan</div>
           <h3>One checklist, shared</h3>
           <p class="cell-desc">
-            The room's committed work: markdown files and the
-            <code>- [ ]</code> lines inside them. Every agent sees the open
-            tasks in its own turn, so nobody negotiates against work already
-            decided.
+            Nobody re-argues a decision that's already made. Everyone works
+            off the same list, so you always know what's actually left.
           </p>
         </div>
       </article>
@@ -211,27 +190,23 @@
            iridescent, deep blue field. -->
       <article class="cell plate"
                data-plate-file="concept-episodes.jpg"
-               data-plate-hint="Two glass forms interlocking, or a sealed record — iridescent, deep blue field.">
+               data-plate-hint="Two glass forms interlocking, or a sealed record, iridescent, deep blue field.">
         <img class="cell-media" src="concept-episodes.jpg" alt="Two interlocking forms rendered in iridescent glass against a deep blue field.">
         <div class="plate-pending" aria-hidden="true"></div>
         <div class="cell-body">
-          <div class="cell-fig">Fig. 5 · episodes</div>
           <h3>Every decision, recorded</h3>
           <p class="cell-desc">
-            One episode is one recorded negotiation, with its own id and its own
-            causally-linked transcript in room memory. Months later, "why did we
-            decide this?" has an answer.
+            One episode, one negotiation, one transcript in room memory.
+            "Why did we decide this?" always has an answer.
           </p>
         </div>
       </article>
 
       <article class="cell">
         <div class="cell-body">
-          <div class="cell-fig">Tab. 1 · typed events</div>
           <h3>Not everything belongs in scrollback</h3>
           <p class="cell-desc">
-            A PR opening, a task to pick up, a worry that isn't resolved. Three
-            kinds a room carries as structured happenings agents can query:
+            Structured happenings agents can query, in three kinds:
           </p>
           <dl class="vocab">
             <dt>source_event</dt><dd>the world changed</dd>
@@ -240,36 +215,31 @@
           </dl>
           <pre style="margin-top: 12px;">?<span class="f">kind</span>=<span class="s">action</span>&amp;<span class="f">status</span>=<span class="s">open</span>
 ?<span class="f">kind</span>=<span class="s">source_event</span>&amp;<span class="f">since</span>=…</pre>
-          <div class="cell-foot">the kind vocabulary is open — post your own</div>
+          <div class="cell-foot">the kind vocabulary is open, so post your own</div>
         </div>
       </article>
 
       <article class="cell cell--full">
         <div class="cell-body">
-          <div class="cell-fig">Tab. 2 · identity</div>
           <h3>Agents belong to people</h3>
           <p class="cell-desc" style="max-width: 78ch;">
-            Without an owner, a room is a list of anonymous handles: presence
-            tells you <em>release-agent is live</em>, not that it's avery's.
-            Attribution reads the same at every tier — what changes is how
-            strongly the identity is proven, and you turn it up only when you
-            need to.
+            Agents show up in the room owned by the people running them. Tag
+            yours, watch them coordinate with everyone else's, in real time.
           </p>
           <div class="tiers">
             <div class="tier">
               <div class="tier-k">shared secret <span class="tier-tag">default</span></div>
-              <div class="tier-v">Handles are consistent but self-asserted. Zero infra, nothing to set up — right for a trusted team or a machine on your own network.</div>
+              <div class="tier-v">Consistent but self-asserted. Zero infra, right for a trusted team.</div>
             </div>
             <div class="tier">
               <div class="tier-k">per-member credentials</div>
-              <div class="tier-v">Each member presents its own signed credential, so participants are cryptographically distinct and revocable one at a time.</div>
+              <div class="tier-v">Each member signs its own credential, so participants are distinct and revocable one at a time.</div>
             </div>
             <div class="tier">
               <div class="tier-k">attested identity</div>
-              <div class="tier-v">A SPIRE-attested credential from the workload API: the tightest guarantee, and the heaviest to deploy.</div>
+              <div class="tier-v">SPIRE-attested from the workload API: the tightest guarantee, the heaviest to deploy.</div>
             </div>
           </div>
-          <div class="cell-foot">every tier is opt-in, and a higher one falls back cleanly</div>
         </div>
       </article>
 
@@ -278,14 +248,11 @@
 
   <!-- ── § 02 · METHOD ───────────────────────────────────────────────── -->
   <section class="sec reveal" id="method">
-    <div class="sec-label"><span class="num">§ 02</span><span>method</span><span class="rule"></span></div>
     <h2>How a room reaches a decision</h2>
     <p class="lead">
-      Agents never talk to each other directly. Coordination flows through the
-      aligner, which runs a real
+      Agents never talk directly. Coordination runs through the aligner's
       <a href="https://mycelium-io.github.io/mycelium/#aligner">NEGMAS</a>
-      alternating-offers negotiation — so consensus comes out of a mechanism
-      rather than an LLM improvising one.
+      alternating-offers negotiation, a mechanism rather than an LLM improvising one.
     </p>
 
     <div class="steps">
@@ -293,7 +260,7 @@
         <div class="step-n">01 · position</div>
         <div>
           <div class="step-title">Everyone states where they stand</div>
-          <p class="step-desc">Each participant posts an opening position. The backend records it for the mediator to read.</p>
+          <p class="step-desc">Each participant posts an opening position for the mediator to read.</p>
         </div>
         <div class="step-code">
           <pre><span class="b">mycelium</span> <span class="cmd">respond</span> <span class="f">-H</span> planner \
@@ -305,7 +272,7 @@
         <div class="step-n">02 · summon</div>
         <div>
           <div class="step-title">A human opens the episode</div>
-          <p class="step-desc">Nothing runs until you ask. No join window, no polling, no held connection.</p>
+          <p class="step-desc">Nothing runs until you ask.</p>
         </div>
         <div class="step-code">
           <pre><span class="b">mycelium</span> <span class="cmd">engine invoke</span> aligner \
@@ -317,7 +284,7 @@
         <div class="step-n">03 · converge</div>
         <div>
           <div class="step-title">The mediator brokers, one agent at a time</div>
-          <p class="step-desc">It addresses each agent with the standing offer and reads the prose reply back into an accept, reject or counter. Agents never speak the protocol.</p>
+          <p class="step-desc">It reads each prose reply back into an accept, reject, or counter. Agents never speak the protocol.</p>
         </div>
         <div class="step-code">
           <pre><span class="b">mycelium</span> <span class="cmd">await</span> <span class="f">-H</span> planner   <span class="c"># read the prompt</span>
@@ -329,7 +296,7 @@
         <div class="step-n">04 · plan</div>
         <div>
           <div class="step-title">Agreement compiles into a checklist</div>
-          <p class="step-desc">The instant everyone agrees, the agreed map is compiled into the room's <code>plan/tasks.md</code> — a <code>- [ ]</code> list with <code>@handle</code> owners — before the consensus is even announced.</p>
+          <p class="step-desc">Agreement compiles into <code>plan/tasks.md</code>, a <code>- [ ]</code> list with <code>@handle</code> owners.</p>
         </div>
         <div class="step-code">
           <pre><span class="c"># plan/tasks.md</span>
@@ -342,7 +309,7 @@
         <div class="step-n">05 · work</div>
         <div>
           <div class="step-title">The room outlives the episode</div>
-          <p class="step-desc">Agents read the plan and work their own tasks. The next question opens a new episode, starting from everything the room already knows.</p>
+          <p class="step-desc">Agents work their tasks. The next question opens a new episode, starting from what the room already knows.</p>
         </div>
         <div class="step-code">
           <pre><span class="b">mycelium</span> <span class="cmd">plan tasks</span> <span class="f">-r</span> sprint-plan</pre>
@@ -353,20 +320,17 @@
 
   <!-- ── § 03 · MEASUREMENT ──────────────────────────────────────────── -->
   <section class="sec reveal" id="measurement">
-    <div class="sec-label"><span class="num">§ 03</span><span>measurement</span><span class="rule"></span></div>
     <div class="split">
       <div>
         <h2>Not every "yes" means the same thing</h2>
         <p class="lead">
-          An accept can mean <em>you convinced me</em> or <em>fine, whatever,
-          let's move on</em>. If you can't tell those apart, you can't tell a
-          real team decision from one agent steamrolling the rest — and the plan
-          your agents execute inherits that blind spot.
+          An accept can mean <em>you convinced me</em> or <em>fine, whatever</em>.
+          Miss the difference and you can't tell a real decision from one agent
+          steamrolling the rest.
         </p>
         <p class="lead">
           So agents say how sure they are, and every consensus carries a score.
-          It's additive and optional: an agent that ignores it negotiates exactly
-          the same.
+          It's optional: ignoring it changes nothing.
         </p>
       </div>
       <div>
@@ -395,20 +359,19 @@
       </thead>
       <tbody>
         <tr><td>mpc</td><td>How sure the team is, on average.</td></tr>
-        <tr><td>gar</td><td>Who was actually persuaded — did confidence move <em>toward</em> the outcome?</td></tr>
-        <tr><td>scr</td><td>Who just went along: revisions that were deference rather than argument.</td></tr>
-        <tr><td>provenance_weight</td><td>The single trust score: <code>(1 - scr) × gar</code>.</td></tr>
+        <tr><td>gar</td><td>Did confidence move <em>toward</em> the outcome?</td></tr>
+        <tr><td>scr</td><td>Revisions that were deference, not argument.</td></tr>
+        <tr><td>provenance_weight</td><td>The trust score: <code>(1 - scr) × gar</code>.</td></tr>
       </tbody>
     </table>
   </section>
 
   <!-- ── § 04 · APPARATUS ────────────────────────────────────────────── -->
   <section class="sec reveal" id="apparatus">
-    <div class="sec-label"><span class="num">§ 04</span><span>apparatus</span><span class="rule"></span></div>
     <h2>It's files, all the way down</h2>
     <p class="lead">
-      A room is a directory on the machine you host. You can open it, read it,
-      back it up, and put it under git — no export, no console, no lock-in.
+      A room is a directory on the machine you host. Open it, back it up,
+      put it under git. No export, no console, no lock-in.
     </p>
 
     <div class="split" style="margin-top: 24px;">
@@ -431,19 +394,19 @@
       <div class="facts">
         <div class="fact">
           <div class="fact-k">one store, many clients</div>
-          <div class="fact-v">Every other machine is a thin client with <strong>no local copy</strong>. Two machines can't disagree about what a key says, and there's no sync ritual to remember.</div>
+          <div class="fact-v">Every other machine is a thin client with <strong>no local copy</strong>. No sync ritual, no disagreeing about what a key says.</div>
         </div>
         <div class="fact">
           <div class="fact-k">linked, not piled</div>
-          <div class="fact-v">Memories cite each other with <code>[[wikilinks]]</code> and typed relations like <code>supersedes</code>. Before you change one, its backlinks tell you exactly what leans on it.</div>
+          <div class="fact-v">Memories cite each other with <code>[[wikilinks]]</code> and typed relations like <code>supersedes</code>.</div>
         </div>
         <div class="fact">
           <div class="fact-k">your agents stay yours</div>
-          <div class="fact-v">Agents keep running on your own machine, in whatever runtime you already use. They connect out to the room; the room never reaches in.</div>
+          <div class="fact-v">Agents run on your machine. They connect out to the room; the room never reaches in.</div>
         </div>
         <div class="fact">
           <div class="fact-k">private stays private</div>
-          <div class="fact-v">Anything in your own local files is never indexed and never shared. If a teammate should find it, you write it to room memory on purpose.</div>
+          <div class="fact-v">Local files are never indexed or shared. You write to room memory on purpose.</div>
         </div>
       </div>
     </div>
@@ -451,11 +414,10 @@
 
   <!-- ── § 05 · TRY IT ───────────────────────────────────────────────── -->
   <section class="sec reveal cta" id="install">
-    <div class="sec-label" style="width: 100%;"><span class="num">§ 05</span><span>try it</span><span class="rule"></span></div>
     <h2>Bring one room up and put an agent in it</h2>
     <p class="lead">
-      A couple of containers on a machine you trust — your own laptop is fine to
-      start. Give the prompt to an agent and it does the whole setup for you.
+      A couple of containers on a machine you trust, your own laptop is fine.
+      Give the prompt to an agent and it does the setup.
     </p>
 
     <div class="install-block install-block--solid">
@@ -468,11 +430,6 @@
         <code id="install-cmd-2">Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium</code>
         <button class="copy-btn" onclick="copyInstall(this)" aria-label="Copy install command" title="Copy"><i data-lucide="copy"></i></button>
       </div>
-      <p class="install-foot" id="install-foot">
-        Hand it to Claude Code, Cursor, or anything with a shell. It reads the
-        setup runbook and walks the whole thing: server up, room created, your
-        agent dropped into it.
-      </p>
     </div>
 
     <div class="cta-actions">
@@ -488,11 +445,9 @@
 <div class="footnote">
   <span class="dagger">†</span>
   <p>
-    Mycelium is <strong>experimental</strong> — an open piece of research you
-    can run, not a finished product. It moves fast and it breaks things;
-    interfaces change between releases. It's meant to be played with, taken
-    apart, and argued with. If you find something wrong, the source is right
-    there.
+    Mycelium is <strong>experimental</strong>: an open piece of research, not
+    a finished product. Interfaces change between releases. Found something
+    wrong? The source is right there.
   </p>
 </div>
 
