@@ -53,23 +53,33 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
 // a bit of tactile feedback. Muted for reduced-motion, since that pref is
 // the closest signal we have to "please don't add sensory extras."
 
-var clickCtx;
+var clickCtx, clickBuffer;
 function playClick() {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   try {
     clickCtx = clickCtx || new (window.AudioContext || window.webkitAudioContext)();
     if (clickCtx.state === 'suspended') clickCtx.resume();
+    // A short burst of filtered noise reads as a physical "click"; a tone
+    // (even a fast one) reads as a synth blip, no matter how short you make it.
+    if (!clickBuffer) {
+      var len = Math.ceil(clickCtx.sampleRate * 0.02);
+      clickBuffer = clickCtx.createBuffer(1, len, clickCtx.sampleRate);
+      var data = clickBuffer.getChannelData(0);
+      for (var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    }
     var t = clickCtx.currentTime;
-    var osc = clickCtx.createOscillator();
+    var src = clickCtx.createBufferSource();
+    src.buffer = clickBuffer;
+    var filter = clickCtx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 2200;
+    filter.Q.value = 0.7;
     var gain = clickCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(1400, t);
-    osc.frequency.exponentialRampToValueAtTime(500, t + 0.035);
-    gain.gain.setValueAtTime(0.05, t);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
-    osc.connect(gain).connect(clickCtx.destination);
-    osc.start(t);
-    osc.stop(t + 0.05);
+    gain.gain.setValueAtTime(0.16, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+    src.connect(filter).connect(gain).connect(clickCtx.destination);
+    src.start(t);
+    src.stop(t + 0.02);
   } catch (e) {}
 }
 
