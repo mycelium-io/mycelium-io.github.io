@@ -331,8 +331,6 @@ body.past-hero .runhead { padding-right: 62px; }
   letter-spacing: 0.02em;
   margin-bottom: 16px;
 }
-.pronunciation .sep { color: var(--faint); margin: 0 8px; }
-.pronunciation .pos { font-family: var(--font-serif); font-style: italic; font-size: 16px; }
 
 h1 {
   font-size: clamp(36px, 7vw, 58px);
@@ -479,14 +477,6 @@ body.past-hero .scroll-cue { opacity: 0; }
 }
 .arc .sep { color: var(--faint); font-style: normal; margin: 0 6px; }
 
-.install-foot {
-  margin: 12px 0 0;
-  font-size: 13px;
-  color: var(--muted-foreground);
-  line-height: 1.55;
-  max-width: none;
-}
-
 /* ── SHEET ──
  * Everything below the title page sits on a sheet, so the canvas reads as a
  * margin rather than as noise behind body copy. */
@@ -509,22 +499,6 @@ body.past-hero .scroll-cue { opacity: 0; }
 }
 .sec:first-child { border-top: none; }
 @media (max-width: 640px) { .sec { padding: var(--space-7) var(--space-5); } }
-
-/* Section head: § number and a short running label, then a serif italic title. */
-.sec-label {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--faint);
-  margin-bottom: var(--space-4);
-}
-.sec-label .num { color: var(--accent2); }
-.sec-label .rule { flex: 1; height: 1px; background: var(--border); align-self: center; }
 
 h2 {
   font-family: var(--font-serif);
@@ -562,25 +536,6 @@ p { max-width: var(--measure); }
   align-items: start;
 }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: var(--space-5); } }
-
-/* Marginal note, set like a footnote. */
-.marginal {
-  border-left: 2px solid var(--accent2);
-  padding-left: var(--space-4);
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--muted-foreground);
-}
-.marginal .marginal-head {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent2);
-  margin-bottom: 6px;
-}
 
 /* ── TIGHT BENTO ──
  * A mosaic of mixed-width cells (illustration, UI vignette, note) that share
@@ -624,6 +579,7 @@ p { max-width: var(--measure); }
 
 .cell-media {
   display: block;
+  flex: none;
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
@@ -635,14 +591,6 @@ p { max-width: var(--measure); }
 .cell:hover .cell-media { transform: scale(1.03); }
 
 .cell-body { padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; flex: 1; }
-.cell-fig {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--accent2);
-}
 .cell-desc { font-size: 14px; line-height: 1.6; color: var(--muted-foreground); }
 .cell-desc code {
   font-size: 12.5px;
@@ -914,7 +862,7 @@ p { max-width: var(--measure); }
 
 /* Overlay: the image fills the whole cell; the caption sits on a scrim at
  * the bottom rather than a separate block below it. */
-.plate--overlay { aspect-ratio: 3 / 4; }
+.plate--overlay { min-height: 380px; }
 .plate--overlay .cell-media,
 .plate--overlay .plate-pending {
   position: absolute;
@@ -945,7 +893,9 @@ p { max-width: var(--measure); }
   flex: 0 0 38%;
   width: 38%;
   height: auto;
-  aspect-ratio: 1 / 1;
+  min-height: 200px;
+  align-self: stretch;
+  aspect-ratio: auto;
   border-bottom: none;
 }
 .plate--split .cell-media, .plate--split .plate-pending { border-right: var(--rule); }
@@ -954,11 +904,12 @@ p { max-width: var(--measure); }
 .plate--split-reverse .cell-body { justify-content: center; }
 
 @media (max-width: 620px) {
-  .plate--overlay { aspect-ratio: 4 / 3; }
+  .plate--overlay { min-height: 300px; }
   .plate--split, .plate--split-reverse { flex-direction: column; }
   .plate--split .cell-media, .plate--split .plate-pending,
   .plate--split-reverse .cell-media, .plate--split-reverse .plate-pending {
-    flex: none; width: 100%; aspect-ratio: 16 / 10; border: none; border-bottom: var(--rule);
+    flex: none; width: 100%; min-height: 0; aspect-ratio: 16 / 10;
+    border: none; border-bottom: var(--rule);
   }
 }
 
@@ -1022,20 +973,68 @@ pre .b { color: var(--accent2); font-weight: 600; }
 pre .cmd { color: var(--code-cmd); }
 pre .f { color: var(--code-flag); }
 pre .s { color: var(--code-str); }
-pre .a { color: var(--code-arg); font-style: italic; }
 
-/* ── METHOD · numbered steps, each its own bento cell ── */
-.step-n {
+/* ── METHOD · the arc as one strip ──
+ * Five stops inside a single bento cell rather than five cells each repeating
+ * the caption template. Same trick as the bento itself: a 1px gap over a
+ * hairline-colored ground, so the dividers survive any wrap without a
+ * last-child exception. */
+.flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border-top: var(--rule);
+  margin-top: var(--space-4);
+  list-style: none;
+}
+.flow-step {
+  background: var(--surface);
+  padding: var(--space-4) var(--space-3) var(--space-2) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.flow-step + .flow-step { padding-left: var(--space-3); }
+.flow-n {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--accent2);
 }
-.step-title { font-family: var(--font-serif); font-style: italic; font-weight: 600; font-size: 22px; letter-spacing: -0.01em; line-height: 1.2; }
-.step-desc { font-size: 14px; color: var(--muted-foreground); line-height: 1.6; margin-top: 4px; }
-.step-code { min-width: 0; margin-top: 8px; }
+.flow-t {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.flow-d { font-size: 13px; line-height: 1.55; color: var(--muted-foreground); }
+.flow-d code {
+  font-size: 12px;
+  background: var(--paper);
+  border: var(--rule);
+  padding: 0.5px 4px;
+  color: var(--accent);
+}
+@media (max-width: 900px) {
+  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .flow-step { padding-left: var(--space-3); }
+  .flow-step:last-child { grid-column: span 2; }
+}
+@media (max-width: 560px) {
+  .flow { grid-template-columns: 1fr; }
+  .flow-step:last-child { grid-column: auto; }
+}
+
+/* Two readouts side by side: the whole point is reading them against each
+ * other, so they never stack until the cell is genuinely too narrow. */
+.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-4); }
+@media (max-width: 700px) { .readouts { grid-template-columns: 1fr; } }
 
 /* ── APPARATUS · the room on disk ── */
 .tree {

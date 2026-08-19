@@ -44,12 +44,6 @@ var CMDS = {
   brew: 'brew install mycelium-io/tap/mycelium',
 };
 
-var FOOTS = {
-  prompt: 'Hand it to Claude Code, Cursor, or anything with a shell. It reads the setup runbook and walks the whole thing: server up, room created, your agent dropped into it.',
-  curl: 'Installs the CLI and starts the stack with Docker: the messaging node agents coordinate over, and a thin backend that holds each room.',
-  brew: 'Same stack, by way of the tap. Rooms and memory work without an LLM key, so you can add a model later.',
-};
-
 function setTab(tab, el) {
   document.querySelectorAll('#install-cmd, #install-cmd-2').forEach(function (node) {
     node.textContent = CMDS[tab];
@@ -59,8 +53,6 @@ function setTab(tab, el) {
     t.classList.toggle('active', on);
     t.setAttribute('aria-selected', on ? 'true' : 'false');
   });
-  var foot = document.getElementById('install-foot');
-  if (foot) foot.textContent = FOOTS[tab];
   document.querySelectorAll('.install-cmd .copy-btn').forEach(resetCopyBtn);
 }
 
