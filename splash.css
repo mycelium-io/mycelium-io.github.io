@@ -18,24 +18,26 @@
  * Copied from the docs token contract. A token is either a surface you sit ON
  * or a foreground you paint WITH, never both. One accent, one job. */
 :root {
-  /* surfaces */
-  --bg: #f4ecda;
-  --surface: #eee4cd;
-  --paper: #fbf5e6;
-  --elevated: #fdf9ed;
-  --muted-bg: #e9dfc8;
-  --hairline: rgba(58, 46, 22, 0.05);
+  /* surfaces: same cream family, wider tonal steps so surfaces separate
+   * from each other instead of reading as one flat wash. */
+  --bg: #f6f0de;
+  --surface: #ede2c4;
+  --paper: #fdf8ec;
+  --elevated: #fffcf4;
+  --muted-bg: #e6d8b4;
+  --hairline: rgba(58, 46, 22, 0.07);
   /* text */
-  --text: #2a2419;
-  --muted-foreground: #6a6250;
-  --faint: #a99f88;
-  /* lines */
-  --border: rgba(58, 46, 22, 0.12);
-  --border2: rgba(58, 46, 22, 0.20);
-  /* accent (one job: primary action + active state) */
-  --accent: #0c7d8f;
+  --text: #221d13;
+  --muted-foreground: #5c5240;
+  --faint: #988c70;
+  /* lines: more visible than before, so dividers read as intentional */
+  --border: rgba(58, 46, 22, 0.16);
+  --border2: rgba(58, 46, 22, 0.26);
+  /* accent (one job: primary action + active state): more saturated, so it
+   * actually pops off the cream instead of sitting near it in value. */
+  --accent: #00889e;
   --accent-fg: #ffffff;
-  --accent-soft: rgba(12, 125, 143, 0.10);
+  --accent-soft: rgba(0, 136, 158, 0.10);
   /* secondary accent: decoration and labels only, never a link signal */
   --accent2: #7a4fd0;
   /* semantic state */
@@ -44,16 +46,16 @@
   --red: #bd3f3a;
 
   --code-comment: #6b7480;
-  --code-cmd: #0c7d8f;
+  --code-cmd: #00889e;
   --code-flag: #3f6ea8;
   --code-str: #0d8a63;
   --code-arg: #7a4fa3;
 
   /* Mycelial background canvas reads these (see splash.js). Dark ink on a
    * light ground reads heavier at equal alpha, so light runs quieter. */
-  --canvas-bg: #f4ecda;
-  --canvas-ink: 12, 125, 143;
-  --canvas-alpha: 0.85;
+  --canvas-bg: #f6f0de;
+  --canvas-ink: 0, 136, 158;
+  --canvas-alpha: 1.35;
   /* How much of the canvas survives past the hero. The splash runs livelier up
    * top and settles down once you're reading. */
   --canvas-rest: 0.4;
@@ -585,6 +587,11 @@ p { max-width: var(--measure); }
   flex-direction: column;
   background: var(--surface);
 }
+/* Three hand-assigned tones (not an automatic alternation) so the mosaic
+ * has real tonal variety instead of one flat surface repeated everywhere.
+ * .cell is the default (mid); these two are applied per-cell by judgment. */
+.cell--paper { background: var(--paper); }
+.cell--deep { background: var(--muted-bg); }
 .cell--wide { grid-column: span 3; }
 .cell--big { grid-column: span 4; }   /* a size between wide and full, for irregular mosaics */
 .cell--full { grid-column: span 6; }

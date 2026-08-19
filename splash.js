@@ -357,7 +357,7 @@ window.addEventListener('load', function () { if (window.lucide) window.lucide.c
   // ── LAYER 2: nutrient agents ──
 
   var agents = [];
-  var MAX_AGENTS = 600;
+  var MAX_AGENTS = 900;
   var SENSOR_DIST = 6;
   var SENSOR_ANGLE = 0.6;
 
@@ -474,7 +474,7 @@ window.addEventListener('load', function () { if (window.lucide) window.lucide.c
     lastFrame = timestamp;
 
     growStep();
-    if (tips.length < 5) {
+    if (tips.length < 8) {
       seedColony(
         10 + Math.random() * (viewCols - 20),
         10 + Math.random() * (viewRows - 20),
