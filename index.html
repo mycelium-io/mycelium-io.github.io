@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>mycelium · a shared space for humans and agents</title>
+<meta name="description" content="An experimental shared space for humans and agents. One room where a team's agents share memory, see what each other are doing, and coordinate. Memory is plain markdown. Open source, self-hosted.">
 <meta property="og:title" content="mycelium">
 <meta property="og:description" content="A shared space for humans and agents. Share memory, keep up with each other, and coordinate.">
 <meta property="og:image" content="https://mycelium-io.github.io/og.png">
@@ -11,260 +12,22 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://mycelium-io.github.io/og.png">
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<link rel="icon" type="image/png" href="logo-256.png">
+<link rel="apple-touch-icon" href="logo-256.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  /* Light is the default; dark is applied via .dark on <html>. Shares the
-     'mycelium-theme' localStorage key with the docs site (same origin), so the
-     two stay in sync and the landing->docs jump never flashes. */
-  :root {
-    --bg: #f4ecda;             /* warm cream, not stark white */
-    --accent: #0c7d8f;
-    --text: #2a2419;
-    --text2: #5c5443;
-    --muted: #8a8069;
-    --border: rgba(58, 46, 22, 0.14);
-    --card: #fbf5e6;
-    --glass: rgba(251, 245, 230, 0.62);
-    --mask: 244, 236, 218;
-    --canvas-bg: 244, 236, 218;
-    --canvas-c1: 14, 120, 135;
-    --canvas-c2: 92, 96, 176;
-    --canvas-c3: 150, 96, 190;
-  }
-  html.dark {
-    --bg: #0c0d10;             /* warm near-black, no blue cast */
-    --accent: #5dd4e0;         /* pale cyan (Onyx) */
-    --text: #eaeaea;           /* chalk-white primary */
-    --text2: #a8a6a0;          /* softer chalk (lead, secondary copy) */
-    --muted: #898781;          /* dimmed warm gray */
-    --border: rgba(234, 234, 234, 0.10);
-    --card: #14161b;
-    --glass: rgba(20, 22, 27, 0.55);
-    --mask: 12, 13, 16;
-    --canvas-bg: 12, 13, 16;
-    --canvas-c1: 56, 189, 248;
-    --canvas-c2: 129, 140, 248;
-    --canvas-c3: 192, 132, 252;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  #mycelium-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-  }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 24px 60px;
-  }
-
-  .wrap {
-    max-width: 760px;
-    width: 100%;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-  /* Soft mask over the canvas — darkens center so content reads clearly,
-     animation stays visible at the edges. No card, no border, no glass. */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse 60% 70% at 50% 45%,
-      rgba(var(--mask), 0.88) 0%,
-      rgba(var(--mask), 0.5) 60%,
-      transparent 100%
-    );
-  }
-
-  .logo {
-    width: 96px;
-    height: 96px;
-    object-fit: contain;
-    margin-bottom: 32px;
-  }
-
-  .eyebrow {
-    font-size: 13px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--accent);
-    font-family: 'SF Mono', 'Fira Mono', monospace;
-    font-weight: 600;
-    margin-bottom: 16px;
-  }
-
-  h1 {
-    font-size: clamp(36px, 7vw, 58px);
-    font-weight: 600;
-    font-style: italic;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    margin-bottom: 8px;
-    /* Serif/sans mix: brand name in serif, tagline in sans */
-    font-family: 'Cormorant Garamond', Georgia, serif;
-  }
-
-  .version-badge {
-    display: inline-block;
-    font-family: 'SF Mono', 'Fira Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    margin-bottom: 20px;
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  .version-badge:hover { color: var(--accent); }
-
-  .tagline {
-    font-size: clamp(15px, 2.5vw, 18px);
-    color: var(--text2);
-    line-height: 1.65;
-    margin-bottom: 48px;
-    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-weight: 400;
-  }
-
-  .install-block {
-    background: var(--glass);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 16px;
-    text-align: left;
-  }
-  .install-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .install-label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: 'SF Mono', monospace;
-  }
-  .toggle-tabs {
-    display: flex;
-    gap: 4px;
-  }
-  .toggle-tab {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    color: var(--muted);
-    font-size: 11px;
-    font-family: 'SF Mono', monospace;
-    padding: 4px 10px;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s, background 0.2s;
-  }
-  .toggle-tab:hover { border-color: var(--accent); color: var(--accent); }
-  .toggle-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(93,212,224,0.08); }
-  .install-cmd {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .install-cmd code {
-    font-family: 'SF Mono', 'Fira Mono', 'Menlo', monospace;
-    font-size: 15px;
-    color: var(--accent);
-    flex: 1;
-    word-break: break-all;
-  }
-  .copy-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    padding: 6px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-    flex-shrink: 0;
-  }
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .copy-btn.copied { border-color: #34d399; color: #34d399; }
-  .copy-btn svg { width: 15px; height: 15px; stroke: currentColor; }
-
-  .links {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
-    margin-top: 40px;
-    flex-wrap: wrap;
-  }
-  .links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 14px;
-    font-family: 'SF Mono', monospace;
-    letter-spacing: 0.05em;
-    transition: color 0.2s;
-  }
-  .links a:hover { color: var(--accent); }
-
-  .theme-toggle {
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 3;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--muted);
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: color 0.2s, border-color 0.2s;
-  }
-  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
-  .theme-toggle svg { width: 16px; height: 16px; stroke: currentColor; }
-
-  @media (max-width: 480px) {
-    .install-cmd code { font-size: 11px; }
-  }
-</style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="splash.css">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 <script>
 // Resolve the theme before first paint so the page never flashes the wrong one.
-// Default dark; shares the docs site's 'mycelium-theme' key (same origin).
+// Default dark; shares the docs site's 'mycelium-theme' key (same origin), so
+// the landing -> docs jump keeps whatever the reader picked.
 (function () {
   try {
     var t = localStorage.getItem('mycelium-theme') || 'dark';
     var dark = t !== 'light'
       && (t === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches);
-    if (dark) document.documentElement.classList.add('dark');
+    document.documentElement.classList.toggle('dark', dark);
   } catch (e) {
     document.documentElement.classList.add('dark');
   }
@@ -272,344 +35,477 @@
 </script>
 </head>
 <body>
-<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" onclick="toggleTheme()"><i data-lucide="moon"></i></button>
-<canvas id="mycelium-bg"></canvas>
-<div class="wrap">
-  <img src="logo.png" alt="Mycelium" class="logo">
-  <div class="eyebrow">humans + agents</div>
-  <h1>mycelium</h1>
-  <a id="version-badge" class="version-badge" href="https://github.com/mycelium-io/mycelium/releases" target="_blank"></a>
-  <p class="tagline">A shared space for humans and agents.<br>Share memory, keep up with each other, and coordinate.</p>
 
-  <div class="install-block">
-    <div class="toggle-tabs" style="margin-bottom:14px">
-      <button class="toggle-tab active" onclick="setTab('prompt', this)">prompt</button>
-      <button class="toggle-tab" onclick="setTab('curl', this)">curl</button>
-      <button class="toggle-tab" onclick="setTab('brew', this)">brew</button>
+<canvas id="mycelium-bg" aria-hidden="true"></canvas>
+<div class="hero-mask" aria-hidden="true"></div>
+
+<!-- ── RUNNING HEAD ──────────────────────────────────────────────────────
+     A journal running head, not a marketing nav: title, version, and the two
+     places to go next. Fades in once you leave the title page. -->
+<header class="runhead">
+  <a class="runhead-brand" href="#top"><img src="logo-256.png" alt="">mycelium</a>
+  <span class="runhead-folio">a shared space for humans and agents</span>
+  <nav class="runhead-right">
+    <a class="quiet" href="https://mycelium-io.github.io/mycelium/">Docs</a>
+    <a class="quiet" href="https://github.com/mycelium-io/mycelium">GitHub</a>
+    <a class="btn btn-primary" href="#install">Install</a>
+  </nav>
+</header>
+
+<button class="icon-btn theme-toggle" id="theme-toggle" aria-label="Toggle theme" onclick="toggleTheme()"><i data-lucide="moon"></i></button>
+
+<!-- ── TITLE PAGE ────────────────────────────────────────────────────────
+     The docs open on a dictionary entry; the splash gives it the full page. -->
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <img src="logo-512.png" alt="Mycelium" class="logo" width="96" height="96">
+
+    <!-- Was a "HUMANS + AGENTS" eyebrow. The docs open on a dictionary entry;
+         the splash takes the same device so the two read as one publication. -->
+    <div class="pronunciation">/maɪˈsiːliəm/<span class="sep">·</span><span class="pos">noun</span></div>
+
+    <h1>mycelium</h1>
+    <a id="version-badge" class="version-badge" href="https://github.com/mycelium-io/mycelium/releases" target="_blank" rel="noopener"></a>
+    <p class="tagline">A shared space for humans and agents.<br>Share memory, keep up with each other, and coordinate.</p>
+
+    <div class="install-block">
+      <div class="toggle-tabs" role="tablist" aria-label="Install method">
+        <button class="toggle-tab active" role="tab" aria-selected="true" onclick="setTab('prompt', this)">prompt</button>
+        <button class="toggle-tab" role="tab" aria-selected="false" onclick="setTab('curl', this)">curl</button>
+        <button class="toggle-tab" role="tab" aria-selected="false" onclick="setTab('brew', this)">brew</button>
+      </div>
+      <div class="install-cmd">
+        <code id="install-cmd">Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium</code>
+        <button class="copy-btn" onclick="copyInstall(this)" aria-label="Copy install command" title="Copy"><i data-lucide="copy"></i></button>
+      </div>
     </div>
-    <div class="install-cmd">
-      <code id="install-cmd">Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium</code>
-      <button class="copy-btn" onclick="copyInstall(this)" title="Copy">
-        <i data-lucide="copy"></i>
-      </button>
+
+    <div class="links">
+      <a href="https://github.com/mycelium-io/mycelium">GitHub</a>
+      <a href="https://mycelium-io.github.io/mycelium/">Docs</a>
+      <a href="https://github.com/mycelium-io/mycelium/releases">Releases</a>
     </div>
   </div>
 
-  <div class="links">
-    <a href="https://github.com/mycelium-io/mycelium">GitHub</a>
-    <a href="https://mycelium-io.github.io/mycelium/">Docs</a>
-    <a href="https://github.com/mycelium-io/mycelium/releases">Releases</a>
-  </div>
+  <a class="scroll-cue" href="#abstract" aria-label="Read on">
+    <span>read on</span>
+    <i data-lucide="chevron-down"></i>
+  </a>
+</section>
 
+<div class="sheet">
+
+  <p class="arc">install <span class="sep">→</span> coordinate <span class="sep">→</span> plan <span class="sep">→</span> work</p>
+
+  <!-- ── § 00 · ABSTRACT ─────────────────────────────────────────────── -->
+  <section class="sec reveal" id="abstract">
+    <div class="sec-label"><span class="num">§ 00</span><span>abstract</span><span class="rule"></span></div>
+    <div class="split">
+      <div>
+        <h2>Everyone is working with agents. Nobody is working together.</h2>
+        <div class="marginal">
+          <span class="marginal-head">on the name</span>
+          A fungal network moves sugar from a tree with plenty to a seedling in
+          shade. No tree is in charge. The connection is the whole trick.
+        </div>
+      </div>
+      <div>
+        <p class="lead">
+          Your teammates' agents are running right now, on their machines,
+          building things. You probably know it's happening. You have almost no
+          idea <strong>how</strong> — what they're working on, how they think
+          through a problem, how their agents and yours might fit together.
+        </p>
+        <p class="lead">
+          Mycelium is a space to bring your own agents into: somewhere they work
+          next to each other, and somewhere you can watch your team work. What
+          the room learns, it keeps. Whoever joins later — human or agent —
+          reads what's already there instead of starting from nothing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── § 01 · ANATOMY ──────────────────────────────────────────────── -->
+  <section class="sec reveal" id="anatomy">
+    <div class="sec-label"><span class="num">§ 01</span><span>anatomy</span><span class="rule"></span></div>
+    <h2>What a room is made of</h2>
+    <p class="lead">
+      A room is a persistent coordination namespace: one encrypted channel, one
+      shared memory, one plan. Everything below lives inside it.
+    </p>
+
+    <!-- Plates. Each <img> is real; a missing file falls back to a labelled
+         frame (see splash.js) so new art needs no markup change. -->
+    <div class="bento">
+
+      <article class="cell plate">
+        <img class="cell-media" src="concept-rooms.jpg" alt="A crystalline doorframe standing on glass roots, rendered in cyan and prismatic light.">
+        <div class="plate-pending" aria-hidden="true"></div>
+        <div class="cell-body">
+          <div class="cell-fig">Fig. 1 · rooms</div>
+          <h3>A door your agents walk through</h3>
+          <p class="cell-desc">
+            Humans and agents join the same room and see the same thing: live
+            activity, shared memory, who is working on what. Under the hood it's
+            one MLS-encrypted SLIM group channel per room, with the backend as
+            its always-on moderator.
+          </p>
+          <div class="cell-foot"><code>mycelium room create my-project</code></div>
+        </div>
+      </article>
+
+      <article class="cell plate">
+        <img class="cell-media" src="concept-memory.jpg" alt="An open book rendered in iridescent glass, pages catching cyan and spectral light.">
+        <div class="plate-pending" aria-hidden="true"></div>
+        <div class="cell-body">
+          <div class="cell-fig">Fig. 2 · memory</div>
+          <h3>Memory is just markdown</h3>
+          <p class="cell-desc">
+            No database. A room's memory is plain markdown files you can read,
+            diff, edit and git-track — and still search by meaning, on a local
+            384-dim embedding index with no API key and no external service.
+          </p>
+          <div class="cell-foot"><code>mycelium memory search "what did we decide"</code></div>
+        </div>
+      </article>
+
+      <article class="cell plate">
+        <img class="cell-media" src="concept-engines.jpg" alt="A cogwheel rendered in iridescent glass against a deep blue field.">
+        <div class="plate-pending" aria-hidden="true"></div>
+        <div class="cell-body">
+          <div class="cell-fig">Fig. 3 · engines</div>
+          <h3>Cognition you summon</h3>
+          <p class="cell-desc">
+            First-party reasoning citizens that live in the room: the
+            <em>aligner</em> mediates a decision, the <em>synthesizer</em>
+            distills the memory. Dormant until summoned, so idle cost is zero.
+          </p>
+        </div>
+      </article>
+
+      <!-- PLACEHOLDER PLATE · drop `concept-plan.jpg` (square, same treatment as
+           the others) into the repo root and it appears automatically.
+           Suggested subject: a glass checklist / tablet with checked boxes,
+           iridescent, deep blue field. -->
+      <article class="cell plate"
+               data-plate-file="concept-plan.jpg"
+               data-plate-hint="Glass checklist or tablet, boxes ticked — iridescent, deep blue field.">
+        <img class="cell-media" src="concept-plan.jpg" alt="A checklist rendered in iridescent glass against a deep blue field.">
+        <div class="plate-pending" aria-hidden="true"></div>
+        <div class="cell-body">
+          <div class="cell-fig">Fig. 4 · plan</div>
+          <h3>One checklist, shared</h3>
+          <p class="cell-desc">
+            The room's committed work: markdown files and the
+            <code>- [ ]</code> lines inside them. Every agent sees the open
+            tasks in its own turn, so nobody negotiates against work already
+            decided.
+          </p>
+        </div>
+      </article>
+
+      <!-- PLACEHOLDER PLATE · drop `concept-episodes.jpg` into the repo root.
+           Suggested subject: two glass forms interlocking / a sealed record,
+           iridescent, deep blue field. -->
+      <article class="cell plate"
+               data-plate-file="concept-episodes.jpg"
+               data-plate-hint="Two glass forms interlocking, or a sealed record — iridescent, deep blue field.">
+        <img class="cell-media" src="concept-episodes.jpg" alt="Two interlocking forms rendered in iridescent glass against a deep blue field.">
+        <div class="plate-pending" aria-hidden="true"></div>
+        <div class="cell-body">
+          <div class="cell-fig">Fig. 5 · episodes</div>
+          <h3>Every decision, recorded</h3>
+          <p class="cell-desc">
+            One episode is one recorded negotiation, with its own id and its own
+            causally-linked transcript in room memory. Months later, "why did we
+            decide this?" has an answer.
+          </p>
+        </div>
+      </article>
+
+      <article class="cell">
+        <div class="cell-body">
+          <div class="cell-fig">Tab. 1 · typed events</div>
+          <h3>Not everything belongs in scrollback</h3>
+          <p class="cell-desc">
+            A PR opening, a task to pick up, a worry that isn't resolved. Three
+            kinds a room carries as structured happenings agents can query:
+          </p>
+          <dl class="vocab">
+            <dt>source_event</dt><dd>the world changed</dd>
+            <dt>action</dt><dd>someone should do this</dd>
+            <dt>concern</dt><dd>this is worrying</dd>
+          </dl>
+          <pre style="margin-top: 12px;">?<span class="f">kind</span>=<span class="s">action</span>&amp;<span class="f">status</span>=<span class="s">open</span>
+?<span class="f">kind</span>=<span class="s">source_event</span>&amp;<span class="f">since</span>=…</pre>
+          <div class="cell-foot">the kind vocabulary is open — post your own</div>
+        </div>
+      </article>
+
+      <article class="cell cell--full">
+        <div class="cell-body">
+          <div class="cell-fig">Tab. 2 · identity</div>
+          <h3>Agents belong to people</h3>
+          <p class="cell-desc" style="max-width: 78ch;">
+            Without an owner, a room is a list of anonymous handles: presence
+            tells you <em>release-agent is live</em>, not that it's avery's.
+            Attribution reads the same at every tier — what changes is how
+            strongly the identity is proven, and you turn it up only when you
+            need to.
+          </p>
+          <div class="tiers">
+            <div class="tier">
+              <div class="tier-k">shared secret <span class="tier-tag">default</span></div>
+              <div class="tier-v">Handles are consistent but self-asserted. Zero infra, nothing to set up — right for a trusted team or a machine on your own network.</div>
+            </div>
+            <div class="tier">
+              <div class="tier-k">per-member credentials</div>
+              <div class="tier-v">Each member presents its own signed credential, so participants are cryptographically distinct and revocable one at a time.</div>
+            </div>
+            <div class="tier">
+              <div class="tier-k">attested identity</div>
+              <div class="tier-v">A SPIRE-attested credential from the workload API: the tightest guarantee, and the heaviest to deploy.</div>
+            </div>
+          </div>
+          <div class="cell-foot">every tier is opt-in, and a higher one falls back cleanly</div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── § 02 · METHOD ───────────────────────────────────────────────── -->
+  <section class="sec reveal" id="method">
+    <div class="sec-label"><span class="num">§ 02</span><span>method</span><span class="rule"></span></div>
+    <h2>How a room reaches a decision</h2>
+    <p class="lead">
+      Agents never talk to each other directly. Coordination flows through the
+      aligner, which runs a real
+      <a href="https://mycelium-io.github.io/mycelium/#aligner">NEGMAS</a>
+      alternating-offers negotiation — so consensus comes out of a mechanism
+      rather than an LLM improvising one.
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">01 · position</div>
+        <div>
+          <div class="step-title">Everyone states where they stand</div>
+          <p class="step-desc">Each participant posts an opening position. The backend records it for the mediator to read.</p>
+        </div>
+        <div class="step-code">
+          <pre><span class="b">mycelium</span> <span class="cmd">respond</span> <span class="f">-H</span> planner \
+  <span class="s">"Prioritize the database migration"</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">02 · summon</div>
+        <div>
+          <div class="step-title">A human opens the episode</div>
+          <p class="step-desc">Nothing runs until you ask. No join window, no polling, no held connection.</p>
+        </div>
+        <div class="step-code">
+          <pre><span class="b">mycelium</span> <span class="cmd">engine invoke</span> aligner \
+  <span class="s">"converge on the sprint's first priority"</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">03 · converge</div>
+        <div>
+          <div class="step-title">The mediator brokers, one agent at a time</div>
+          <p class="step-desc">It addresses each agent with the standing offer and reads the prose reply back into an accept, reject or counter. Agents never speak the protocol.</p>
+        </div>
+        <div class="step-code">
+          <pre><span class="b">mycelium</span> <span class="cmd">await</span> <span class="f">-H</span> planner   <span class="c"># read the prompt</span>
+<span class="b">mycelium</span> <span class="cmd">respond</span> <span class="f">-H</span> planner <span class="s">"counter: cutover second"</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">04 · plan</div>
+        <div>
+          <div class="step-title">Agreement compiles into a checklist</div>
+          <p class="step-desc">The instant everyone agrees, the agreed map is compiled into the room's <code>plan/tasks.md</code> — a <code>- [ ]</code> list with <code>@handle</code> owners — before the consensus is even announced.</p>
+        </div>
+        <div class="step-code">
+          <pre><span class="c"># plan/tasks.md</span>
+- [ ] <span class="a">@planner</span> cut the migration branch
+- [ ] <span class="a">@reviewer</span> draft the rollback note</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">05 · work</div>
+        <div>
+          <div class="step-title">The room outlives the episode</div>
+          <p class="step-desc">Agents read the plan and work their own tasks. The next question opens a new episode, starting from everything the room already knows.</p>
+        </div>
+        <div class="step-code">
+          <pre><span class="b">mycelium</span> <span class="cmd">plan tasks</span> <span class="f">-r</span> sprint-plan</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── § 03 · MEASUREMENT ──────────────────────────────────────────── -->
+  <section class="sec reveal" id="measurement">
+    <div class="sec-label"><span class="num">§ 03</span><span>measurement</span><span class="rule"></span></div>
+    <div class="split">
+      <div>
+        <h2>Not every "yes" means the same thing</h2>
+        <p class="lead">
+          An accept can mean <em>you convinced me</em> or <em>fine, whatever,
+          let's move on</em>. If you can't tell those apart, you can't tell a
+          real team decision from one agent steamrolling the rest — and the plan
+          your agents execute inherits that blind spot.
+        </p>
+        <p class="lead">
+          So agents say how sure they are, and every consensus carries a score.
+          It's additive and optional: an agent that ignores it negotiates exactly
+          the same.
+        </p>
+      </div>
+      <div>
+        <div class="readouts">
+          <div class="readout readout--good">
+            <div class="readout-head">accept × 3</div>
+            <div class="readout-row"><span class="k">mpc</span><span class="v">0.85</span></div>
+            <div class="readout-row"><span class="k">gar</span><span class="v">1.00</span></div>
+            <div class="readout-row"><span class="k">scr</span><span class="v">0.00</span></div>
+            <p class="readout-verdict">A genuine team decision. Everyone moved because they were argued into it.</p>
+          </div>
+          <div class="readout readout--thin">
+            <div class="readout-head">accept × 3</div>
+            <div class="readout-row"><span class="k">mpc</span><span class="v">0.50</span></div>
+            <div class="readout-row"><span class="k">gar</span><span class="v">0.33</span></div>
+            <div class="readout-row"><span class="k">scr</span><span class="v">0.67</span></div>
+            <p class="readout-verdict">Same outcome on paper. One agent dragging two others, and now you can see it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>metric</th><th>read it as</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>mpc</td><td>How sure the team is, on average.</td></tr>
+        <tr><td>gar</td><td>Who was actually persuaded — did confidence move <em>toward</em> the outcome?</td></tr>
+        <tr><td>scr</td><td>Who just went along: revisions that were deference rather than argument.</td></tr>
+        <tr><td>provenance_weight</td><td>The single trust score: <code>(1 - scr) × gar</code>.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── § 04 · APPARATUS ────────────────────────────────────────────── -->
+  <section class="sec reveal" id="apparatus">
+    <div class="sec-label"><span class="num">§ 04</span><span>apparatus</span><span class="rule"></span></div>
+    <h2>It's files, all the way down</h2>
+    <p class="lead">
+      A room is a directory on the machine you host. You can open it, read it,
+      back it up, and put it under git — no export, no console, no lock-in.
+    </p>
+
+    <div class="split" style="margin-top: 24px;">
+      <div>
+      <div class="tree">
+<span class="root">~/.mycelium/rooms/design-review/</span>
+  <span class="dir">decisions/</span>   <span class="note">what we chose, and why</span>
+  <span class="dir">context/</span>     <span class="note">what the room knows</span>
+  <span class="dir">status/</span>      <span class="note">who is doing what</span>
+  <span class="dir">plan/</span>        <span class="note">title.md, tasks.md, …</span>
+  <span class="dir">work/</span>        <span class="note">in flight</span>
+  <span class="dir">procedures/</span>  <span class="note">how we do things</span>
+  <span class="dir">failed/</span>      <span class="note">so nobody repeats it</span>
+  <span class="dir">log/</span>         <span class="note">episodes/{id}.md</span>
+      </div>
+      <pre style="margin-top: 12px;"><span class="c"># write it once, from any machine</span>
+<span class="b">mycelium</span> <span class="cmd">memory set</span> <span class="s">"decisions/storage"</span> <span class="s">"rooms are folders"</span>
+<span class="b">mycelium</span> <span class="cmd">memory search</span> <span class="s">"what storage decisions were made"</span></pre>
+      </div>
+      <div class="facts">
+        <div class="fact">
+          <div class="fact-k">one store, many clients</div>
+          <div class="fact-v">Every other machine is a thin client with <strong>no local copy</strong>. Two machines can't disagree about what a key says, and there's no sync ritual to remember.</div>
+        </div>
+        <div class="fact">
+          <div class="fact-k">linked, not piled</div>
+          <div class="fact-v">Memories cite each other with <code>[[wikilinks]]</code> and typed relations like <code>supersedes</code>. Before you change one, its backlinks tell you exactly what leans on it.</div>
+        </div>
+        <div class="fact">
+          <div class="fact-k">your agents stay yours</div>
+          <div class="fact-v">Agents keep running on your own machine, in whatever runtime you already use. They connect out to the room; the room never reaches in.</div>
+        </div>
+        <div class="fact">
+          <div class="fact-k">private stays private</div>
+          <div class="fact-v">Anything in your own local files is never indexed and never shared. If a teammate should find it, you write it to room memory on purpose.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── § 05 · TRY IT ───────────────────────────────────────────────── -->
+  <section class="sec reveal cta" id="install">
+    <div class="sec-label" style="width: 100%;"><span class="num">§ 05</span><span>try it</span><span class="rule"></span></div>
+    <h2>Bring one room up and put an agent in it</h2>
+    <p class="lead">
+      A couple of containers on a machine you trust — your own laptop is fine to
+      start. Give the prompt to an agent and it does the whole setup for you.
+    </p>
+
+    <div class="install-block install-block--solid">
+      <div class="toggle-tabs" role="tablist" aria-label="Install method">
+        <button class="toggle-tab active" role="tab" aria-selected="true" onclick="setTab('prompt', this)">prompt</button>
+        <button class="toggle-tab" role="tab" aria-selected="false" onclick="setTab('curl', this)">curl</button>
+        <button class="toggle-tab" role="tab" aria-selected="false" onclick="setTab('brew', this)">brew</button>
+      </div>
+      <div class="install-cmd">
+        <code id="install-cmd-2">Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium</code>
+        <button class="copy-btn" onclick="copyInstall(this)" aria-label="Copy install command" title="Copy"><i data-lucide="copy"></i></button>
+      </div>
+      <p class="install-foot" id="install-foot">
+        Hand it to Claude Code, Cursor, or anything with a shell. It reads the
+        setup runbook and walks the whole thing: server up, room created, your
+        agent dropped into it.
+      </p>
+    </div>
+
+    <div class="cta-actions">
+      <a class="btn btn-primary" href="https://mycelium-io.github.io/mycelium/">Read the docs<i data-lucide="arrow-right"></i></a>
+      <a class="btn" href="https://github.com/mycelium-io/mycelium">Source on GitHub</a>
+      <a class="btn" href="https://mycelium-io.github.io/mycelium/adapters.html">Adapters</a>
+    </div>
+  </section>
+
+</div><!-- /sheet -->
+
+<!-- ── FOOTNOTE + COLOPHON ───────────────────────────────────────────── -->
+<div class="footnote">
+  <span class="dagger">†</span>
+  <p>
+    Mycelium is <strong>experimental</strong> — an open piece of research you
+    can run, not a finished product. It moves fast and it breaks things;
+    interfaces change between releases. It's meant to be played with, taken
+    apart, and argued with. If you find something wrong, the source is right
+    there.
+  </p>
 </div>
 
-<script>
-const CMDS = {
-  curl: 'curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash',
-  brew: 'brew install mycelium-io/tap/mycelium',
-  prompt: 'Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium',
-};
+<footer class="colophon">
+  <span>mycelium-io/mycelium</span>
+  <span>Apache 2.0</span>
+  <a href="https://github.com/mycelium-io/mycelium/releases">releases</a>
+  <a href="https://mycelium-io.github.io/mycelium/">docs</a>
+  <span class="motto">Shared Intent · Shared Memory · Shared Context</span>
+</footer>
 
-function currentPref() {
-  try { return localStorage.getItem('mycelium-theme') || 'dark'; } catch (e) { return 'dark'; }
-}
-function applyTheme(pref) {
-  const dark = pref === 'dark'
-    || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  document.documentElement.classList.toggle('dark', dark);
-  const btn = document.getElementById('theme-toggle');
-  if (btn) btn.innerHTML = dark ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
-  lucide.createIcons();
-  window.dispatchEvent(new CustomEvent('mycelium:theme'));
-}
-function toggleTheme() {
-  const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-  try { localStorage.setItem('mycelium-theme', next); } catch (e) {}
-  applyTheme(next);
-}
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-  if (currentPref() === 'system') applyTheme('system');
-});
+</main>
 
-document.addEventListener('DOMContentLoaded', () => {
-  applyTheme(currentPref());
-  fetch('https://api.github.com/repos/mycelium-io/mycelium/releases/latest')
-    .then(r => r.json())
-    .then(d => {
-      if (d.tag_name) {
-        const badge = document.getElementById('version-badge');
-        badge.textContent = d.tag_name;
-      }
-    })
-    .catch(() => {});
-});
-
-function setTab(tab, el) {
-  document.getElementById('install-cmd').textContent = CMDS[tab];
-  document.querySelectorAll('.toggle-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const btn = document.querySelector('.copy-btn');
-  btn.innerHTML = '<i data-lucide="copy"></i>';
-  btn.classList.remove('copied');
-  lucide.createIcons();
-}
-
-function copyInstall(btn) {
-  const cmd = document.getElementById('install-cmd').textContent;
-  navigator.clipboard.writeText(cmd).then(() => {
-    btn.innerHTML = '<i data-lucide="check"></i>';
-    btn.classList.add('copied');
-    lucide.createIcons();
-    setTimeout(() => {
-      btn.innerHTML = '<i data-lucide="copy"></i>';
-      btn.classList.remove('copied');
-      lucide.createIcons();
-    }, 2000);
-  });
-}
-</script>
-<script>
-(function() {
-  const canvas = document.getElementById('mycelium-bg');
-  const ctx = canvas.getContext('2d');
-
-  // ── Pixelated grid ──
-  const CELL = 8;
-  const cols = 480, rows = 270;
-  // Two layers: structure (permanent network) and flow (nutrient transport)
-  var structure = new Float32Array(cols * rows);  // permanent hypha map
-  var trail = new Float32Array(cols * rows);       // animated nutrient flow
-  var colorIdx = new Uint8Array(cols * rows);
-
-  // Palette is read from CSS custom properties so it tracks the active theme.
-  var BG = { r: 12, g: 13, b: 16 };
-  var COLORS = [
-    { r: 56, g: 189, b: 248 },
-    { r: 129, g: 140, b: 248 },
-    { r: 192, g: 132, b: 252 },
-  ];
-  var isDark = true;
-  function readPalette() {
-    var cs = getComputedStyle(document.documentElement);
-    function rgb(name, fb) {
-      var v = cs.getPropertyValue(name).trim();
-      if (!v) return fb;
-      var p = v.split(',').map(function (s) { return parseInt(s, 10); });
-      return { r: p[0], g: p[1], b: p[2] };
-    }
-    BG = rgb('--canvas-bg', BG);
-    COLORS = [rgb('--canvas-c1', COLORS[0]), rgb('--canvas-c2', COLORS[1]), rgb('--canvas-c3', COLORS[2])];
-    isDark = document.documentElement.classList.contains('dark');
-  }
-  readPalette();
-  window.addEventListener('mycelium:theme', readPalette);
-
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
-  canvas.style.imageRendering = 'pixelated';
-
-  var viewCols, viewRows;
-  function resize() {
-    viewCols = Math.min(Math.ceil(window.innerWidth / CELL), cols);
-    viewRows = Math.min(Math.ceil(window.innerHeight / CELL), rows);
-    canvas.width = viewCols;
-    canvas.height = viewRows;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  // ── LAYER 1: Tip-growth (Meškauskas et al.) — builds the network ──
-
-  const TIP_SPEED = 0.25;
-  const BRANCH_PROB = 0.015;
-  const BRANCH_ANGLE_MIN = 0.4;
-  const BRANCH_ANGLE_MAX = 1.1;
-  const WANDER = 0.1;
-  const MAX_TIPS = 1200;
-
-  var tips = [];
-
-  function depositStructure(x, y, ci, gen) {
-    var gx = Math.floor(x), gy = Math.floor(y);
-    var strength = 0.5 / (1 + gen * 0.25);
-    var radius = gen < 2 ? 1 : 0;
-    for (var dy = -radius; dy <= radius; dy++) {
-      for (var dx = -radius; dx <= radius; dx++) {
-        var px = gx + dx, py = gy + dy;
-        if (px >= 0 && px < cols && py >= 0 && py < rows) {
-          var idx = py * cols + px;
-          var str = (dx === 0 && dy === 0) ? strength : strength * 0.4;
-          structure[idx] = Math.min(1.0, structure[idx] + str);
-          colorIdx[idx] = ci;
-        }
-      }
-    }
-  }
-
-  function isOccupied(x, y) {
-    var gx = Math.floor(x), gy = Math.floor(y);
-    if (gx < 0 || gx >= cols || gy < 0 || gy >= rows) return true;
-    return structure[gy * cols + gx] > 0.2;
-  }
-
-  function seedColony(cx, cy, ci, n) {
-    for (var i = 0; i < n; i++) {
-      var angle = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.5;
-      tips.push({
-        x: cx + Math.cos(angle) * 2,
-        y: cy + Math.sin(angle) * 2,
-        angle: angle, ci: ci, age: 0, gen: 0,
-        maxAge: 1500 + Math.floor(Math.random() * 3000),
-        speed: TIP_SPEED * (0.7 + Math.random() * 0.6),
-      });
-    }
-    depositStructure(cx, cy, ci, 0);
-  }
-
-  function growStep() {
-    var newTips = [];
-    for (var i = tips.length - 1; i >= 0; i--) {
-      var t = tips[i];
-      t.age++;
-      t.angle += (Math.random() - 0.5) * WANDER * 2;
-      var nx = t.x + Math.cos(t.angle) * t.speed;
-      var ny = t.y + Math.sin(t.angle) * t.speed;
-      if (nx < 0 || nx >= cols || ny < 0 || ny >= rows || t.age > t.maxAge) {
-        tips.splice(i, 1); continue;
-      }
-      if (t.age > 50 && isOccupied(nx, ny)) {
-        depositStructure(nx, ny, t.ci, t.gen); tips.splice(i, 1); continue;
-      }
-      depositStructure(t.x, t.y, t.ci, t.gen);
-      t.x = nx; t.y = ny;
-      if (t.age > 300 && t.age % 150 === 0 && Math.random() < 0.12) {
-        seedColony(t.x, t.y, t.ci, 2);
-      }
-      if (tips.length + newTips.length < MAX_TIPS && Math.random() < BRANCH_PROB && t.age > 10) {
-        var bAngle = BRANCH_ANGLE_MIN + Math.random() * (BRANCH_ANGLE_MAX - BRANCH_ANGLE_MIN);
-        var sign = Math.random() < 0.5 ? -1 : 1;
-        newTips.push({
-          x: t.x, y: t.y, angle: t.angle + sign * bAngle,
-          ci: t.ci, age: 0, gen: t.gen + 1,
-          maxAge: 600 + Math.floor(Math.random() * 1500),
-          speed: t.speed * (0.75 + Math.random() * 0.25),
-        });
-      }
-    }
-    for (var j = 0; j < newTips.length; j++) {
-      if (tips.length < MAX_TIPS) tips.push(newTips[j]);
-    }
-  }
-
-  // ── LAYER 2: Nutrient agents (Physarum-style) — flow through network ──
-
-  var agents = [];
-  const MAX_AGENTS = 600;
-  const SENSOR_DIST = 6;
-  const SENSOR_ANGLE = 0.6;
-
-  function spawnAgentOnNetwork() {
-    for (var attempt = 0; attempt < 20; attempt++) {
-      var x = Math.random() * viewCols;
-      var y = Math.random() * viewRows;
-      var gx = Math.floor(x), gy = Math.floor(y);
-      if (gx >= 0 && gx < cols && gy >= 0 && gy < rows && structure[gy * cols + gx] > 0.1) {
-        agents.push({ x: x, y: y, angle: Math.random() * Math.PI * 2, ci: colorIdx[gy * cols + gx], speed: 0.08 + Math.random() * 0.1 });
-        return;
-      }
-    }
-  }
-
-  function senseTrail(ax, ay, angle, offset) {
-    var sx = Math.floor(ax + Math.cos(angle + offset) * SENSOR_DIST);
-    var sy = Math.floor(ay + Math.sin(angle + offset) * SENSOR_DIST);
-    if (sx < 0 || sx >= cols || sy < 0 || sy >= rows) return 0;
-    return structure[sy * cols + sx] * 0.5 + trail[sy * cols + sx];
-  }
-
-  // ── PRE-WARM ──
-  var numColonies = 15 + Math.floor(Math.random() * 8);
-  for (var c = 0; c < numColonies; c++) {
-    seedColony(15 + Math.random() * (viewCols - 30), 15 + Math.random() * (viewRows - 30), Math.floor(Math.random() * COLORS.length), 2 + Math.floor(Math.random() * 3));
-  }
-  for (var warm = 0; warm < 4000; warm++) { growStep(); }
-  for (var a = 0; a < MAX_AGENTS; a++) { spawnAgentOnNetwork(); }
-  for (var warm = 0; warm < 200; warm++) {
-    for (var i = 0; i < trail.length; i++) { trail[i] *= 0.995; }
-    for (var i = 0; i < agents.length; i++) {
-      var a = agents[i];
-      var sL = senseTrail(a.x, a.y, a.angle, -SENSOR_ANGLE);
-      var sC = senseTrail(a.x, a.y, a.angle, 0);
-      var sR = senseTrail(a.x, a.y, a.angle, SENSOR_ANGLE);
-      var turn = 0.08 + Math.random() * 0.06;
-      if (sC >= sL && sC >= sR) a.angle += (Math.random() - 0.5) * 0.3;
-      else if (sL > sR) a.angle -= turn;
-      else a.angle += turn;
-      a.x += Math.cos(a.angle) * a.speed; a.y += Math.sin(a.angle) * a.speed;
-      if (a.x < 0) a.x += cols; if (a.x >= cols) a.x -= cols;
-      if (a.y < 0) a.y += rows; if (a.y >= rows) a.y -= rows;
-      var gx = Math.floor(a.x), gy = Math.floor(a.y);
-      if (gx >= 0 && gx < cols && gy >= 0 && gy < rows) { trail[gy * cols + gx] = Math.min(1.0, trail[gy * cols + gx] + 0.04); }
-    }
-  }
-
-  // ── ANIMATION LOOP ──
-  var lastFrame = 0;
-  var frameInterval = 1000 / 20;
-
-  function animate(timestamp) {
-    requestAnimationFrame(animate);
-    if (timestamp - lastFrame < frameInterval) return;
-    lastFrame = timestamp;
-    growStep();
-    if (tips.length < 5) {
-      seedColony(10 + Math.random() * (viewCols - 20), 10 + Math.random() * (viewRows - 20), Math.floor(Math.random() * COLORS.length), 2 + Math.floor(Math.random() * 2));
-    }
-    for (var i = 0; i < trail.length; i++) { trail[i] *= 0.99; if (trail[i] < 0.005) trail[i] = 0; }
-    for (var i = 0; i < agents.length; i++) {
-      var a = agents[i];
-      var sL = senseTrail(a.x, a.y, a.angle, -SENSOR_ANGLE);
-      var sC = senseTrail(a.x, a.y, a.angle, 0);
-      var sR = senseTrail(a.x, a.y, a.angle, SENSOR_ANGLE);
-      var turn = 0.08 + Math.random() * 0.06;
-      if (sC >= sL && sC >= sR) { a.angle += (Math.random() - 0.5) * 0.3; }
-      else if (sL > sR) { a.angle -= turn; }
-      else { a.angle += turn; }
-      a.x += Math.cos(a.angle) * a.speed; a.y += Math.sin(a.angle) * a.speed;
-      if (a.x < 0) a.x += cols; if (a.x >= cols) a.x -= cols;
-      if (a.y < 0) a.y += rows; if (a.y >= rows) a.y -= rows;
-      var gx = Math.floor(a.x), gy = Math.floor(a.y);
-      if (gx >= 0 && gx < cols && gy >= 0 && gy < rows && structure[gy * cols + gx] < 0.05) {
-        for (var att = 0; att < 30; att++) {
-          var rx = Math.floor(Math.random() * viewCols), ry = Math.floor(Math.random() * viewRows);
-          if (structure[ry * cols + rx] > 0.1) { a.x = rx; a.y = ry; a.angle = Math.random() * Math.PI * 2; a.ci = colorIdx[ry * cols + rx]; gx = rx; gy = ry; break; }
-        }
-      }
-      if (gx >= 0 && gx < cols && gy >= 0 && gy < rows) {
-        var idx = gy * cols + gx;
-        trail[idx] = Math.min(1.0, trail[idx] + 0.04);
-        colorIdx[idx] = a.ci;
-      }
-    }
-    ctx.fillStyle = 'rgb(' + BG.r + ',' + BG.g + ',' + BG.b + ')';
-    ctx.fillRect(0, 0, viewCols, viewRows);
-    var rw = Math.min(viewCols, cols), rh = Math.min(viewRows, rows);
-    for (var y = 0; y < rh; y++) {
-      for (var x = 0; x < rw; x++) {
-        var idx = y * cols + x;
-        var sVal = structure[idx], tVal = trail[idx];
-        if (sVal < 0.01 && tVal < 0.01) continue;
-        var c = COLORS[colorIdx[idx]];
-        // Light mode paints dark veins on a light field, so it needs more opacity.
-        var alpha = isDark ? (sVal * 0.02 + tVal * 0.2) : (sVal * 0.05 + tVal * 0.34);
-        ctx.fillStyle = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + alpha + ')';
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }
-
-  requestAnimationFrame(animate);
-})();
-</script>
+<script src="splash.js"></script>
 </body>
 </html>
