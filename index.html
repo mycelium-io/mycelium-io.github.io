@@ -253,17 +253,21 @@
         </div>
       </article>
 
+      <!-- l9 inspector, styled like a JSON viewer: line-gutter, bracket
+           framing, string/number syntax color — deliberately not another
+           chrome-bar-plus-rows vignette. -->
       <article class="cell cell--wide cell--gui">
-        <div class="gui-chrome">
-          <span class="gui-dot"></span><span class="gui-dot"></span><span class="gui-dot"></span>
-          <span class="gui-room">l9 · inspector</span>
+        <div class="gui-chrome gui-chrome--path">
+          <span class="gui-room">room/incident-402 <span class="gui-path-sep">›</span> l9</span>
         </div>
-        <div class="gui-l9">
-          <div class="gui-l9-row"><span class="k">frame</span><span class="v">PROPOSE</span></div>
-          <div class="gui-l9-row"><span class="k">urn</span><span class="v">episode:9f21…a3</span></div>
-          <div class="gui-l9-row"><span class="k">mpc</span><span class="v">0.85</span></div>
-          <div class="gui-l9-row"><span class="k">gar</span><span class="v">1.00</span></div>
-          <div class="gui-l9-row"><span class="k">ts</span><span class="v">14:22:01Z</span></div>
+        <div class="gui-code">
+          <div class="gui-code-row"><span class="ln">1</span><span class="gui-code-text">{</span></div>
+          <div class="gui-code-row"><span class="ln">2</span><span class="gui-code-text">  <span class="k">frame</span>: <span class="gui-str">"PROPOSE"</span>,</span></div>
+          <div class="gui-code-row"><span class="ln">3</span><span class="gui-code-text">  <span class="k">urn</span>: <span class="gui-str">"episode:9f21…a3"</span>,</span></div>
+          <div class="gui-code-row"><span class="ln">4</span><span class="gui-code-text">  <span class="k">mpc</span>: <span class="gui-num">0.85</span>,</span></div>
+          <div class="gui-code-row"><span class="ln">5</span><span class="gui-code-text">  <span class="k">gar</span>: <span class="gui-num">1.00</span>,</span></div>
+          <div class="gui-code-row"><span class="ln">6</span><span class="gui-code-text">  <span class="k">ts</span>: <span class="gui-str">"14:22:01Z"</span></span></div>
+          <div class="gui-code-row"><span class="ln">7</span><span class="gui-code-text">}<span class="gui-cursor" aria-hidden="true"></span></span></div>
         </div>
         <div class="cell-body">
           <h3>Nothing about a decision is hidden</h3>
@@ -274,32 +278,34 @@
         </div>
       </article>
 
+      <!-- Episodes as an actual data table (header row, columns, striping) —
+           not a chat/list, so the mosaic doesn't repeat one vignette shape. -->
       <article class="cell cell--wide cell--gui">
         <div class="gui-chrome">
           <span class="gui-dot"></span><span class="gui-dot"></span><span class="gui-dot"></span>
           <span class="gui-room">Episodes</span>
           <span class="gui-count">12 <span class="gui-count--live">· 1 live</span></span>
         </div>
-        <div class="gui-list">
-          <div class="gui-ep">
-            <span class="gui-ep-dot" style="background: var(--gv-green);" aria-hidden="true"></span>
+        <div class="gui-table">
+          <div class="gui-table-head">
+            <span>id</span><span>status</span><span class="gui-table-num">msgs</span><span>who</span>
+          </div>
+          <div class="gui-table-row">
             <span class="gui-ep-id">7f2a91</span>
-            <span class="gui-ep-msg">14 msg</span>
             <span class="gui-ep-state" style="color: var(--gv-green); background: color-mix(in srgb, var(--gv-green) 16%, transparent);">converged</span>
+            <span class="gui-table-num">14</span>
             <span class="gui-ep-who">aligner, planner</span>
           </div>
-          <div class="gui-ep">
-            <span class="gui-ep-dot gui-ep-dot--live" aria-hidden="true"></span>
-            <span class="gui-ep-id">9a10e4</span>
-            <span class="gui-ep-msg">3 msg</span>
+          <div class="gui-table-row">
+            <span class="gui-ep-id"><span class="gui-ep-dot gui-ep-dot--live" aria-hidden="true"></span>9a10e4</span>
             <span class="gui-ep-state" style="color: var(--gv-accent); background: color-mix(in srgb, var(--gv-accent) 16%, transparent);">open</span>
+            <span class="gui-table-num">3</span>
             <span class="gui-ep-who">aligner, qa</span>
           </div>
-          <div class="gui-ep">
-            <span class="gui-ep-dot" style="background: var(--gv-yellow); opacity: 0.6;" aria-hidden="true"></span>
+          <div class="gui-table-row">
             <span class="gui-ep-id">3c8f02</span>
-            <span class="gui-ep-msg">8 msg</span>
             <span class="gui-ep-state" style="color: var(--gv-yellow); background: color-mix(in srgb, var(--gv-yellow) 16%, transparent);">rejected</span>
+            <span class="gui-table-num">8</span>
             <span class="gui-ep-who">aligner, releaser</span>
           </div>
         </div>
@@ -312,28 +318,34 @@
         </div>
       </article>
 
+      <!-- Members as a wrapping avatar-chip roster — a "people grid" rather
+           than another vertical list. -->
       <article class="cell cell--full cell--gui">
         <div class="gui-chrome">
           <span class="gui-dot"></span><span class="gui-dot"></span><span class="gui-dot"></span>
           <span class="gui-room">Members</span>
           <span class="gui-count">5</span>
         </div>
-        <div class="gui-list">
-          <div class="gui-member">
-            <span class="gui-mono-name">@julia<span class="gui-you">you</span></span>
-            <span class="gui-member-sub">owner</span>
+        <div class="gui-roster">
+          <div class="gui-chip">
+            <span class="gui-chip-avatar">JV</span>
+            <span class="gui-chip-name">@julia<span class="gui-you">you</span></span>
+            <span class="gui-chip-sub">owner</span>
           </div>
-          <div class="gui-member">
-            <span class="gui-mono-name">@mert</span>
-            <span class="gui-member-sub">posted here</span>
+          <div class="gui-chip">
+            <span class="gui-chip-avatar">M</span>
+            <span class="gui-chip-name">@mert</span>
+            <span class="gui-chip-sub">posted here</span>
           </div>
-          <div class="gui-member gui-member--agent">
-            <span class="gui-mono-name">planner<span class="gui-owner">@julia</span></span>
-            <span class="gui-member-sub">claude_code</span>
+          <div class="gui-chip gui-chip--agent">
+            <span class="gui-chip-avatar">pl</span>
+            <span class="gui-chip-name">planner<span class="gui-owner">@julia</span></span>
+            <span class="gui-chip-sub">claude_code</span>
           </div>
-          <div class="gui-member gui-member--agent">
-            <span class="gui-mono-name">aligner<span class="gui-owner">engine</span></span>
-            <span class="gui-member-sub">mediates negotiation to consensus</span>
+          <div class="gui-chip gui-chip--agent">
+            <span class="gui-chip-avatar">al</span>
+            <span class="gui-chip-name">aligner<span class="gui-owner">engine</span></span>
+            <span class="gui-chip-sub">mediates negotiation to consensus</span>
           </div>
         </div>
         <div class="cell-body">

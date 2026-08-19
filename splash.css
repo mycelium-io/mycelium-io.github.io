@@ -693,8 +693,9 @@ p { max-width: var(--measure); }
 }
 .gui-chrome,
 .gui-chat,
-.gui-l9,
-.gui-list {
+.gui-code,
+.gui-table,
+.gui-roster {
   background: var(--gv-bg);
 }
 .gui-chrome {
@@ -763,25 +764,49 @@ p { max-width: var(--measure); }
   margin-left: 4px;
 }
 .gui-text { font-size: 13px; line-height: 1.5; color: var(--gv-text); }
-.gui-l9 { padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 12px; }
-.gui-l9-row { display: flex; justify-content: space-between; gap: var(--space-3); }
-.gui-l9-row .k { color: var(--gv-muted); }
-.gui-l9-row .v { color: var(--gv-accent); }
-
-.gui-list { padding: 6px var(--space-4) var(--space-3); display: flex; flex-direction: column; }
-.gui-ep {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--gv-line);
-  font-size: 12px;
+/* l9 · JSON-viewer vignette: line-gutter, bracket framing, string/number
+ * syntax color, a trailing live cursor — reads as a code panel, not a list. */
+.gui-chrome--path { gap: 4px; }
+.gui-path-sep { color: var(--gv-line); margin: 0 2px; }
+.gui-code {
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
 }
-.gui-ep:last-child { border-bottom: none; }
+.gui-code-row { display: flex; gap: 10px; }
+.gui-code-row .ln { flex: none; width: 12px; text-align: right; color: var(--gv-line); user-select: none; }
+.gui-code-text { color: var(--gv-text); white-space: pre; }
+.gui-code-text .k { color: var(--gv-muted); }
+.gui-str { color: var(--gv-green); }
+.gui-num { color: var(--gv-accent); }
+
+/* Episodes · a real data table: header row, columns, striped rows — reads
+ * as tabular data, not a chat or a list. */
+.gui-table { padding: 6px var(--space-4) var(--space-3); font-size: 12px; }
+.gui-table-head,
+.gui-table-row {
+  display: grid;
+  grid-template-columns: 56px 76px 32px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.gui-table-head {
+  padding: 4px 0 7px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gv-muted);
+  border-bottom: 1px solid var(--gv-line);
+}
+.gui-table-row { padding: 7px 0; border-bottom: 1px solid var(--gv-line); }
+.gui-table-row:last-child { border-bottom: none; }
+.gui-table-row:nth-child(even) { background: color-mix(in srgb, var(--gv-line) 40%, transparent); }
+.gui-table-num { font-family: var(--font-mono); color: var(--gv-muted); text-align: right; }
+.gui-ep-id { font-family: var(--font-mono); color: var(--gv-muted); display: flex; align-items: center; gap: 5px; }
 .gui-ep-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gv-muted); }
 .gui-ep-dot--live { background: var(--gv-accent); animation: gv-pulse 2.4s ease-in-out infinite; }
-.gui-ep-id { font-family: var(--font-mono); color: var(--gv-muted); }
-.gui-ep-msg { font-family: var(--font-mono); font-size: 11px; color: var(--gv-muted); margin-left: auto; }
 .gui-ep-state {
   font-size: 10.5px;
   font-weight: 600;
@@ -789,21 +814,37 @@ p { max-width: var(--measure); }
   padding: 1px 6px;
   text-transform: capitalize;
   white-space: nowrap;
+  justify-self: start;
 }
 .gui-ep-who { font-size: 11px; color: var(--gv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.gui-member {
+/* Members · a wrapping avatar-chip roster — a people grid, not a list. */
+.gui-roster { display: flex; flex-wrap: wrap; gap: 8px; padding: var(--space-4); }
+.gui-chip {
+  flex: 1 1 108px;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--gv-line);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 8px 10px;
+  border: 1px solid var(--gv-line);
   font-size: 12px;
 }
-.gui-member:last-child { border-bottom: none; }
-.gui-mono-name { font-family: var(--font-mono); font-weight: 600; color: var(--gv-text); }
-.gui-member--agent .gui-mono-name { color: var(--gv-accent); }
+.gui-chip-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--gv-text);
+  background: var(--gv-panel);
+  border: 1px solid var(--gv-line);
+}
+.gui-chip--agent .gui-chip-avatar { color: var(--gv-accent); border-color: color-mix(in srgb, var(--gv-accent) 40%, transparent); }
+.gui-chip-name { font-family: var(--font-mono); font-weight: 600; color: var(--gv-text); }
+.gui-chip--agent .gui-chip-name { color: var(--gv-accent); }
 .gui-you {
   font-family: var(--font-sans, inherit);
   font-weight: 500;
@@ -818,7 +859,7 @@ p { max-width: var(--measure); }
   color: var(--gv-muted);
   margin-left: 6px;
 }
-.gui-member-sub { font-size: 11px; color: var(--gv-muted); text-align: right; white-space: nowrap; }
+.gui-chip-sub { font-size: 10.5px; color: var(--gv-muted); }
 
 /* Plate awaiting art. The <img> is real: drop the named file into the repo root
  * and it replaces this frame with no markup change. Until then the frame states
