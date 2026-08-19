@@ -7,7 +7,7 @@
  *
  * Register: the page is laid out as a specimen sheet. Sections are numbered
  * (§ 00, § 01, ...), plates are figures with captions, the hero is a dictionary
- * entry. Flat throughout — surfaces and hairlines carry hierarchy, not shadows
+ * entry. Flat throughout: surfaces and hairlines carry hierarchy, not shadows
  * or gradients. The single exception is the radial mask over the mycelial
  * canvas, which exists so hero copy stays legible over the animation.
  */
@@ -264,36 +264,55 @@ body.past-hero .runhead { opacity: 1; transform: none; pointer-events: auto; }
   color: var(--accent-fg);
 }
 
-.icon-btn {
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
+/* ── THEME TOGGLE (matches the docs site's light / dark / system menu) ── */
+.theme-toggle { position: relative; display: flex; }
+.theme-btn {
+  display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
   border-radius: var(--radius-md);
-  background: transparent;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
 }
-.icon-btn:hover { border-color: var(--border2); color: var(--text); }
-.icon-btn svg { width: 15px; height: 15px; stroke: currentColor; }
-.icon-btn.copied { border-color: var(--green); color: var(--green); }
-
-.theme-toggle {
-  position: fixed;
-  top: 10px;
-  right: 16px;
-  z-index: 102;
-  background: color-mix(in srgb, var(--bg) 70%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.theme-btn:hover { color: var(--text); background: var(--hairline); }
+.theme-btn svg { width: 16px; height: 16px; stroke: currentColor; }
+.theme-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 144px;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 4px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  z-index: 120;
 }
-body.past-hero .theme-toggle { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
-/* Keep the running head's own controls clear of the fixed toggle. */
-body.past-hero .runhead { padding-right: 62px; }
+.theme-menu.open { display: block; }
+.theme-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-lg);
+  color: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.theme-menu button:hover { background: var(--surface); color: var(--text); }
+.theme-menu button.active { color: var(--accent); }
+.theme-menu svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
 
 /* ── HERO · the title page ──
  * Unchanged from the original landing: same sizes, same rhythm, same glass
@@ -511,7 +530,9 @@ h2 {
   max-width: 22ch;
 }
 h3 {
-  font-size: 17px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 19px;
   font-weight: 600;
   letter-spacing: -0.005em;
   margin-bottom: 6px;
@@ -541,7 +562,7 @@ p { max-width: var(--measure); }
  * A mosaic of mixed-width cells (illustration, UI vignette, note) that share
  * single hairlines at every join instead of each carrying its own bordered,
  * rounded, shadowed card. The trick: a 1px grid gap over a hairline-colored
- * background — the gap itself becomes the dividing rule, so a shared edge
+ * background, so the gap itself becomes the dividing rule and a shared edge
  * never doubles up the way two adjacent borders would. Hard corners
  * throughout: no radius, no shadow, no hover lift anywhere in this section. */
 .bento {
@@ -563,7 +584,7 @@ p { max-width: var(--measure); }
 .cell--big { grid-column: span 4; }   /* a size between wide and full, for irregular mosaics */
 .cell--full { grid-column: span 6; }
 
-/* Scroll-in stagger: a quiet fade only (no lift, no scale — motion here
+/* Scroll-in stagger: a quiet fade only (no lift, no scale, since motion here
  * shouldn't read as a card announcing itself). See wireBentoReveal in
  * splash.js; this is the static-page stand-in for Framer Motion's
  * whileInView + staggerChildren. */
@@ -586,9 +607,7 @@ p { max-width: var(--measure); }
   object-position: center;
   border-bottom: var(--rule);
   background: var(--muted-bg);
-  transition: transform 0.4s ease;
 }
-.cell:hover .cell-media { transform: scale(1.03); }
 
 .cell-body { padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .cell-desc { font-size: 14px; line-height: 1.6; color: var(--muted-foreground); }
@@ -626,7 +645,7 @@ p { max-width: var(--measure); }
  * dark (standing in for the always-dark product surface); the caption below
  * it stays on .cell-body's normal surface tokens, so it still follows the
  * site's light/dark theme like every other cell. Motion here is ambient
- * (plays on its own, on a loop) rather than hover-triggered — these aren't
+ * (plays on its own, on a loop) rather than hover-triggered, since these aren't
  * links, so nothing about them should react to the cursor the way a
  * clickable card would. */
 .cell--gui {
@@ -713,7 +732,7 @@ p { max-width: var(--measure); }
 }
 .gui-text { font-size: 13px; line-height: 1.5; color: var(--gv-text); }
 /* l9 · JSON-viewer vignette: line-gutter, bracket framing, string/number
- * syntax color, a trailing live cursor — reads as a code panel, not a list. */
+ * syntax color, a trailing live cursor: reads as a code panel, not a list. */
 .gui-chrome--path { gap: 4px; }
 .gui-path-sep { color: var(--gv-line); margin: 0 2px; }
 .gui-code {
@@ -729,7 +748,7 @@ p { max-width: var(--measure); }
 .gui-str { color: var(--gv-green); }
 .gui-num { color: var(--gv-accent); }
 
-/* Episodes · a real data table: header row, columns, striped rows — reads
+/* Episodes · a real data table: header row, columns, striped rows. Reads
  * as tabular data, not a chat or a list. */
 .gui-table { padding: 6px var(--space-4) var(--space-3); font-size: 12px; }
 .gui-table-head,
@@ -766,7 +785,7 @@ p { max-width: var(--measure); }
 }
 .gui-ep-who { font-size: 11px; color: var(--gv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Members · a wrapping avatar-chip roster — a people grid, not a list. */
+/* Members · a wrapping avatar-chip roster: a people grid, not a list. */
 .gui-roster { display: flex; flex-wrap: wrap; gap: 8px; padding: var(--space-4); }
 .gui-chip {
   flex: 1 1 108px;
@@ -857,7 +876,7 @@ p { max-width: var(--measure); }
 /* ── PLATE VARIANTS ──
  * Three ways a plate carries its caption, so the mosaic reads as a set of
  * specimens rather than one template stamped five times. Hard corners and
- * hairline dividers throughout — no radius, no shadow, matching the rest
+ * hairline dividers throughout: no radius, no shadow, matching the rest
  * of the tight bento. */
 
 /* Overlay: the image fills the whole cell; the caption sits on a scrim at
@@ -924,38 +943,6 @@ p { max-width: var(--measure); }
 .vocab dt { font-family: var(--font-mono); font-size: 12px; color: var(--accent); white-space: nowrap; }
 .vocab dd { color: var(--muted-foreground); }
 
-/* Three trust tiers, read left to right. */
-.tiers {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: var(--rule);
-}
-@media (max-width: 760px) { .tiers { grid-template-columns: 1fr; gap: var(--space-3); } }
-.tier-k {
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  color: var(--text);
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.tier-tag {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent2);
-  border: 1px solid color-mix(in srgb, var(--accent2) 32%, transparent);
-  border-radius: 999px;
-  padding: 0 7px;
-}
-.tier-v { font-size: 13.5px; line-height: 1.55; color: var(--muted-foreground); }
-
 /* ── CODE ── */
 pre {
   background: var(--paper);
@@ -973,63 +960,6 @@ pre .b { color: var(--accent2); font-weight: 600; }
 pre .cmd { color: var(--code-cmd); }
 pre .f { color: var(--code-flag); }
 pre .s { color: var(--code-str); }
-
-/* ── METHOD · the arc as one strip ──
- * Five stops inside a single bento cell rather than five cells each repeating
- * the caption template. Same trick as the bento itself: a 1px gap over a
- * hairline-colored ground, so the dividers survive any wrap without a
- * last-child exception. */
-.flow {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border-top: var(--rule);
-  margin-top: var(--space-4);
-  list-style: none;
-}
-.flow-step {
-  background: var(--surface);
-  padding: var(--space-4) var(--space-3) var(--space-2) 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.flow-step + .flow-step { padding-left: var(--space-3); }
-.flow-n {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent2);
-}
-.flow-t {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 600;
-  font-size: 19px;
-  line-height: 1.18;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-.flow-d { font-size: 13px; line-height: 1.55; color: var(--muted-foreground); }
-.flow-d code {
-  font-size: 12px;
-  background: var(--paper);
-  border: var(--rule);
-  padding: 0.5px 4px;
-  color: var(--accent);
-}
-@media (max-width: 900px) {
-  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .flow-step { padding-left: var(--space-3); }
-  .flow-step:last-child { grid-column: span 2; }
-}
-@media (max-width: 560px) {
-  .flow { grid-template-columns: 1fr; }
-  .flow-step:last-child { grid-column: auto; }
-}
 
 /* Two readouts side by side: the whole point is reading them against each
  * other, so they never stack until the cell is genuinely too narrow. */
@@ -1051,19 +981,6 @@ pre .s { color: var(--code-str); }
 .tree .dir { color: var(--text); }
 .tree .note { color: var(--faint); }
 .tree .root { color: var(--accent); }
-
-/* Facts, one per bento cell — no divider needed, the cell edge is the divider. */
-.fact-k {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent2);
-  margin-bottom: 3px;
-}
-.fact-v { font-size: 14.5px; color: var(--muted-foreground); line-height: 1.6; }
-.fact-v strong { color: var(--text); font-weight: 500; }
 
 /* ── MEASUREMENT · the metrics table ── */
 table {

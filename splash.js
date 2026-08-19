@@ -18,17 +18,30 @@ function applyTheme(pref) {
   var dark = pref === 'dark'
     || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.classList.toggle('dark', dark);
-  var btn = document.getElementById('theme-toggle');
-  if (btn) btn.innerHTML = dark ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+  var btn = document.getElementById('theme-btn');
+  if (btn) btn.innerHTML = '<i data-lucide="' + (dark ? 'moon' : 'sun') + '"></i>';
+  document.querySelectorAll('[data-theme-set]').forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-theme-set') === pref);
+  });
   if (window.lucide) window.lucide.createIcons();
   window.dispatchEvent(new CustomEvent('mycelium:theme'));
 }
 
-function toggleTheme() {
-  var next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-  try { localStorage.setItem('mycelium-theme', next); } catch (e) {}
-  applyTheme(next);
+function setTheme(pref) {
+  try { localStorage.setItem('mycelium-theme', pref); } catch (e) {}
+  applyTheme(pref);
 }
+
+function toggleThemeMenu(e) {
+  e.stopPropagation();
+  var menu = document.getElementById('theme-menu');
+  if (menu) menu.classList.toggle('open');
+}
+
+document.addEventListener('click', function () {
+  var menu = document.getElementById('theme-menu');
+  if (menu) menu.classList.remove('open');
+});
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
   if (currentPref() === 'system') applyTheme('system');
