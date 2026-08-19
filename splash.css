@@ -1,0 +1,1168 @@
+/* ── mycelium · splash ──
+ *
+ * The docs site (mycelium.css) is the source of truth for the design system.
+ * This file mirrors its token contract exactly: same palette, same radii, same
+ * register discipline. When the docs palette moves, move this with it rather
+ * than inventing a landing-only variant.
+ *
+ * Register: the page is laid out as a specimen sheet. Sections are numbered
+ * (§ 00, § 01, ...), plates are figures with captions, the hero is a dictionary
+ * entry. Flat throughout — surfaces and hairlines carry hierarchy, not shadows
+ * or gradients. The single exception is the radial mask over the mycelial
+ * canvas, which exists so hero copy stays legible over the animation.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+/* ── Palette ──
+ * Copied from the docs token contract. A token is either a surface you sit ON
+ * or a foreground you paint WITH, never both. One accent, one job. */
+:root {
+  /* surfaces */
+  --bg: #f4ecda;
+  --surface: #eee4cd;
+  --paper: #fbf5e6;
+  --elevated: #fdf9ed;
+  --muted-bg: #e9dfc8;
+  --hairline: rgba(58, 46, 22, 0.05);
+  /* text */
+  --text: #2a2419;
+  --muted-foreground: #6a6250;
+  --faint: #a99f88;
+  /* lines */
+  --border: rgba(58, 46, 22, 0.12);
+  --border2: rgba(58, 46, 22, 0.20);
+  /* accent (one job: primary action + active state) */
+  --accent: #0c7d8f;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(12, 125, 143, 0.10);
+  /* secondary accent: decoration and labels only, never a link signal */
+  --accent2: #7a4fd0;
+  /* semantic state */
+  --green: #0d8a63;
+  --yellow: #8a6410;
+  --red: #bd3f3a;
+
+  --code-comment: #6b7480;
+  --code-cmd: #0c7d8f;
+  --code-flag: #3f6ea8;
+  --code-str: #0d8a63;
+  --code-arg: #7a4fa3;
+
+  /* Mycelial background canvas reads these (see splash.js). Dark ink on a
+   * light ground reads heavier at equal alpha, so light runs quieter. */
+  --canvas-bg: #f4ecda;
+  --canvas-ink: 12, 125, 143;
+  --canvas-alpha: 0.85;
+  /* How much of the canvas survives past the hero. The splash runs livelier up
+   * top and settles down once you're reading. */
+  --canvas-rest: 0.4;
+}
+
+html.dark {
+  --bg: #0c0e11;
+  --surface: #14171c;
+  --paper: #191d22;
+  --elevated: #21262d;
+  --muted-bg: #21262d;
+  --hairline: rgba(255, 255, 255, 0.035);
+  --text: #e8ebee;
+  --muted-foreground: #a7adb5;
+  --faint: #565d65;
+  --border: rgba(255, 255, 255, 0.08);
+  --border2: rgba(255, 255, 255, 0.16);
+  --accent: #5cc7d2;
+  --accent-fg: #06181b;
+  --accent-soft: rgba(92, 199, 210, 0.13);
+  --accent2: #b295ec;
+  --green: #4fc296;
+  --yellow: #d9a94e;
+  --red: #e6746f;
+
+  --code-comment: #7c848d;
+  --code-cmd: #5cc7d2;
+  --code-flag: #8fb8e8;
+  --code-str: #4fc296;
+  --code-arg: #c3a2e0;
+
+  --canvas-bg: #0c0e11;
+  --canvas-ink: 92, 199, 210;
+  --canvas-alpha: 1.5;
+  --canvas-rest: 0.42;
+}
+
+:root {
+  --font-mono: 'Geist Mono', 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --sheet: 1180px;
+  --measure: 68ch;
+  --rule: 1px solid var(--border);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--accent-soft); color: var(--text); }
+
+html { scrollbar-color: var(--border2) transparent; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--faint); }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+code { font-family: var(--font-mono); }
+
+/* ── BACKGROUND CANVAS ──
+ * The mycelial network. Fixed behind everything; runs at full strength over the
+ * hero and drops to --canvas-rest once you scroll into the reading sections. */
+#mycelium-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  transition: opacity 0.7s ease;
+}
+body.past-hero #mycelium-bg { opacity: var(--canvas-rest); }
+
+/* Soft mask so hero copy reads clearly while the network stays visible at the
+ * edges. The one gradient on the page, and it is doing legibility work. */
+.hero-mask {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 60% 70% at 50% 45%,
+    color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 50%, transparent) 60%,
+    transparent 100%
+  );
+  transition: opacity 0.7s ease;
+}
+body.past-hero .hero-mask { opacity: 0; }
+
+/* ── RUNNING HEAD ──
+ * A journal running head rather than a marketing nav: it carries the title and
+ * the version, and only appears once you have left the title page. */
+.runhead {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 var(--space-5);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: var(--rule);
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+body.past-hero .runhead { opacity: 1; transform: none; pointer-events: auto; }
+
+.runhead-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 23px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.runhead-brand:hover { text-decoration: none; }
+.runhead-brand img { width: 19px; height: 19px; object-fit: contain; transform: translateY(1px); }
+
+.runhead-folio {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.runhead-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+.runhead-right a.quiet {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.runhead-right a.quiet:hover { color: var(--text); text-decoration: none; }
+
+@media (max-width: 720px) {
+  .runhead-folio { display: none; }
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.btn:hover { border-color: var(--border2); background: var(--muted-bg); text-decoration: none; }
+.btn svg { width: 14px; height: 14px; stroke: currentColor; }
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, var(--text));
+  border-color: color-mix(in srgb, var(--accent) 88%, var(--text));
+  color: var(--accent-fg);
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.icon-btn:hover { border-color: var(--border2); color: var(--text); }
+.icon-btn svg { width: 15px; height: 15px; stroke: currentColor; }
+.icon-btn.copied { border-color: var(--green); color: var(--green); }
+
+.theme-toggle {
+  position: fixed;
+  top: 10px;
+  right: 16px;
+  z-index: 102;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+body.past-hero .theme-toggle { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+/* Keep the running head's own controls clear of the fixed toggle. */
+body.past-hero .runhead { padding-right: 62px; }
+
+/* ── HERO · the title page ──
+ * Unchanged from the original landing: same sizes, same rhythm, same glass
+ * install block. The only edit is the eyebrow, which is now the dictionary
+ * pronunciation line the docs hero uses. */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 24px 60px;
+  position: relative;
+}
+.wrap {
+  max-width: 760px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+/* Sits exactly where the eyebrow used to, and keeps its spacing. */
+.pronunciation {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: clamp(36px, 7vw, 58px);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+  font-family: var(--font-serif);
+}
+
+.version-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-foreground);
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.version-badge:hover { color: var(--accent); text-decoration: none; }
+
+.tagline {
+  font-size: clamp(15px, 2.5vw, 18px);
+  color: var(--muted-foreground);
+  line-height: 1.65;
+  margin-bottom: 28px;
+  max-width: none;
+}
+
+.install-block {
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: var(--rule);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+.install-block--solid {
+  background: var(--surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  margin-bottom: 0;
+  max-width: 720px;
+  width: 100%;
+}
+
+.toggle-tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+.toggle-tab {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.toggle-tab:hover { border-color: var(--accent); color: var(--accent); }
+.toggle-tab.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+.install-cmd { display: flex; align-items: center; gap: 16px; }
+.install-cmd code {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--accent);
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.copy-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted-foreground);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+.copy-btn svg { width: 15px; height: 15px; stroke: currentColor; }
+
+.links { display: flex; gap: 24px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+.links a {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+.links a:hover { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 480px) {
+  .install-cmd code { font-size: 12px; }
+}
+
+/* The only thing added above the fold: a quiet cue that there is more below. */
+.scroll-cue {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  transition: opacity 0.4s ease;
+}
+.scroll-cue:hover { color: var(--muted-foreground); text-decoration: none; }
+.scroll-cue svg { width: 14px; height: 14px; stroke: currentColor; animation: cue 2.4s ease-in-out infinite; }
+body.past-hero .scroll-cue { opacity: 0; }
+@keyframes cue {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .scroll-cue svg { animation: none; } }
+
+/* The arc, set as an epigraph opening the reading half of the page. */
+.arc {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--muted-foreground);
+  text-align: left;
+  padding: var(--space-6) var(--space-6) var(--space-6);
+  letter-spacing: 0.01em;
+  scroll-margin-top: 54px;
+}
+.arc .sep { color: var(--faint); font-style: normal; margin: 0 6px; }
+
+/* ── SHEET ──
+ * Everything below the title page sits on a sheet, so the canvas reads as a
+ * margin rather than as noise behind body copy. */
+.sheet {
+  position: relative;
+  max-width: var(--sheet);
+  margin: 0 auto;
+  background: color-mix(in srgb, var(--bg) 93%, transparent);
+  border-left: var(--rule);
+  border-right: var(--rule);
+}
+@media (max-width: 1220px) {
+  .sheet { border-left: none; border-right: none; }
+}
+
+.sec {
+  padding: 96px var(--space-6);
+  border-top: var(--rule);
+  scroll-margin-top: 54px;
+}
+.sec:first-child { border-top: none; }
+@media (max-width: 640px) { .sec { padding: var(--space-7) var(--space-5); } }
+
+h2 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-4);
+  max-width: 22ch;
+}
+h3 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin-bottom: 6px;
+}
+
+.lead {
+  font-size: 18px;
+  line-height: 1.62;
+  color: var(--muted-foreground);
+  max-width: var(--measure);
+}
+.lead strong { color: var(--text); font-weight: 500; }
+.lead + .lead { margin-top: var(--space-4); }
+
+p { max-width: var(--measure); }
+
+/* Two-column editorial split, used by the abstract. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-7);
+  align-items: start;
+}
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: var(--space-5); } }
+
+/* ── TIGHT BENTO ──
+ * A mosaic of mixed-width cells (illustration, UI vignette, note) that share
+ * single hairlines at every join instead of each carrying its own bordered,
+ * rounded, shadowed card. The trick: a 1px grid gap over a hairline-colored
+ * background — the gap itself becomes the dividing rule, so a shared edge
+ * never doubles up the way two adjacent borders would. Hard corners
+ * throughout: no radius, no shadow, no hover lift anywhere in this section. */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-flow: dense;
+  gap: 1px;
+  background: var(--border);
+  border: var(--rule);
+  margin-top: var(--space-6);
+}
+.cell {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+.cell--wide { grid-column: span 3; }
+.cell--big { grid-column: span 4; }   /* a size between wide and full, for irregular mosaics */
+.cell--full { grid-column: span 6; }
+
+/* Scroll-in stagger: a quiet fade only (no lift, no scale — motion here
+ * shouldn't read as a card announcing itself). See wireBentoReveal in
+ * splash.js; this is the static-page stand-in for Framer Motion's
+ * whileInView + staggerChildren. */
+.bento .cell {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transition-delay: calc(var(--stagger, 0) * 60ms);
+}
+.bento .cell.in { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .bento .cell { opacity: 1; transition: none; }
+}
+
+.cell-media {
+  display: block;
+  flex: none;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+  border-bottom: var(--rule);
+  background: var(--muted-bg);
+  transition: transform 0.4s ease;
+}
+.cell:hover .cell-media { transform: scale(1.03); }
+
+.cell-body { padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.cell-desc { font-size: 14px; line-height: 1.6; color: var(--muted-foreground); }
+.cell-desc code {
+  font-size: 12.5px;
+  background: var(--paper);
+  border: var(--rule);
+  padding: 0.5px 5px;
+  color: var(--accent);
+}
+.cell-foot {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.cell-foot a { color: var(--muted-foreground); }
+.cell-foot a:hover { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 1100px) {
+  .bento { grid-template-columns: repeat(4, 1fr); }
+  .cell, .cell--wide { grid-column: span 2; }
+  .cell--big, .cell--full { grid-column: span 4; }
+}
+@media (max-width: 620px) {
+  .bento { grid-template-columns: 1fr; }
+  .cell, .cell--wide, .cell--big, .cell--full { grid-column: span 1; }
+  .cell-media, .plate-pending { aspect-ratio: 16 / 10; }
+}
+
+/* ── GUI VIGNETTES ──
+ * Hand-built mockups of the room UI, not screenshots (so they never drift
+ * out of sync with the real app). Only the chrome/content strip is fixed
+ * dark (standing in for the always-dark product surface); the caption below
+ * it stays on .cell-body's normal surface tokens, so it still follows the
+ * site's light/dark theme like every other cell. Motion here is ambient
+ * (plays on its own, on a loop) rather than hover-triggered — these aren't
+ * links, so nothing about them should react to the cursor the way a
+ * clickable card would. */
+.cell--gui {
+  --gv-bg: #0b0d12;
+  --gv-panel: #12151b;
+  --gv-line: rgba(255, 255, 255, 0.08);
+  --gv-text: #d7dae0;
+  --gv-muted: #7d8590;
+  --gv-accent: #5dd4e0;
+  --gv-green: #4fc296;
+  --gv-yellow: #d9a94e;
+}
+.gui-chrome,
+.gui-chat,
+.gui-code,
+.gui-table,
+.gui-roster {
+  background: var(--gv-bg);
+}
+.gui-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gv-line);
+  background: var(--gv-panel);
+}
+.gui-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gv-line); }
+.gui-dot--live { background: var(--gv-accent); animation: gv-pulse 2.4s ease-in-out infinite; }
+.gui-room {
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gv-muted);
+}
+.gui-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gv-muted);
+}
+.gui-count--live { color: var(--gv-accent); }
+@keyframes gv-pulse {
+  0%, 100% { opacity: 0.45; box-shadow: 0 0 0 0 color-mix(in srgb, var(--gv-accent) 40%, transparent); }
+  50% { opacity: 1; box-shadow: 0 0 0 4px color-mix(in srgb, var(--gv-accent) 0%, transparent); }
+}
+.gui-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 13px;
+  margin-left: 2px;
+  background: var(--gv-accent);
+  vertical-align: -2px;
+  animation: gv-blink 1.1s step-end infinite;
+}
+@keyframes gv-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .gui-dot--live, .gui-cursor, .gui-ep-dot--live { animation: none; }
+}
+.gui-chat { padding: var(--space-4); display: flex; flex-direction: column; gap: 12px; }
+.gui-msg { display: flex; gap: 10px; }
+.gui-avatar {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--gv-text);
+  background: var(--gv-panel);
+  border: 1px solid var(--gv-line);
+}
+.gui-avatar--agent { color: var(--gv-accent); border-color: color-mix(in srgb, var(--gv-accent) 40%, transparent); }
+.gui-name { font-size: 12px; color: var(--gv-muted); margin-bottom: 2px; }
+.gui-name .gui-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gv-accent);
+  margin-left: 4px;
+}
+.gui-text { font-size: 13px; line-height: 1.5; color: var(--gv-text); }
+/* l9 · JSON-viewer vignette: line-gutter, bracket framing, string/number
+ * syntax color, a trailing live cursor — reads as a code panel, not a list. */
+.gui-chrome--path { gap: 4px; }
+.gui-path-sep { color: var(--gv-line); margin: 0 2px; }
+.gui-code {
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+.gui-code-row { display: flex; gap: 10px; }
+.gui-code-row .ln { flex: none; width: 12px; text-align: right; color: var(--gv-line); user-select: none; }
+.gui-code-text { color: var(--gv-text); white-space: pre; }
+.gui-code-text .k { color: var(--gv-muted); }
+.gui-str { color: var(--gv-green); }
+.gui-num { color: var(--gv-accent); }
+
+/* Episodes · a real data table: header row, columns, striped rows — reads
+ * as tabular data, not a chat or a list. */
+.gui-table { padding: 6px var(--space-4) var(--space-3); font-size: 12px; }
+.gui-table-head,
+.gui-table-row {
+  display: grid;
+  grid-template-columns: 56px 76px 32px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.gui-table-head {
+  padding: 4px 0 7px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gv-muted);
+  border-bottom: 1px solid var(--gv-line);
+}
+.gui-table-row { padding: 7px 0; border-bottom: 1px solid var(--gv-line); }
+.gui-table-row:last-child { border-bottom: none; }
+.gui-table-row:nth-child(even) { background: color-mix(in srgb, var(--gv-line) 40%, transparent); }
+.gui-table-num { font-family: var(--font-mono); color: var(--gv-muted); text-align: right; }
+.gui-ep-id { font-family: var(--font-mono); color: var(--gv-muted); display: flex; align-items: center; gap: 5px; }
+.gui-ep-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gv-muted); }
+.gui-ep-dot--live { background: var(--gv-accent); animation: gv-pulse 2.4s ease-in-out infinite; }
+.gui-ep-state {
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 1px 6px;
+  text-transform: capitalize;
+  white-space: nowrap;
+  justify-self: start;
+}
+.gui-ep-who { font-size: 11px; color: var(--gv-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Members · a wrapping avatar-chip roster — a people grid, not a list. */
+.gui-roster { display: flex; flex-wrap: wrap; gap: 8px; padding: var(--space-4); }
+.gui-chip {
+  flex: 1 1 108px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 8px 10px;
+  border: 1px solid var(--gv-line);
+  font-size: 12px;
+}
+.gui-chip-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--gv-text);
+  background: var(--gv-panel);
+  border: 1px solid var(--gv-line);
+}
+.gui-chip--agent .gui-chip-avatar { color: var(--gv-accent); border-color: color-mix(in srgb, var(--gv-accent) 40%, transparent); }
+.gui-chip-name { font-family: var(--font-mono); font-weight: 600; color: var(--gv-text); }
+.gui-chip--agent .gui-chip-name { color: var(--gv-accent); }
+.gui-you {
+  font-family: var(--font-sans, inherit);
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--gv-accent);
+  margin-left: 6px;
+}
+.gui-owner {
+  font-family: var(--font-sans, inherit);
+  font-weight: 400;
+  font-size: 10.5px;
+  color: var(--gv-muted);
+  margin-left: 6px;
+}
+.gui-chip-sub { font-size: 10.5px; color: var(--gv-muted); }
+
+/* Plate awaiting art. The <img> is real: drop the named file into the repo root
+ * and it replaces this frame with no markup change. Until then the frame states
+ * what the plate is for, so the layout is honest rather than broken. */
+.plate { position: relative; }
+.plate-pending {
+  display: none;
+  aspect-ratio: 1 / 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--space-4);
+  text-align: center;
+  border-bottom: var(--rule);
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0 9px,
+      var(--hairline) 9px 18px
+    ),
+    var(--muted-bg);
+  color: var(--faint);
+}
+.plate.missing .cell-media { display: none; }
+.plate.missing .plate-pending { display: flex; }
+.plate-pending .pp-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent2);
+}
+.plate-pending .pp-file {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.plate-pending .pp-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 34ch;
+  color: var(--faint);
+}
+
+/* ── PLATE VARIANTS ──
+ * Three ways a plate carries its caption, so the mosaic reads as a set of
+ * specimens rather than one template stamped five times. Hard corners and
+ * hairline dividers throughout — no radius, no shadow, matching the rest
+ * of the tight bento. */
+
+/* Overlay: the image fills the whole cell; the caption sits on a scrim at
+ * the bottom rather than a separate block below it. */
+.plate--overlay { min-height: 380px; }
+.plate--overlay .cell-media,
+.plate--overlay .plate-pending {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-bottom: none;
+}
+.plate--overlay .cell-body {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  background: linear-gradient(to top, rgba(10, 8, 4, 0.86) 0%, rgba(10, 8, 4, 0.5) 60%, transparent 100%);
+}
+.plate--overlay .cell-body h3 { color: #fdf9ed; }
+.plate--overlay .cell-body .cell-desc { color: rgba(253, 249, 237, 0.8); }
+
+/* Split: a square thumbnail beside the caption, sharing a hairline instead
+ * of stacking above it. */
+.plate--split,
+.plate--split-reverse { flex-direction: row; }
+.plate--split-reverse { flex-direction: row-reverse; }
+.plate--split .cell-media,
+.plate--split .plate-pending,
+.plate--split-reverse .cell-media,
+.plate--split-reverse .plate-pending {
+  flex: 0 0 38%;
+  width: 38%;
+  height: auto;
+  min-height: 200px;
+  align-self: stretch;
+  aspect-ratio: auto;
+  border-bottom: none;
+}
+.plate--split .cell-media, .plate--split .plate-pending { border-right: var(--rule); }
+.plate--split-reverse .cell-media, .plate--split-reverse .plate-pending { border-left: var(--rule); }
+.plate--split .cell-body,
+.plate--split-reverse .cell-body { justify-content: center; }
+
+@media (max-width: 620px) {
+  .plate--overlay { min-height: 300px; }
+  .plate--split, .plate--split-reverse { flex-direction: column; }
+  .plate--split .cell-media, .plate--split .plate-pending,
+  .plate--split-reverse .cell-media, .plate--split-reverse .plate-pending {
+    flex: none; width: 100%; min-height: 0; aspect-ratio: 16 / 10;
+    border: none; border-bottom: var(--rule);
+  }
+}
+
+/* A compact term/definition list, set like a glossary column. */
+.vocab {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px var(--space-3);
+  margin-top: 10px;
+  font-size: 13px;
+}
+.vocab dt { font-family: var(--font-mono); font-size: 12px; color: var(--accent); white-space: nowrap; }
+.vocab dd { color: var(--muted-foreground); }
+
+/* Three trust tiers, read left to right. */
+.tiers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--rule);
+}
+@media (max-width: 760px) { .tiers { grid-template-columns: 1fr; gap: var(--space-3); } }
+.tier-k {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tier-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  border: 1px solid color-mix(in srgb, var(--accent2) 32%, transparent);
+  border-radius: 999px;
+  padding: 0 7px;
+}
+.tier-v { font-size: 13.5px; line-height: 1.55; color: var(--muted-foreground); }
+
+/* ── CODE ── */
+pre {
+  background: var(--paper);
+  border: var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: var(--text);
+}
+pre .c { color: var(--code-comment); }
+pre .b { color: var(--accent2); font-weight: 600; }
+pre .cmd { color: var(--code-cmd); }
+pre .f { color: var(--code-flag); }
+pre .s { color: var(--code-str); }
+
+/* ── METHOD · the arc as one strip ──
+ * Five stops inside a single bento cell rather than five cells each repeating
+ * the caption template. Same trick as the bento itself: a 1px gap over a
+ * hairline-colored ground, so the dividers survive any wrap without a
+ * last-child exception. */
+.flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border-top: var(--rule);
+  margin-top: var(--space-4);
+  list-style: none;
+}
+.flow-step {
+  background: var(--surface);
+  padding: var(--space-4) var(--space-3) var(--space-2) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.flow-step + .flow-step { padding-left: var(--space-3); }
+.flow-n {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent2);
+}
+.flow-t {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.flow-d { font-size: 13px; line-height: 1.55; color: var(--muted-foreground); }
+.flow-d code {
+  font-size: 12px;
+  background: var(--paper);
+  border: var(--rule);
+  padding: 0.5px 4px;
+  color: var(--accent);
+}
+@media (max-width: 900px) {
+  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .flow-step { padding-left: var(--space-3); }
+  .flow-step:last-child { grid-column: span 2; }
+}
+@media (max-width: 560px) {
+  .flow { grid-template-columns: 1fr; }
+  .flow-step:last-child { grid-column: auto; }
+}
+
+/* Two readouts side by side: the whole point is reading them against each
+ * other, so they never stack until the cell is genuinely too narrow. */
+.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-4); }
+@media (max-width: 700px) { .readouts { grid-template-columns: 1fr; } }
+
+/* ── APPARATUS · the room on disk ── */
+.tree {
+  white-space: pre;
+  background: var(--paper);
+  border: var(--rule);
+  padding: var(--space-5);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.85;
+  overflow-x: auto;
+  color: var(--muted-foreground);
+}
+.tree .dir { color: var(--text); }
+.tree .note { color: var(--faint); }
+.tree .root { color: var(--accent); }
+
+/* Facts, one per bento cell — no divider needed, the cell edge is the divider. */
+.fact-k {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 3px;
+}
+.fact-v { font-size: 14.5px; color: var(--muted-foreground); line-height: 1.6; }
+.fact-v strong { color: var(--text); font-weight: 500; }
+
+/* ── MEASUREMENT · the metrics table ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th, td { text-align: left; padding: 9px 0; border-bottom: var(--rule); vertical-align: top; }
+th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  border-bottom: 1px solid var(--border2);
+}
+td:first-child { font-family: var(--font-mono); font-size: 13px; color: var(--text); white-space: nowrap; }
+td { color: var(--muted-foreground); }
+tr:hover td { background: var(--hairline); }
+
+.readout {
+  border: var(--rule);
+  background: var(--paper);
+  padding: var(--space-4);
+}
+.readout-head {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+.readout--good .readout-head { color: var(--green); }
+.readout--thin .readout-head { color: var(--yellow); }
+.readout-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: var(--rule);
+}
+.readout-row:last-of-type { border-bottom: none; }
+.readout-row .k { color: var(--faint); }
+.readout-row .v { color: var(--text); }
+.readout-verdict { margin-top: var(--space-3); font-size: 13.5px; line-height: 1.55; color: var(--muted-foreground); }
+
+/* ── CTA ── */
+.cta { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.cta h2 { max-width: 20ch; }
+.cta .lead { margin-bottom: var(--space-6); }
+.cta-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: center; margin-top: var(--space-5); }
+
+/* ── COLOPHON ── */
+.colophon {
+  max-width: var(--sheet);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-8);
+  border-top: var(--rule);
+  background: color-mix(in srgb, var(--bg) 93%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+@media (max-width: 1220px) { .colophon { border-left: none; border-right: none; } }
+.colophon a { color: var(--muted-foreground); }
+.colophon a:hover { color: var(--accent); text-decoration: none; }
+.colophon .motto { margin-left: auto; font-family: var(--font-serif); font-style: italic; font-size: 15px; letter-spacing: 0; }
+@media (max-width: 720px) { .colophon .motto { margin-left: 0; } }
+
+/* An honest note about what this is, set as a footnote. */
+.footnote {
+  max-width: var(--sheet);
+  margin: 0 auto;
+  padding: 0 var(--space-6) var(--space-7);
+  background: color-mix(in srgb, var(--bg) 93%, transparent);
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+  display: flex;
+  gap: var(--space-3);
+}
+.footnote .dagger { color: var(--accent2); font-family: var(--font-serif); font-size: 16px; line-height: 1.3; }
+.footnote p { max-width: 80ch; }
+
+/* ── REVEAL ──
+ * Sections settle in as you reach them. Opt-out honoured. */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  #mycelium-bg, .hero-mask, .runhead { transition: none; }
+}
