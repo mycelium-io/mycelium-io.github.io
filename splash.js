@@ -47,6 +47,32 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
   if (currentPref() === 'system') applyTheme('system');
 });
 
+// ── CLICK SOUND ──
+// A tiny synthesized blip (Web Audio, no asset file) for the install-tab
+// switches and the copy button, so those two "you did a thing" moments get
+// a bit of tactile feedback. Muted for reduced-motion, since that pref is
+// the closest signal we have to "please don't add sensory extras."
+
+var clickCtx;
+function playClick() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  try {
+    clickCtx = clickCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (clickCtx.state === 'suspended') clickCtx.resume();
+    var t = clickCtx.currentTime;
+    var osc = clickCtx.createOscillator();
+    var gain = clickCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1400, t);
+    osc.frequency.exponentialRampToValueAtTime(500, t + 0.035);
+    gain.gain.setValueAtTime(0.05, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+    osc.connect(gain).connect(clickCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.05);
+  } catch (e) {}
+}
+
 // ── INSTALL BLOCK ──
 // Both install blocks (title page and § 05) stay on the same tab, so a reader
 // who picked `brew` up top still sees `brew` at the bottom.
@@ -58,6 +84,7 @@ var CMDS = {
 };
 
 function setTab(tab, el) {
+  playClick();
   document.querySelectorAll('#install-cmd, #install-cmd-2').forEach(function (node) {
     node.textContent = CMDS[tab];
   });
@@ -76,6 +103,7 @@ function resetCopyBtn(btn) {
 }
 
 function copyInstall(btn) {
+  playClick();
   var code = btn.parentElement.querySelector('code');
   if (!code) return;
   navigator.clipboard.writeText(code.textContent).then(function () {
