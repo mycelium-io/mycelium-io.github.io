@@ -180,12 +180,12 @@ body.past-hero .hero-mask { opacity: 0; }
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  height: 54px;
+  height: 60px;
   display: flex;
   align-items: center;
   gap: var(--space-4);
   padding: 0 var(--space-5);
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: var(--rule);
@@ -199,17 +199,17 @@ body.past-hero .runhead { opacity: 1; transform: none; pointer-events: auto; }
 .runhead-brand {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   color: var(--text);
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 600;
-  font-size: 23px;
+  font-size: 25px;
   line-height: 1;
   letter-spacing: -0.01em;
 }
 .runhead-brand:hover { text-decoration: none; }
-.runhead-brand img { width: 19px; height: 19px; object-fit: contain; transform: translateY(1px); }
+.runhead-brand img { width: 20px; height: 20px; object-fit: contain; opacity: 0.9; transform: translateY(2px); }
 
 .runhead-folio {
   font-family: var(--font-mono);
@@ -221,14 +221,19 @@ body.past-hero .runhead { opacity: 1; transform: none; pointer-events: auto; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.runhead-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+.runhead-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .runhead-right a.quiet {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
   color: var(--muted-foreground);
+  transition: color 0.15s, background 0.15s;
 }
-.runhead-right a.quiet:hover { color: var(--text); text-decoration: none; }
+.runhead-right a.quiet:hover { color: var(--text); background: var(--hairline); text-decoration: none; }
 
 @media (max-width: 720px) {
   .runhead-folio { display: none; }
@@ -874,31 +879,10 @@ p { max-width: var(--measure); }
 }
 
 /* ── PLATE VARIANTS ──
- * Three ways a plate carries its caption, so the mosaic reads as a set of
+ * Two ways a plate carries its caption, so the mosaic reads as a set of
  * specimens rather than one template stamped five times. Hard corners and
  * hairline dividers throughout: no radius, no shadow, matching the rest
  * of the tight bento. */
-
-/* Overlay: the image fills the whole cell; the caption sits on a scrim at
- * the bottom rather than a separate block below it. */
-.plate--overlay { min-height: 380px; }
-.plate--overlay .cell-media,
-.plate--overlay .plate-pending {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
-  border-bottom: none;
-}
-.plate--overlay .cell-body {
-  position: relative;
-  z-index: 1;
-  margin-top: auto;
-  background: linear-gradient(to top, rgba(10, 8, 4, 0.86) 0%, rgba(10, 8, 4, 0.5) 60%, transparent 100%);
-}
-.plate--overlay .cell-body h3 { color: #fdf9ed; }
-.plate--overlay .cell-body .cell-desc { color: rgba(253, 249, 237, 0.8); }
 
 /* Split: a square thumbnail beside the caption, sharing a hairline instead
  * of stacking above it. */
@@ -923,7 +907,6 @@ p { max-width: var(--measure); }
 .plate--split-reverse .cell-body { justify-content: center; }
 
 @media (max-width: 620px) {
-  .plate--overlay { min-height: 300px; }
   .plate--split, .plate--split-reverse { flex-direction: column; }
   .plate--split .cell-media, .plate--split .plate-pending,
   .plate--split-reverse .cell-media, .plate--split-reverse .plate-pending {
