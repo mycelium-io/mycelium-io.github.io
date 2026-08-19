@@ -213,16 +213,6 @@ body.past-hero .runhead { opacity: 1; transform: none; pointer-events: auto; }
 .runhead-brand:hover { text-decoration: none; }
 .runhead-brand img { width: 20px; height: 20px; object-fit: contain; opacity: 0.9; transform: translateY(2px); }
 
-.runhead-folio {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--faint);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .runhead-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .runhead-right a.quiet {
   display: flex;
@@ -237,9 +227,6 @@ body.past-hero .runhead { opacity: 1; transform: none; pointer-events: auto; }
 }
 .runhead-right a.quiet:hover { color: var(--text); background: var(--hairline); text-decoration: none; }
 
-@media (max-width: 720px) {
-  .runhead-folio { display: none; }
-}
 
 /* ── BUTTONS ── */
 .btn {
@@ -464,25 +451,28 @@ h1 {
   .install-cmd code { font-size: 12px; }
 }
 
-/* The only thing added above the fold: a quiet cue that there is more below. */
+/* The only thing added above the fold: a cue that there is more below. */
 .scroll-cue {
   position: absolute;
-  bottom: 22px;
+  bottom: 28px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: 13px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--faint);
-  transition: opacity 0.4s ease;
+  color: var(--muted-foreground);
+  transition: opacity 0.4s ease, border-color 0.15s, color 0.15s, background 0.15s;
 }
-.scroll-cue:hover { color: var(--muted-foreground); text-decoration: none; }
-.scroll-cue svg { width: 14px; height: 14px; stroke: currentColor; animation: cue 2.4s ease-in-out infinite; }
+.scroll-cue:hover { color: var(--text); border-color: var(--border2); background: var(--muted-bg); text-decoration: none; }
+.scroll-cue svg { width: 18px; height: 18px; stroke: currentColor; animation: cue 2.4s ease-in-out infinite; }
 body.past-hero .scroll-cue { opacity: 0; }
 @keyframes cue {
   0%, 100% { transform: translateY(0); opacity: 0.6; }
@@ -892,14 +882,11 @@ p { max-width: var(--measure); }
  * of the tight bento. */
 
 /* Split: a square thumbnail beside the caption, sharing a hairline instead
- * of stacking above it. */
-.plate--split,
-.plate--split-reverse { flex-direction: row; }
-.plate--split-reverse { flex-direction: row-reverse; }
+ * of stacking above it. Always image-left/text-right (no mirrored variant)
+ * so scanning across the mosaic doesn't have to flip direction cell to cell. */
+.plate--split { flex-direction: row; }
 .plate--split .cell-media,
-.plate--split .plate-pending,
-.plate--split-reverse .cell-media,
-.plate--split-reverse .plate-pending {
+.plate--split .plate-pending {
   flex: 0 0 38%;
   width: 38%;
   height: auto;
@@ -907,16 +894,13 @@ p { max-width: var(--measure); }
   align-self: stretch;
   aspect-ratio: auto;
   border-bottom: none;
+  border-right: var(--rule);
 }
-.plate--split .cell-media, .plate--split .plate-pending { border-right: var(--rule); }
-.plate--split-reverse .cell-media, .plate--split-reverse .plate-pending { border-left: var(--rule); }
-.plate--split .cell-body,
-.plate--split-reverse .cell-body { justify-content: center; }
+.plate--split .cell-body { justify-content: center; }
 
 @media (max-width: 620px) {
-  .plate--split, .plate--split-reverse { flex-direction: column; }
-  .plate--split .cell-media, .plate--split .plate-pending,
-  .plate--split-reverse .cell-media, .plate--split-reverse .plate-pending {
+  .plate--split { flex-direction: column; }
+  .plate--split .cell-media, .plate--split .plate-pending {
     flex: none; width: 100%; min-height: 0; aspect-ratio: 16 / 10;
     border: none; border-bottom: var(--rule);
   }
