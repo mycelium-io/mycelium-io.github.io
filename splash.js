@@ -94,7 +94,7 @@ function playTick(intensity) {
 function playClick() { playTick(0.9); }
 
 function wireClickSounds() {
-  document.querySelectorAll('.toggle-tab, .copy-btn').forEach(function (el) {
+  document.querySelectorAll('.toggle-tab, .copy-btn, .carousel-tab, .carousel-arrow').forEach(function (el) {
     // mousedown, not click: a sound that lands on release reads as laggy.
     el.addEventListener('mousedown', playClick);
   });
@@ -230,6 +230,94 @@ function wireVersion() {
     .catch(function () {});
 }
 
+// ── APP CAROUSEL ──────────────────────────────────────────────────────────
+// Tabbed carousel of real app frames, with click-to-zoom. Gentle autoplay that
+// stops for good on the first interaction, and keyboard arrows when focused.
+function wireCarousel() {
+  var root = document.getElementById('app-carousel');
+  if (!root) return;
+  var slides = Array.prototype.slice.call(root.querySelectorAll('.carousel-slide'));
+  var tabs = Array.prototype.slice.call(root.querySelectorAll('.carousel-tab'));
+  var caption = document.getElementById('carousel-caption');
+  if (!slides.length) return;
+  var index = 0;
+  var timer = null;
+
+  function show(next) {
+    index = (next + slides.length) % slides.length;
+    slides.forEach(function (s, i) { s.classList.toggle('is-active', i === index); });
+    tabs.forEach(function (t, i) {
+      var on = i === index;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    if (caption) caption.textContent = slides[index].getAttribute('data-caption') || '';
+  }
+  function go(next) { stop(); show(next); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function start() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    stop();
+    timer = setInterval(function () { show(index + 1); }, 6000);
+  }
+
+  tabs.forEach(function (t, i) { t.addEventListener('click', function () { go(i); }); });
+  var prev = root.querySelector('.carousel-arrow--prev');
+  var next = root.querySelector('.carousel-arrow--next');
+  if (prev) prev.addEventListener('click', function () { go(index - 1); });
+  if (next) next.addEventListener('click', function () { go(index + 1); });
+
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { go(index - 1); }
+    else if (e.key === 'ArrowRight') { go(index + 1); }
+  });
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', function () { if (!timer) start(); });
+
+  wireLightbox(root, function () { return slides[index]; });
+  start();
+}
+
+// Click any frame (or its zoom badge) to open it full-size in the overlay.
+function wireLightbox(root, activeSlide) {
+  var box = document.getElementById('lightbox');
+  if (!box) return;
+  var img = box.querySelector('.lightbox-img');
+  var closeBtn = box.querySelector('.lightbox-close');
+
+  function open(src, alt) {
+    img.src = src;
+    img.alt = alt || '';
+    box.classList.add('is-open');
+    box.setAttribute('aria-hidden', 'false');
+  }
+  function close() {
+    box.classList.remove('is-open');
+    box.setAttribute('aria-hidden', 'true');
+    img.src = '';
+  }
+
+  root.querySelectorAll('.carousel-slide img').forEach(function (el) {
+    el.addEventListener('click', function () {
+      // Prefer the 2x source for a crisp zoom; fall back to src.
+      var set = el.getAttribute('srcset') || '';
+      var hi = set.split(',').map(function (s) { return s.trim(); })
+        .filter(function (s) { return /2x$/.test(s); })[0];
+      open(hi ? hi.split(' ')[0] : el.currentSrc || el.src, el.alt);
+    });
+  });
+  root.querySelectorAll('.carousel-zoom').forEach(function (badge) {
+    badge.addEventListener('click', function () {
+      var slide = activeSlide();
+      var el = slide && slide.querySelector('img');
+      if (el) el.click();
+    });
+  });
+  box.addEventListener('click', function (e) { if (e.target !== closeBtn) close(); });
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   applyTheme(currentPref());
   wirePlates();
@@ -237,6 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
   wireReveal();
   wireBentoReveal();
   wireClickSounds();
+  wireCarousel();
   wireVersion();
   if (window.lucide) window.lucide.createIcons();
 });
