@@ -604,7 +604,10 @@ p { max-width: var(--measure); }
   display: block;
   flex: none;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  /* 16:10, not a square: a full-bleed square plate at column width towers
+   * over a short text neighbor in the same grid row (rows stretch to the
+   * tallest cell), stranding the text cell in whitespace to match. */
+  aspect-ratio: 16 / 10;
   object-fit: cover;
   object-position: center;
   border-bottom: var(--rule);
@@ -836,7 +839,7 @@ p { max-width: var(--measure); }
 .plate { position: relative; }
 .plate-pending {
   display: none;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 16 / 10;
   flex-direction: column;
   align-items: center;
   justify-content: center;
