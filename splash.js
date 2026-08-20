@@ -238,7 +238,8 @@ function wireCarousel() {
   if (!root) return;
   var slides = Array.prototype.slice.call(root.querySelectorAll('.carousel-slide'));
   var tabs = Array.prototype.slice.call(root.querySelectorAll('.carousel-tab'));
-  var caption = document.getElementById('carousel-caption');
+  var capTitle = document.getElementById('carousel-cap-title');
+  var capText = document.getElementById('carousel-cap-text');
   if (!slides.length) return;
   var index = 0;
   var timer = null;
@@ -251,7 +252,8 @@ function wireCarousel() {
       t.classList.toggle('is-active', on);
       t.setAttribute('aria-selected', on ? 'true' : 'false');
     });
-    if (caption) caption.textContent = slides[index].getAttribute('data-caption') || '';
+    if (capTitle) capTitle.textContent = slides[index].getAttribute('data-title') || '';
+    if (capText) capText.textContent = slides[index].getAttribute('data-caption') || '';
   }
   function go(next) { stop(); show(next); }
   function stop() { if (timer) { clearInterval(timer); timer = null; } }
