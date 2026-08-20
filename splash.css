@@ -584,8 +584,9 @@ p { max-width: var(--measure); }
 .carousel-tabs {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 4px;
-  margin-bottom: var(--space-5);
+  margin-top: var(--space-5);
 }
 .carousel-tab {
   padding: 6px 14px;

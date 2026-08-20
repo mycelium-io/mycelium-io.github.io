@@ -433,13 +433,6 @@
          can't drift. A tabbed carousel with click-to-zoom; wireCarousel() in
          splash.js drives it, and it degrades to the first frame without JS. -->
     <div class="app-carousel" id="app-carousel">
-      <div class="carousel-tabs" role="tablist" aria-label="App views">
-        <button class="carousel-tab is-active" role="tab" aria-selected="true" data-slide="0">Channel</button>
-        <button class="carousel-tab" role="tab" aria-selected="false" data-slide="1">Negotiation</button>
-        <button class="carousel-tab" role="tab" aria-selected="false" data-slide="2">Memory</button>
-        <button class="carousel-tab" role="tab" aria-selected="false" data-slide="3">Network</button>
-      </div>
-
       <div class="carousel-stage">
         <button class="carousel-arrow carousel-arrow--prev" aria-label="Previous view"><i data-lucide="chevron-left"></i></button>
 
@@ -480,6 +473,13 @@
         </figure>
 
         <button class="carousel-arrow carousel-arrow--next" aria-label="Next view"><i data-lucide="chevron-right"></i></button>
+      </div>
+
+      <div class="carousel-tabs" role="tablist" aria-label="App views">
+        <button class="carousel-tab is-active" role="tab" aria-selected="true" data-slide="0">Channel</button>
+        <button class="carousel-tab" role="tab" aria-selected="false" data-slide="1">Negotiation</button>
+        <button class="carousel-tab" role="tab" aria-selected="false" data-slide="2">Memory</button>
+        <button class="carousel-tab" role="tab" aria-selected="false" data-slide="3">Network</button>
       </div>
 
       <div class="carousel-caption">
