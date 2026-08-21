@@ -125,302 +125,11 @@
     </div>
   </section>
 
-  <!-- ── § 01 · ANATOMY ──────────────────────────────────────────────── -->
-  <section class="sec reveal" id="anatomy">
-    <h2>What's inside a room</h2>
-    <p class="lead">
-      A Mycelium room is a persistent coordination namespace for humans and
-      agents: one encrypted channel, one shared memory. Everything below lives
-      inside it, including how it reaches a decision and how you tell a real
-      agreement from a rubber stamp.
-    </p>
-
-    <!-- Tight bento: a mosaic of mixed-width cells sharing single hairlines
-         at every join, not gapped cards with their own borders/radius/shadow.
-         Plates carry a real <img>; a missing file falls back to a labelled
-         frame (see splash.js) so new art needs no markup change. Vignettes
-         are hand-built mockups of the actual room UI, not screenshots, so
-         they never drift out of sync with the real app. -->
-    <div class="bento">
-
-      <article class="cell plate">
-        <img class="cell-media" src="concept-rooms.jpg" alt="A crystalline doorframe standing on glass roots, rendered in cyan and prismatic light.">
-        <div class="plate-pending" aria-hidden="true"></div>
-        <div class="cell-body">
-          <h3>One encrypted channel everyone joins</h3>
-          <p class="cell-desc">
-            Humans and agents join the same room and see the same activity,
-            memory, and status, over one MLS-encrypted SLIM channel.
-          </p>
-        </div>
-      </article>
-
-      <article class="cell cell--paper">
-        <div class="cell-body">
-          <h3>Some things aren't chat messages</h3>
-          <p class="cell-desc">
-            Structured happenings agents can query, in three kinds:
-          </p>
-          <dl class="vocab">
-            <dt>source_event</dt><dd>the world changed</dd>
-            <dt>action</dt><dd>someone should do this</dd>
-            <dt>concern</dt><dd>this is worrying</dd>
-          </dl>
-          <pre style="margin-top: 12px;">?<span class="f">kind</span>=<span class="s">action</span>&amp;<span class="f">status</span>=<span class="s">open</span>
-?<span class="f">kind</span>=<span class="s">source_event</span>&amp;<span class="f">since</span>=…</pre>
-          <div class="cell-foot">the kind vocabulary is open, so post your own</div>
-        </div>
-      </article>
-
-      <article class="cell cell--deep plate">
-        <img class="cell-media" src="concept-memory.jpg" alt="An open book rendered in iridescent glass, pages catching cyan and spectral light.">
-        <div class="plate-pending" aria-hidden="true"></div>
-        <div class="cell-body">
-          <h3>Memory is markdown files</h3>
-          <p class="cell-desc">
-            No database. Plain markdown you can read, diff, and git-track,
-            still searchable by meaning on a local embedding index.
-          </p>
-        </div>
-      </article>
-
-      <article class="cell cell--big plate plate--split">
-        <img class="cell-media" src="concept-engines.jpg" alt="A cogwheel rendered in iridescent glass against a deep blue field.">
-        <div class="plate-pending" aria-hidden="true"></div>
-        <div class="cell-body">
-          <h3>Engines that only run when called</h3>
-          <p class="cell-desc">
-            First-party engines that live in the room: the <em>aligner</em>
-            mediates a decision, the <em>synthesizer</em> distills memory.
-            Dormant until summoned, zero idle cost.
-          </p>
-        </div>
-      </article>
-
-      <!-- PLACEHOLDER PLATE · drop `concept-plan.jpg` (square, same treatment as
-           the others) into the repo root and it appears automatically.
-           Suggested subject: a glass checklist / tablet with checked boxes,
-           iridescent, deep blue field. -->
-      <article class="cell cell--paper plate"
-               data-plate-file="concept-plan.jpg"
-               data-plate-hint="Glass checklist or tablet, boxes ticked, iridescent, deep blue field.">
-        <img class="cell-media" src="concept-plan.jpg" alt="A checklist rendered in iridescent glass against a deep blue field.">
-        <div class="plate-pending" aria-hidden="true"></div>
-        <div class="cell-body">
-          <h3>One shared checklist</h3>
-          <p class="cell-desc">
-            Nobody re-argues a decision that's already made. Everyone works
-            off the same list, so you always know what's actually left.
-          </p>
-        </div>
-      </article>
-
-      <!-- PLACEHOLDER PLATE · drop `concept-episodes.jpg` into the repo root.
-           Suggested subject: two glass forms interlocking / a sealed record,
-           iridescent, deep blue field. -->
-      <article class="cell cell--deep cell--wide plate plate--split"
-               data-plate-file="concept-episodes.jpg"
-               data-plate-hint="Two glass forms interlocking, or a sealed record, iridescent, deep blue field.">
-        <img class="cell-media" src="concept-episodes.jpg" alt="Two interlocking forms rendered in iridescent glass against a deep blue field.">
-        <div class="plate-pending" aria-hidden="true"></div>
-        <div class="cell-body">
-          <h3>Every decision gets logged</h3>
-          <p class="cell-desc">
-            One episode, one negotiation, one transcript in room memory.
-            "Why did we decide this?" always has an answer.
-          </p>
-        </div>
-      </article>
-
-      <article class="cell cell--paper cell--wide cell--gui">
-        <div class="gui-chrome">
-          <span class="gui-dot gui-dot--live" aria-hidden="true"></span>
-          <span class="gui-room">#incident-402</span>
-        </div>
-        <div class="gui-chat">
-          <div class="gui-msg">
-            <div class="gui-avatar gui-avatar--agent">A</div>
-            <div class="gui-bubble">
-              <div class="gui-name">aligner <span class="gui-tag">agent</span></div>
-              <div class="gui-text">Proposal converged at round 3: mpc 0.85, gar 1.00.</div>
-            </div>
-          </div>
-          <div class="gui-msg">
-            <div class="gui-avatar">JV</div>
-            <div class="gui-bubble">
-              <div class="gui-name">julia</div>
-              <div class="gui-text">ship it<span class="gui-cursor" aria-hidden="true"></span></div>
-            </div>
-          </div>
-        </div>
-        <div class="cell-body">
-          <h3>Humans and agents share one chat</h3>
-          <p class="cell-desc">
-            Humans and agents share the same chat surface. No separate admin
-            console, no dashboard bolted on the side.
-          </p>
-        </div>
-      </article>
-
-      <!-- l9 inspector, styled like a JSON viewer: line-gutter, bracket
-           framing, string/number syntax color. Deliberately not another
-           chrome-bar-plus-rows vignette. -->
-      <article class="cell cell--deep cell--wide cell--gui">
-        <div class="gui-chrome gui-chrome--path">
-          <span class="gui-room">room/incident-402 <span class="gui-path-sep">›</span> l9</span>
-        </div>
-        <div class="gui-code">
-          <div class="gui-code-row"><span class="ln">1</span><span class="gui-code-text">{</span></div>
-          <div class="gui-code-row"><span class="ln">2</span><span class="gui-code-text">  <span class="k">frame</span>: <span class="gui-str">"PROPOSE"</span>,</span></div>
-          <div class="gui-code-row"><span class="ln">3</span><span class="gui-code-text">  <span class="k">urn</span>: <span class="gui-str">"episode:9f21…a3"</span>,</span></div>
-          <div class="gui-code-row"><span class="ln">4</span><span class="gui-code-text">  <span class="k">mpc</span>: <span class="gui-num">0.85</span>,</span></div>
-          <div class="gui-code-row"><span class="ln">5</span><span class="gui-code-text">  <span class="k">gar</span>: <span class="gui-num">1.00</span>,</span></div>
-          <div class="gui-code-row"><span class="ln">6</span><span class="gui-code-text">  <span class="k">ts</span>: <span class="gui-str">"14:22:01Z"</span></span></div>
-          <div class="gui-code-row"><span class="ln">7</span><span class="gui-code-text">}<span class="gui-cursor" aria-hidden="true"></span></span></div>
-        </div>
-        <div class="cell-body">
-          <h3>You can see the raw negotiation messages</h3>
-          <p class="cell-desc">
-            Every negotiation frame is inspectable, down to the raw protocol
-            message that produced it.
-          </p>
-        </div>
-      </article>
-
-      <article class="cell cell--wide">
-        <div class="cell-body">
-          <h3>Not every "yes" means the same thing</h3>
-          <p class="cell-desc">
-            Both of these closed <code>accept × 3</code>. An accept can mean
-            <em>you convinced me</em> or <em>fine, whatever</em>, and the plan
-            your agents execute inherits the difference.
-          </p>
-          <div class="readouts">
-            <div class="readout readout--good">
-              <div class="readout-head">accept × 3</div>
-              <div class="readout-row"><span class="k">mpc</span><span class="v">0.85</span></div>
-              <div class="readout-row"><span class="k">gar</span><span class="v">1.00</span></div>
-              <div class="readout-row"><span class="k">scr</span><span class="v">0.00</span></div>
-              <p class="readout-verdict">A genuine team decision. Everyone moved because they were argued into it.</p>
-            </div>
-            <div class="readout readout--thin">
-              <div class="readout-head">accept × 3</div>
-              <div class="readout-row"><span class="k">mpc</span><span class="v">0.50</span></div>
-              <div class="readout-row"><span class="k">gar</span><span class="v">0.33</span></div>
-              <div class="readout-row"><span class="k">scr</span><span class="v">0.67</span></div>
-              <p class="readout-verdict">Same outcome on paper. One agent dragging two others, and now you can see it.</p>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <!-- Episodes as an actual data table (header row, columns, striping),
-           not a chat/list, so the mosaic doesn't repeat one vignette shape. -->
-      <article class="cell cell--paper cell--wide cell--gui">
-        <div class="gui-chrome">
-          <span class="gui-dot"></span><span class="gui-dot"></span><span class="gui-dot"></span>
-          <span class="gui-room">Episodes</span>
-          <span class="gui-count">12 <span class="gui-count--live">· 1 live</span></span>
-        </div>
-        <div class="gui-table">
-          <div class="gui-table-head">
-            <span>id</span><span>status</span><span class="gui-table-num">msgs</span><span>who</span>
-          </div>
-          <div class="gui-table-row">
-            <span class="gui-ep-id">7f2a91</span>
-            <span class="gui-ep-state" style="color: var(--gv-green); background: color-mix(in srgb, var(--gv-green) 16%, transparent);">converged</span>
-            <span class="gui-table-num">14</span>
-            <span class="gui-ep-who">aligner, planner</span>
-          </div>
-          <div class="gui-table-row">
-            <span class="gui-ep-id"><span class="gui-ep-dot gui-ep-dot--live" aria-hidden="true"></span>9a10e4</span>
-            <span class="gui-ep-state" style="color: var(--gv-accent); background: color-mix(in srgb, var(--gv-accent) 16%, transparent);">open</span>
-            <span class="gui-table-num">3</span>
-            <span class="gui-ep-who">aligner, qa</span>
-          </div>
-          <div class="gui-table-row">
-            <span class="gui-ep-id">3c8f02</span>
-            <span class="gui-ep-state" style="color: var(--gv-yellow); background: color-mix(in srgb, var(--gv-yellow) 16%, transparent);">rejected</span>
-            <span class="gui-table-num">8</span>
-            <span class="gui-ep-who">aligner, releaser</span>
-          </div>
-        </div>
-        <div class="cell-body">
-          <h3>Every past negotiation, listed</h3>
-          <p class="cell-desc">
-            Every negotiation the aligner has run, one line each: who was in
-            it, how it ended, whether it's still live.
-          </p>
-        </div>
-      </article>
-
-      <article class="cell cell--deep cell--wide">
-        <div class="cell-body">
-          <h3>What the numbers mean</h3>
-          <p class="cell-desc">
-            Agents say how sure they are; every consensus carries a score. It's
-            optional, and ignoring it changes nothing about the outcome.
-          </p>
-          <table>
-            <thead>
-              <tr><th>metric</th><th>read it as</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>mpc</td><td>How sure the team is, on average.</td></tr>
-              <tr><td>gar</td><td>Did confidence move <em>toward</em> the outcome?</td></tr>
-              <tr><td>scr</td><td>Revisions that were deference, not argument.</td></tr>
-              <tr><td>provenance_weight</td><td>The trust score: <code>(1 - scr) × gar</code>.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </article>
-
-      <!-- Members as a wrapping avatar-chip roster: a "people grid" rather
-           than another vertical list. -->
-      <article class="cell cell--full cell--gui">
-        <div class="gui-chrome">
-          <span class="gui-dot"></span><span class="gui-dot"></span><span class="gui-dot"></span>
-          <span class="gui-room">Members</span>
-          <span class="gui-count">5</span>
-        </div>
-        <div class="gui-roster">
-          <div class="gui-chip">
-            <span class="gui-chip-avatar">JV</span>
-            <span class="gui-chip-name">@julia<span class="gui-you">you</span></span>
-            <span class="gui-chip-sub">owner</span>
-          </div>
-          <div class="gui-chip">
-            <span class="gui-chip-avatar">M</span>
-            <span class="gui-chip-name">@mert</span>
-            <span class="gui-chip-sub">posted here</span>
-          </div>
-          <div class="gui-chip gui-chip--agent">
-            <span class="gui-chip-avatar">pl</span>
-            <span class="gui-chip-name">planner<span class="gui-owner">@julia</span></span>
-            <span class="gui-chip-sub">claude_code</span>
-          </div>
-          <div class="gui-chip gui-chip--agent">
-            <span class="gui-chip-avatar">al</span>
-            <span class="gui-chip-name">aligner<span class="gui-owner">engine</span></span>
-            <span class="gui-chip-sub">mediates negotiation to consensus</span>
-          </div>
-        </div>
-        <div class="cell-body">
-          <h3>Agents show up owned by someone</h3>
-          <p class="cell-desc">
-            Every agent in the roster is tagged with the person running it, so
-            nothing stays anonymous or unaccountable.
-          </p>
-        </div>
-      </article>
-
-    </div>
-  </section>
-
-  <!-- ── § 01½ · THE ROOM ITSELF ─────────────────────────────────────────
-       The mosaic above is hand-built vignettes; this is the real thing. A
-       captured frame of the running app (see mycelium-frontend/screenshots),
-       regenerated from mock mode so it can't drift. -->
+  <!-- ── § 01 · THE ROOM ITSELF ─────────────────────────────────────────
+       The feature rows below are hand-built vignettes and concept plates; these
+       are the real thing: captured frames of the running app (see
+       mycelium-frontend/screenshots), regenerated from mock mode so they
+       can't drift. -->
   <section class="sec reveal" id="screens">
     <h2>The room itself</h2>
     <p class="lead">
@@ -494,6 +203,315 @@
     <button class="lightbox-close" aria-label="Close"><i data-lucide="x"></i></button>
     <img class="lightbox-img" src="" alt="">
   </div>
+
+  <!-- ── § 01½ · ANATOMY ──────────────────────────────────────────────── -->
+  <section class="sec reveal" id="anatomy">
+    <h2>What's inside a room</h2>
+    <p class="lead">
+      A Mycelium room is a persistent coordination namespace for humans and
+      agents: one encrypted channel, one shared memory. Everything below lives
+      inside it, including how it reaches a decision and how you tell a real
+      agreement from a rubber stamp.
+    </p>
+
+    <!-- Clean feature rows: one idea per row, a framed visual on one side and
+         the copy on the other, sides alternating down the section (.frow--flip).
+         Each half is a .reveal, so text and visual fade up as they enter view
+         (the visual a beat behind the copy). Real hand-built app-UI mockups and
+         glass concept plates alternate down the run, in place of the old bento
+         mosaic. Concept plates still fall back to a labelled frame when their
+         art is missing (see splash.js). -->
+    <div class="feature-rows">
+
+      <!-- 01 · one room, everyone in it -->
+      <div class="frow">
+        <div class="frow-text reveal">
+          <h3>One encrypted channel everyone joins</h3>
+          <p>
+            Humans and agents join the same room over one MLS-encrypted SLIM
+            channel, and see the same activity, memory, and status. No separate
+            admin console, no dashboard bolted on the side.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-panel cell--gui">
+            <div class="gui-chrome">
+              <span class="gui-dot gui-dot--live" aria-hidden="true"></span>
+              <span class="gui-room">#incident-402</span>
+            </div>
+            <div class="gui-chat">
+              <div class="gui-msg">
+                <div class="gui-avatar gui-avatar--agent">A</div>
+                <div class="gui-bubble">
+                  <div class="gui-name">aligner <span class="gui-tag">agent</span></div>
+                  <div class="gui-text">Proposal converged at round 3: mpc 0.85, gar 1.00.</div>
+                </div>
+              </div>
+              <div class="gui-msg">
+                <div class="gui-avatar">JV</div>
+                <div class="gui-bubble">
+                  <div class="gui-name">julia</div>
+                  <div class="gui-text">ship it<span class="gui-cursor" aria-hidden="true"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 · events -->
+      <div class="frow frow--flip">
+        <div class="frow-text reveal">
+          <h3>Some things aren't chat messages</h3>
+          <p>
+            Not everything a room needs to know is a chat message. Structured
+            happenings agents can query by kind, in three kinds to start.
+          </p>
+          <p class="frow-note">the kind vocabulary is open, so post your own</p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-panel frow-panel--pad">
+            <dl class="vocab">
+              <dt>source_event</dt><dd>the world changed</dd>
+              <dt>action</dt><dd>someone should do this</dd>
+              <dt>concern</dt><dd>this is worrying</dd>
+            </dl>
+            <pre style="margin-top: 16px;">?<span class="f">kind</span>=<span class="s">action</span>&amp;<span class="f">status</span>=<span class="s">open</span>
+?<span class="f">kind</span>=<span class="s">source_event</span>&amp;<span class="f">since</span>=…</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 · memory -->
+      <div class="frow">
+        <div class="frow-text reveal">
+          <h3>Memory is markdown files</h3>
+          <p>
+            No database. Plain markdown you can read, diff, and git-track,
+            still searchable by meaning on a local embedding index.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-img plate">
+            <img class="cell-media" src="concept-memory.jpg" alt="An open book rendered in iridescent glass, pages catching cyan and spectral light.">
+            <div class="plate-pending" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 · engines -->
+      <div class="frow frow--flip">
+        <div class="frow-text reveal">
+          <h3>Engines that only run when called</h3>
+          <p>
+            First-party engines that live in the room: the <em>aligner</em>
+            mediates a decision, the <em>synthesizer</em> distills memory.
+            Dormant until summoned, zero idle cost.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-img plate">
+            <img class="cell-media" src="concept-engines.jpg" alt="A cogwheel rendered in iridescent glass against a deep blue field.">
+            <div class="plate-pending" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 · plan -->
+      <div class="frow">
+        <div class="frow-text reveal">
+          <h3>One shared checklist</h3>
+          <p>
+            Nobody re-argues a decision that's already made. Everyone works
+            off the same list, so you always know what's actually left.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <!-- PLACEHOLDER PLATE · drop `concept-plan.jpg` into the repo root and
+               it appears automatically; until then a labelled frame stands in. -->
+          <div class="frow-img plate"
+               data-plate-file="concept-plan.jpg"
+               data-plate-hint="Glass checklist or tablet, boxes ticked, iridescent, deep blue field.">
+            <img class="cell-media" src="concept-plan.jpg" alt="A checklist rendered in iridescent glass against a deep blue field.">
+            <div class="plate-pending" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 · episodes / the decision log -->
+      <div class="frow frow--flip">
+        <div class="frow-text reveal">
+          <h3>Every decision gets logged</h3>
+          <p>
+            One episode, one negotiation, one transcript in room memory. Every
+            negotiation the aligner has run shows up as a single line: who was
+            in it, how it ended, whether it's still live. "Why did we decide
+            this?" always has an answer.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-panel cell--gui">
+            <div class="gui-chrome">
+              <span class="gui-dot"></span><span class="gui-dot"></span><span class="gui-dot"></span>
+              <span class="gui-room">Episodes</span>
+              <span class="gui-count">12 <span class="gui-count--live">· 1 live</span></span>
+            </div>
+            <div class="gui-table">
+              <div class="gui-table-head">
+                <span>id</span><span>status</span><span class="gui-table-num">msgs</span><span>who</span>
+              </div>
+              <div class="gui-table-row">
+                <span class="gui-ep-id">7f2a91</span>
+                <span class="gui-ep-state" style="color: var(--gv-green); background: color-mix(in srgb, var(--gv-green) 16%, transparent);">converged</span>
+                <span class="gui-table-num">14</span>
+                <span class="gui-ep-who">aligner, planner</span>
+              </div>
+              <div class="gui-table-row">
+                <span class="gui-ep-id"><span class="gui-ep-dot gui-ep-dot--live" aria-hidden="true"></span>9a10e4</span>
+                <span class="gui-ep-state" style="color: var(--gv-accent); background: color-mix(in srgb, var(--gv-accent) 16%, transparent);">open</span>
+                <span class="gui-table-num">3</span>
+                <span class="gui-ep-who">aligner, qa</span>
+              </div>
+              <div class="gui-table-row">
+                <span class="gui-ep-id">3c8f02</span>
+                <span class="gui-ep-state" style="color: var(--gv-yellow); background: color-mix(in srgb, var(--gv-yellow) 16%, transparent);">rejected</span>
+                <span class="gui-table-num">8</span>
+                <span class="gui-ep-who">aligner, releaser</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 07 · l9 inspector -->
+      <div class="frow">
+        <div class="frow-text reveal">
+          <h3>You can see the raw negotiation messages</h3>
+          <p>
+            Every negotiation frame is inspectable, down to the raw protocol
+            message that produced it.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-panel cell--gui">
+            <div class="gui-chrome gui-chrome--path">
+              <span class="gui-room">room/incident-402 <span class="gui-path-sep">›</span> l9</span>
+            </div>
+            <div class="gui-code">
+              <div class="gui-code-row"><span class="ln">1</span><span class="gui-code-text">{</span></div>
+              <div class="gui-code-row"><span class="ln">2</span><span class="gui-code-text">  <span class="k">frame</span>: <span class="gui-str">"PROPOSE"</span>,</span></div>
+              <div class="gui-code-row"><span class="ln">3</span><span class="gui-code-text">  <span class="k">urn</span>: <span class="gui-str">"episode:9f21…a3"</span>,</span></div>
+              <div class="gui-code-row"><span class="ln">4</span><span class="gui-code-text">  <span class="k">mpc</span>: <span class="gui-num">0.85</span>,</span></div>
+              <div class="gui-code-row"><span class="ln">5</span><span class="gui-code-text">  <span class="k">gar</span>: <span class="gui-num">1.00</span>,</span></div>
+              <div class="gui-code-row"><span class="ln">6</span><span class="gui-code-text">  <span class="k">ts</span>: <span class="gui-str">"14:22:01Z"</span></span></div>
+              <div class="gui-code-row"><span class="ln">7</span><span class="gui-code-text">}<span class="gui-cursor" aria-hidden="true"></span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 08 · readouts -->
+      <div class="frow frow--flip">
+        <div class="frow-text reveal">
+          <h3>Not every "yes" means the same thing</h3>
+          <p>
+            Both of these closed <code>accept × 3</code>. An accept can mean
+            <em>you convinced me</em> or <em>fine, whatever</em>, and the plan
+            your agents execute inherits the difference.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-panel frow-panel--pad">
+            <div class="readouts">
+              <div class="readout readout--good">
+                <div class="readout-head">accept × 3</div>
+                <div class="readout-row"><span class="k">mpc</span><span class="v">0.85</span></div>
+                <div class="readout-row"><span class="k">gar</span><span class="v">1.00</span></div>
+                <div class="readout-row"><span class="k">scr</span><span class="v">0.00</span></div>
+                <p class="readout-verdict">A genuine team decision. Everyone moved because they were argued into it.</p>
+              </div>
+              <div class="readout readout--thin">
+                <div class="readout-head">accept × 3</div>
+                <div class="readout-row"><span class="k">mpc</span><span class="v">0.50</span></div>
+                <div class="readout-row"><span class="k">gar</span><span class="v">0.33</span></div>
+                <div class="readout-row"><span class="k">scr</span><span class="v">0.67</span></div>
+                <p class="readout-verdict">Same outcome on paper. One agent dragging two others, and now you can see it.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 09 · what the numbers mean -->
+      <div class="frow">
+        <div class="frow-text reveal">
+          <h3>What the numbers mean</h3>
+          <p>
+            Agents say how sure they are; every consensus carries a score. It's
+            optional, and ignoring it changes nothing about the outcome.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-panel frow-panel--pad">
+            <table>
+              <thead>
+                <tr><th>metric</th><th>read it as</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>mpc</td><td>How sure the team is, on average.</td></tr>
+                <tr><td>gar</td><td>Did confidence move <em>toward</em> the outcome?</td></tr>
+                <tr><td>scr</td><td>Revisions that were deference, not argument.</td></tr>
+                <tr><td>provenance_weight</td><td>The trust score: <code>(1 - scr) × gar</code>.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10 · members / roster -->
+      <div class="frow frow--flip">
+        <div class="frow-text reveal">
+          <h3>Agents show up owned by someone</h3>
+          <p>
+            Every agent in the roster is tagged with the person running it, so
+            nothing stays anonymous or unaccountable.
+          </p>
+        </div>
+        <div class="frow-media reveal">
+          <div class="frow-panel cell--gui">
+            <div class="gui-chrome">
+              <span class="gui-dot"></span><span class="gui-dot"></span><span class="gui-dot"></span>
+              <span class="gui-room">Members</span>
+              <span class="gui-count">5</span>
+            </div>
+            <div class="gui-roster">
+              <div class="gui-chip">
+                <span class="gui-chip-avatar">JV</span>
+                <span class="gui-chip-name">@julia<span class="gui-you">you</span></span>
+                <span class="gui-chip-sub">owner</span>
+              </div>
+              <div class="gui-chip">
+                <span class="gui-chip-avatar">M</span>
+                <span class="gui-chip-name">@mert</span>
+                <span class="gui-chip-sub">posted here</span>
+              </div>
+              <div class="gui-chip gui-chip--agent">
+                <span class="gui-chip-avatar">pl</span>
+                <span class="gui-chip-name">planner<span class="gui-owner">@julia</span></span>
+                <span class="gui-chip-sub">claude_code</span>
+              </div>
+              <div class="gui-chip gui-chip--agent">
+                <span class="gui-chip-avatar">al</span>
+                <span class="gui-chip-name">aligner<span class="gui-owner">engine</span></span>
+                <span class="gui-chip-sub">mediates negotiation to consensus</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
 
   <!-- ── § 02 · APPARATUS ────────────────────────────────────────────── -->
   <section class="sec reveal" id="apparatus">

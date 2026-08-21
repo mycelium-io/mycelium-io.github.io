@@ -812,6 +812,86 @@ p { max-width: var(--measure); }
   .cell, .cell--wide { grid-column: span 2; }
   .cell--big, .cell--full { grid-column: span 4; }
 }
+/* ── FEATURE ROWS (§01 "What's inside a room") ──
+ * Replaces the old bento mosaic. One idea per row: a framed visual on one side
+ * and the copy on the other, sides alternating down the section (.frow--flip).
+ * Real UI mockups and glass concept plates take turns as the visual. Each half
+ * carries .reveal, so copy and visual fade up as they scroll into view — the
+ * visual a beat behind the copy — giving the section a calm, scannable rhythm
+ * instead of a dense grid. */
+.feature-rows {
+  margin-top: var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.frow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-6) var(--space-7);
+  align-items: center;
+}
+/* Default: visual left, copy right. Flip swaps the columns so sides alternate. */
+.frow-media { grid-column: 1; grid-row: 1; }
+.frow-text  { grid-column: 2; grid-row: 1; }
+.frow--flip .frow-media { grid-column: 2; }
+.frow--flip .frow-text  { grid-column: 1; }
+
+.frow-text h3 {
+  font-size: clamp(21px, 2.4vw, 27px);
+  line-height: 1.15;
+  margin-bottom: var(--space-3);
+}
+.frow-text p { font-size: 16px; line-height: 1.62; color: var(--muted-foreground); max-width: 46ch; }
+.frow-text p code {
+  font-size: 13px;
+  background: var(--paper);
+  border: var(--rule);
+  padding: 0.5px 5px;
+  color: var(--accent);
+}
+.frow-note {
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--faint);
+}
+
+/* One shared frame for every visual — image or UI panel: soft-rounded, a
+ * hairline border, and a single quiet shadow to lift it off the page. */
+.frow-img,
+.frow-panel {
+  border: var(--rule);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 24px 60px -42px rgba(0, 0, 0, 0.5);
+  background: var(--paper);
+}
+.frow-img { display: block; line-height: 0; }
+/* A framed image is whole, so it drops the plate's caption-divider hairline. */
+.frow-img .cell-media,
+.frow-img .plate-pending { border-bottom: none; }
+
+/* Light data / code panels (events, readouts, metrics) sit on paper with
+ * padding; dark UI mockups (chat, l9, table, roster) fill edge-to-edge on
+ * their own dark surface via .cell--gui. */
+.frow-panel--pad { padding: var(--space-5); }
+.frow-panel--pad > .vocab:first-child,
+.frow-panel--pad > .readouts { margin-top: 0; }
+.frow-panel.cell--gui { background: var(--gv-bg); }
+
+/* Fade-in: the visual trails the copy slightly so the row assembles rather
+ * than popping in flat. (Both halves are .reveal; see wireReveal.) */
+.frow-media.reveal { transition-delay: 0.08s; }
+
+@media (max-width: 760px) {
+  .feature-rows { gap: var(--space-7); }
+  .frow { grid-template-columns: 1fr; gap: var(--space-4); }
+  /* Copy first, visual below, on every row. */
+  .frow-text, .frow--flip .frow-text { grid-column: 1; grid-row: 1; }
+  .frow-media, .frow--flip .frow-media { grid-column: 1; grid-row: 2; }
+}
+
 @media (max-width: 620px) {
   .bento { grid-template-columns: 1fr; }
   .cell, .cell--wide, .cell--big, .cell--full { grid-column: span 1; }
