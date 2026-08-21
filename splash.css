@@ -698,6 +698,9 @@ p { max-width: var(--measure); }
   font-size: 15px;
   line-height: 1.5;
   color: var(--muted);
+  /* Reserve two lines so captions that wrap don't shove the page down when
+     you flip between slides. */
+  min-height: calc(2 * 1.5 * 15px);
 }
 
 /* ── Lightbox (zoom) ───────────────────────────────────────────────────── */
