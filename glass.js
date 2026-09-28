@@ -378,7 +378,7 @@
   var state = { merge: 0, dusk: 0, alpha: 1, x: 0.77, y: 0.45, scale: 1, veins: 0.2, halo: 0, vel: 0 };
   var shown = {};
   KEYS.forEach(function (k) { shown[k] = state[k]; });
-  var wob = 0.018, ping = 0;
+  var wob = 0.018;
 
   var NAMES = ['@scout', '@sec', '@api', '@web', '@qa'];
   var AGENTS = [
@@ -417,11 +417,6 @@
     mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
     mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
     mouse.px = e.clientX; mouse.py = e.clientY; mouse.last = performance.now();
-  }, { passive: true });
-  // A click (or tap) on empty page sends a ripple through the network.
-  window.addEventListener('pointerdown', function (e) {
-    if (e.target.closest && e.target.closest('a,button,code,pre,input,.window,.card,.install')) return;
-    ping = 1;
   }, { passive: true });
   var bead = { x: 0, y: 0, vx: 0, vy: 0, r: 0 };
 
@@ -479,9 +474,10 @@
     var intro = reduced ? 1 : (now - start) / 1000;
     mouse.x += (mouse.tx - mouse.x) * k * 0.6;
     mouse.y += (mouse.ty - mouse.y) * k * 0.6;
-    ping *= Math.exp(-dt * 2.5);
-    var wobT = 0.018 + Math.min(Math.abs(state.vel) / 4000, 1) * 0.045 + ping * 0.06;
-    wob += (wobT - wob) * Math.min(1, dt * 6);
+    // Scrolling only nudges the wobble, and it's capped: a strong wobble
+    // swings the surface normals and makes the highlights dance.
+    var wobT = Math.min(0.03, 0.018 + Math.min(Math.abs(state.vel) / 6000, 1) * 0.01);
+    wob += (wobT - wob) * Math.min(1, dt * 2.5);
 
     var S = base * shown.scale, m = shown.merge;
     // Anchor: a screen fraction projected onto the z=0 plane (camera at rest).
@@ -542,16 +538,16 @@
     // Hyphae pulse faintly while the peers are apart, then thicken as they draw in.
     var link = (0.014 + 0.004 * Math.sin(t * 1.7) + 0.05 * ease(m * 1.2)) * S * linkGrow;
 
-    // Messages: pulses riding the hyphae, brighter after a click.
+    // Messages: pulses riding the hyphae.
     for (var j = 0; j < 8; j++) {
       var P = PULSES[j];
-      var f = (t * P.sp * (1 + ping * 2) + P.ph) % 1;
+      var f = (t * P.sp + P.ph) % 1;
       if (P.rev) f = 1 - f;
       var a = pos[P.link[0]], b = pos[P.link[1]];
       pulses[j * 4] = a[0] + (b[0] - a[0]) * f;
       pulses[j * 4 + 1] = a[1] + (b[1] - a[1]) * f;
       pulses[j * 4 + 2] = a[2] + (b[2] - a[2]) * f;
-      pulses[j * 4 + 3] = Math.pow(Math.sin(Math.PI * f), 1.5) * (0.55 + 0.45 * (1 - m) + ping) * linkGrow;
+      pulses[j * 4 + 3] = Math.pow(Math.sin(Math.PI * f), 1.5) * (0.55 + 0.45 * (1 - m)) * linkGrow;
     }
 
     // The aligner: a halo that closes in, then pools into the drop.
