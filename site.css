@@ -54,6 +54,22 @@ body {
   overflow-x: clip;
 }
 ::selection { background: rgba(93, 212, 224, 0.3); color: #fff; }
+
+/* Scrollbar: follows the page's dusk like the glass does. A cobalt track
+ * with a pale thumb at the ends, night with a cyan thumb in between. */
+html {
+  --sb-track: color-mix(in srgb, var(--night) calc(var(--dusk) * 100%), #1a58cf);
+  --sb-thumb: color-mix(in srgb, rgba(93, 212, 224, 0.55) calc(var(--dusk) * 100%), rgba(255, 255, 255, 0.5));
+  scrollbar-color: var(--sb-thumb) var(--sb-track);
+}
+::-webkit-scrollbar { width: 12px; }
+::-webkit-scrollbar-track { background: var(--sb-track); }
+::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb);
+  border-radius: 999px;
+  border: 3px solid var(--sb-track);
+}
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--sb-thumb), #fff 25%); }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 code, pre { font-family: var(--mono); }
