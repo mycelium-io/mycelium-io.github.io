@@ -306,15 +306,6 @@ em { font-style: normal; }
   pointer-events: none;
 }
 .beat.is-active { opacity: 1; transform: none; filter: none; pointer-events: auto; }
-.beat-num {
-  display: block;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 22px;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.82);
-  margin-bottom: 14px;
-}
 .beat h2 {
   font-size: clamp(36px, 4.6vw, 64px);
   font-weight: 600;
