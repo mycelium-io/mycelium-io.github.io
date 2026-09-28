@@ -42,6 +42,10 @@
     'uniform vec4 uTeth;',   // the agent the bead is tethered to; w = tether radius
     'uniform vec4 uHalo;',   // major radius, minor radius (0 = absent), tilt, spin
     'uniform vec4 uP[8];',   // message pulses: xyz, brightness
+    'uniform sampler2D uMyc;', // the mycelial network: a trail map from the sim below
+    'uniform vec2 uMT;',       // one texel of it, in uv
+    'uniform vec3 uMC;',       // the cluster's centre in uv, and its size in screen heights
+    'uniform float uMycOn;',
 
     'float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}',
     'float cap(vec3 p,vec3 a,vec3 b,float r){vec3 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h)-r;}',
@@ -125,6 +129,38 @@
     'float ridge(vec3 q){return 1.-abs(2.*n3(q)-1.);}',
     'float veins(vec3 q){float r=ridge(q)*.7+ridge(q*2.3+vec3(4.1,1.7,2.9))*.3;return pow(r,18.);}',
 
+    // The network, drawn as fine glassy threads on the field: a tube-like
+    // normal from the trail's gradient gives each strand a lit core and a
+    // thin-film sheen at its edges. Frosted white by day, glowing cyan at
+    // night, fading out with distance from the agents it grows between.
+    'float myc(vec2 uv){return texture2D(uMyc,vec2(uv.x,1.-uv.y)).r;}',
+    'vec3 hyphae(vec2 uv){',
+    '  if(uMycOn<.01) return vec3(0.);',
+    '  vec2 dq=(uv-uMC.xy)*vec2(uRes.x/uRes.y,1.);',
+    '  float d=length(dq)/max(uMC.z,.05);',
+    '  float root=exp(-d*d*.22);',          // rooted: fades out away from the agents
+    '  if(root<.01) return vec3(0.);',
+    '  float m=myc(uv);',
+    '  if(m<.06) return vec3(0.);',     // below this is fade residue
+    '  vec2 o=uMT;',
+    '  float gx=myc(uv+vec2(o.x,0.))-myc(uv-vec2(o.x,0.));',
+    '  float gy=myc(uv+vec2(0.,o.y))-myc(uv-vec2(0.,o.y));',
+    // A tube's normal from the stroke's cross-section: lit along its core,
+    // with thin-film colour where it turns away at the edges.
+    '  vec3 n=normalize(vec3(-gx*1.4,-gy*1.4,.35));',
+    '  float line=smoothstep(.06,.95,m);',   // soft edges: part of the ground, not drawn on it
+    '  float sheen=pow(1.-n.z,1.2);',
+    '  vec3 fl=film(.4+sheen*1.4+m*.5);',
+    // Tinted toward the field's own light, with just a trace of sheen, so the
+    // web reads as part of the background rather than laid over it.
+    '  vec3 day=vec3(.5,.75,1.)*line*.2+fl*sheen*line*.1;',
+    '  vec3 night=vec3(.16,.52,.7)*line*.42+fl*sheen*line*.06;',
+    '  return mix(day,night,uDusk)*uMycOn*root;',
+    '}',
+    // Everything behind the glass: the field and the network on it. The glass
+    // refracts this, so the droplets bend and magnify the threads behind them.
+    'vec3 backdrop(vec2 uv){return field(uv)+hyphae(uv);}',
+
     'void bnd(vec3 ro,vec3 rd,vec3 c,float r,inout float t0,inout float t1){',
     '  vec3 oc=c-ro;float b=dot(oc,rd);float h=b*b-dot(oc,oc)+r*r;',
     '  if(h>0.){h=sqrt(h);t0=min(t0,b-h);t1=max(t1,b+h);}',
@@ -137,7 +173,7 @@
     '  vec3 ta=vec3(uCam.x*.35,uCam.y*.35,0.);',
     '  vec3 ww=normalize(ta-ro),uu=normalize(cross(ww,vec3(0.,1.,0.))),vv=cross(uu,ww);',
     '  vec3 rd=normalize(q.x*uu+q.y*vv+1.6*ww);',
-    '  vec3 col=field(uv)+spores(q);',
+    '  vec3 col=backdrop(uv)+spores(q);',
 
     // Night-side glow around the cluster, so the glass has light to live in.
     '  vec3 oc=uC-ro; float perp=length(cross(rd,oc))/uS;',
@@ -163,7 +199,7 @@
     '      float fr=.04+.96*pow(1.-ct,5.);',
     '      vec3 rf=refract(rd,n,1./1.45);',
     '      vec2 off=(rf.xy-rd.xy)*.34+n.xy*.05;',
-    '      vec3 refr=vec3(field(uv+off*1.00).r,field(uv+off*1.07).g,field(uv+off*1.15).b);',
+    '      vec3 refr=vec3(backdrop(uv+off*1.00).r,backdrop(uv+off*1.07).g,backdrop(uv+off*1.15).b);',
     '      vec3 deep=mix(vec3(.09,.36,.93),vec3(.04,.16,.42),uDusk);',
     '      vec3 body=mix(refr*vec3(.8,.96,1.15),deep,.38*ct);',
     '      float back=pow(clamp(dot(n,normalize(vec3(.35,-.6,.55))),0.,1.),2.2);',
@@ -226,7 +262,116 @@
 
   var U = {};
   ['uRes', 'uTime', 'uMerge', 'uDusk', 'uLink', 'uS', 'uWob', 'uVein', 'uBound', 'uCam', 'uC',
-    'uB', 'uBead', 'uTeth', 'uHalo', 'uP'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+    'uB', 'uBead', 'uTeth', 'uHalo', 'uP', 'uMyc', 'uMT', 'uMC', 'uMycOn'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+
+  // ── the mycelial network ──
+  // Hyphae, grown by tip extension (the old splash's growth model), shaped
+  // as a web rather than a halo:
+  //   trunks    long, nearly straight threads that travel from one droplet
+  //             to another (a few wander off to explore)
+  //   branches  leave the trunks at wide angles, short and sparse
+  //   fusion    a branch that meets another hypha joins it and stops
+  //             (anastomosis), which closes the web into loops
+  // Growth is drawn as anti-aliased strokes into an offscreen canvas that
+  // slowly fades, so the web turns over and regrows wherever the agents
+  // move. That canvas is the texture the shader draws as glassy threads,
+  // and the glass refracts it.
+  var myc = (function () {
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    var cv = document.createElement('canvas');
+    var g = cv.getContext('2d');
+    var w = 0, h = 0, px = 1, tips = [], n = 0, ids = 0;
+    var MAX_TRUNKS = 9, MAX_TIPS = 90;
+    // Who drew where, recently: a coarse grid of hypha ids and frame stamps,
+    // so a branch can tell when it has reached somebody else's thread.
+    var CELL = 5, gcw = 0, gch = 0, occ, occT;
+    var WIDTH = [1.4, 0.95, 0.65], ALPHA = [0.95, 0.75, 0.55];
+
+    // w, h: canvas size; px: canvas pixels per CSS pixel.
+    function init(cw, ch, scale) {
+      w = cv.width = cw; h = cv.height = ch; px = scale;
+      g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+      g.lineCap = 'round';
+      tips = [];
+      gcw = Math.ceil(w / CELL); gch = Math.ceil(h / CELL);
+      occ = new Int32Array(gcw * gch); occT = new Int32Array(gcw * gch);
+    }
+    function trunks() { var c = 0; for (var i = 0; i < tips.length; i++) if (!tips[i].gen) c++; return c; }
+    function sprout(drops) {
+      var i = (Math.random() * drops.length) | 0, d = drops[i], to = -1, a, max;
+      if (drops.length > 1 && Math.random() < 0.85) {
+        // A bridge: aimed at another agent, arcing a little on the way.
+        to = (i + 1 + ((Math.random() * (drops.length - 1)) | 0)) % drops.length;
+        var dx = drops[to].x - d.x, dy = drops[to].y - d.y;
+        a = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.9;
+        max = Math.hypot(dx, dy) * 1.8;
+      } else {
+        // An explorer: out and away from the cluster.
+        var cx = 0, cy = 0;
+        for (var k = 0; k < drops.length; k++) { cx += drops[k].x; cy += drops[k].y; }
+        cx /= drops.length; cy /= drops.length;
+        a = Math.atan2(d.y - cy, d.x - cx) + (Math.random() - 0.5) * 1.2;
+        max = (140 + Math.random() * 220) * px;
+      }
+      tips.push({
+        id: ++ids, parent: 0, x: d.x + Math.cos(a) * d.r, y: d.y + Math.sin(a) * d.r, a: a, to: to,
+        gen: 0, age: 0, max: max, sp: 1.4 * px, bend: (Math.random() - 0.5) * 0.006,
+      });
+    }
+    function step(drops) {
+      n++;
+      // Slow turnover. The fade is batched: at 8-bit precision a tiny
+      // per-frame fade stalls, so fade a little harder every eighth frame.
+      if (n % 8 === 0) { g.fillStyle = 'rgba(0,0,0,0.035)'; g.fillRect(0, 0, w, h); }
+      if (drops.length && trunks() < MAX_TRUNKS && Math.random() < 0.1) sprout(drops);
+
+      for (var i = tips.length - 1; i >= 0; i--) {
+        var t = tips[i];
+        t.age += t.sp;
+        // Nearly straight: a faint personal bend and very little wander.
+        t.a += t.bend + (Math.random() - 0.5) * 0.05;
+        var goal = t.to >= 0 ? drops[t.to] : null;
+        if (goal) {
+          var want = Math.atan2(goal.y - t.y, goal.x - t.x);
+          t.a += Math.atan2(Math.sin(want - t.a), Math.cos(want - t.a)) * 0.03;
+        }
+        var nx = t.x + Math.cos(t.a) * t.sp, ny = t.y + Math.sin(t.a) * t.sp;
+        var done = nx < 0 || ny < 0 || nx >= w || ny >= h || t.age > t.max ||
+          (goal && Math.hypot(goal.x - nx, goal.y - ny) < goal.r);
+        // Fusion: a branch meeting another live thread joins it and stops.
+        var c = done ? -1 : ((ny / CELL) | 0) * gcw + ((nx / CELL) | 0);
+        if (c >= 0 && t.gen && t.age > 12 * px && occ[c] && occ[c] !== t.id && occ[c] !== t.parent && n - occT[c] < 900) done = true;
+        g.lineWidth = WIDTH[t.gen] * px;
+        g.strokeStyle = 'rgba(255,255,255,' + ALPHA[t.gen] + ')';
+        g.beginPath(); g.moveTo(t.x, t.y); g.lineTo(nx, ny); g.stroke();
+        if (done) { tips.splice(i, 1); continue; }
+        occ[c] = t.id; occT[c] = n;
+        t.x = nx; t.y = ny;
+        // Branches leave at wide angles; trunks branch most, twigs rarely.
+        var bp = t.gen === 0 ? 0.02 : 0.008;
+        if (t.gen < 2 && t.age > 20 * px && tips.length < MAX_TIPS && Math.random() < bp) {
+          var side = Math.random() < 0.5 ? -1 : 1;
+          tips.push({
+            id: ++ids, parent: t.id, x: t.x, y: t.y, a: t.a + side * (0.9 + Math.random() * 0.6),
+            to: -1, gen: t.gen + 1, age: 0, max: (40 + Math.random() * 150) * px, sp: 1.2 * px,
+            bend: (Math.random() - 0.5) * 0.01,
+          });
+        }
+      }
+      // Growth is slow; every other frame is plenty to upload.
+      if (n % 2 === 0 || n < 3) {
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv);
+      }
+    }
+    return { init: init, step: step, tex: tex, size: function () { return [w, h]; } };
+  })();
 
   // ── state the page drives, and what's on screen easing toward it ──
   var KEYS = ['merge', 'dusk', 'alpha', 'x', 'y', 'scale', 'veins', 'halo'];
@@ -291,6 +436,13 @@
     canvas.height = Math.max(1, Math.round(H * dpr * scale));
     gl.viewport(0, 0, canvas.width, canvas.height);
     base = narrow ? Math.min(0.5, Math.max(0.4, aspect * 0.9)) : (aspect < 1.4 ? 0.56 : 0.66);
+    // Growth canvas, below CSS resolution: the strokes are soft anyway, and
+    // it's re-uploaded as a texture, so its size is the cost that matters.
+    var mscale = narrow || !fine ? 0.6 : 0.75;
+    var mw = Math.round(W * mscale), mh = Math.round(H * mscale);
+    var sz = myc.size();
+    // A phone's URL bar resizing the viewport shouldn't wipe the growth.
+    if (sz[0] !== mw || Math.abs(sz[1] - mh) > mh * 0.15) myc.init(mw, mh, mscale);
   }
   window.addEventListener('resize', resize);
   if (narrow || !fine) scale = 0.85;
@@ -303,7 +455,7 @@
   function norm(a) { var l = Math.sqrt(dot(a, a)) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var start = performance.now(), last = start, slow = 0, fast = 0;
+  var start = performance.now(), last = start, slow = 0, fast = 0, mycGrown = false;
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -406,6 +558,24 @@
     var h = shown.halo;
     var haloR = (1.75 - 0.9 * ease((m - 0.1) / 0.7)) * S;
     var haloTilt = 1.15 + 0.15 * Math.sin(t * 0.4);
+
+    // Feed the network: the droplets, in sim-grid cells.
+    var gsz = myc.size(), drops = [];
+    for (var dn = 0; dn < 5; dn++) {
+      var ps = project(pos[dn]), rpx = balls[dn * 4 + 3] * ps.s;
+      if (rpx < 1) continue;
+      drops.push({ x: ps.x / W * gsz[0], y: ps.y / H * gsz[1], r: Math.max(1.5, rpx / W * gsz[0]) });
+    }
+    if (!reduced) myc.step(drops);
+    else if (!mycGrown && drops.length) { for (var g0 = 0; g0 < 260; g0++) myc.step(drops); mycGrown = true; }
+    var cs = project([cx, cy, 0]);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, myc.tex);
+    gl.uniform1i(U.uMyc, 0);
+    gl.uniform2f(U.uMT, 1 / gsz[0], 1 / gsz[1]);
+    gl.uniform3f(U.uMC, cs.x / W, 1 - cs.y / H, S * cs.s / H);
+    gl.uniform1f(U.uMycOn, reduced ? 1 : ease((intro - 0.4) / 1.2));
 
     gl.uniform2f(U.uRes, canvas.width, canvas.height);
     gl.uniform1f(U.uTime, t);
