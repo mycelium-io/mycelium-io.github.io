@@ -581,7 +581,13 @@ em { font-style: normal; }
   width: max-content;
   will-change: transform;
 }
+/* Cards tilt slightly toward the pointer (site.js sets --tx/--ty, -1 → 1,
+ * and --glare, which deepens the shadow, while it's over them). The tilt
+ * shares one transform with the rail's scale for off-centre cards, so
+ * neither overrides the other. */
 .card {
+  --tx: 0; --ty: 0; --s: 1; --glare: 0;
+  position: relative;
   flex: none;
   width: min(78vw, 1040px);
   height: min(62vh, 580px);
@@ -589,11 +595,53 @@ em { font-style: normal; }
   grid-template-columns: 1.05fr 1fr;
   border-radius: 28px;
   overflow: hidden;
-  background: var(--night-2);
-  border: 1px solid var(--line);
-  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+  /* A faint cool gradient and a lit top edge: the body of the glass pane.
+   * The spectral rim (::before) stands in for a border. */
+  background: linear-gradient(160deg, rgba(30, 40, 58, 0.9), rgba(17, 20, 26, 0.94) 55%);
+  transform: perspective(1400px) rotateX(calc(var(--ty) * -4deg)) rotateY(calc(var(--tx) * 5deg)) scale(var(--s));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 48px rgba(126, 230, 240, 0.05),
+    calc(var(--tx) * -16px) calc(var(--ty) * -16px + 30px) 70px -34px rgba(0, 0, 0, calc(var(--glare) * 0.7));
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), box-shadow 0.6s var(--ease);
 }
-.how.is-pinned .card:not(.is-current) { opacity: 0.4; transform: scale(0.965); }
+/* While the pointer moves, follow it closely; on leave, settle slowly. */
+.card.is-tilting { transition: opacity 0.6s var(--ease), transform 0.14s linear, box-shadow 0.14s linear; }
+/* The card as a pane of glass, in the droplets' material:
+ *   ::before  a thin spectral rim, its colours turning as the card tilts
+ *   ::after   a reflection: a pale diagonal band that slides across the
+ *             pane with the tilt, the way a window reflects in glass
+ * Both are always faintly there; tilting only moves them. */
+.card::before,
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+.card::before {
+  padding: 1.5px;
+  background: conic-gradient(from calc(210deg + var(--tx) * 40deg - var(--ty) * 25deg),
+    rgba(126, 230, 240, 0.9), rgba(143, 180, 255, 0.35), rgba(199, 164, 255, 0.8),
+    rgba(255, 195, 138, 0.6), rgba(255, 255, 255, 0.15), rgba(126, 230, 240, 0.9));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.card::after {
+  background: linear-gradient(115deg,
+    transparent 0%, transparent 34%,
+    rgba(255, 255, 255, 0.11) 42%, rgba(255, 255, 255, 0.04) 49%,
+    transparent 52%, transparent 57%,
+    rgba(255, 255, 255, 0.05) 60%, transparent 64%, transparent 100%);
+  background-size: 240% 240%;
+  background-position: calc(50% + var(--tx) * 18%) calc(50% + var(--ty) * 18%);
+  transition: background-position 0.6s var(--ease);
+}
+.card.is-tilting::after { transition: background-position 0.14s linear; }
+.how.is-pinned .card:not(.is-current) { opacity: 0.4; --s: 0.965; }
 .card-art { position: relative; overflow: hidden; background: var(--cobalt); }
 .card-art img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.12); will-change: transform; }
 .card-body {

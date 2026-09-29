@@ -199,6 +199,37 @@
   // Scroll velocity decays to zero once the page stops, so the wobble settles.
   setInterval(function () { if (performance.now() - lastT > 120) glass({ vel: 0 }); }, 150);
 
+  // ── CARD TILT ─────────────────────────────────────────────────────────
+  // The "how" cards are panes of glass that lean slightly toward the
+  // pointer; their rim and reflection turn with the tilt (see .card in
+  // site.css). Mouse and trackpad only: touch and reduced-motion readers
+  // get the cards still.
+  if (!reduced && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    cards.forEach(function (card) {
+      var raf = 0, px = 0, py = 0;
+      function apply() {
+        raf = 0;
+        var r = card.getBoundingClientRect();
+        var fx = clamp((px - r.left) / r.width, 0, 1), fy = clamp((py - r.top) / r.height, 0, 1);
+        card.style.setProperty('--tx', ((fx - 0.5) * 2).toFixed(3));
+        card.style.setProperty('--ty', ((fy - 0.5) * 2).toFixed(3));
+        card.style.setProperty('--glare', '1');
+      }
+      card.addEventListener('pointermove', function (e) {
+        px = e.clientX; py = e.clientY;
+        card.classList.add('is-tilting');
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      card.addEventListener('pointerleave', function () {
+        if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        card.classList.remove('is-tilting');
+        card.style.setProperty('--tx', '0');
+        card.style.setProperty('--ty', '0');
+        card.style.setProperty('--glare', '0');
+      });
+    });
+  }
+
   // Clicking "Watch them converge" should land at the start of the story.
   // (Anchor + sticky already does that; nothing to add.)
 
