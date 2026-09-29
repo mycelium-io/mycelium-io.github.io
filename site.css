@@ -867,6 +867,11 @@ em { font-style: normal; }
 .cta-title em { font-size: 1.12em; }
 .cta-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
 
+/* Mac app download. A phone or tablet can't run it, so touch devices
+ * don't get the hero button; the closing section keeps it. */
+.mac-dl svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (pointer: coarse) { .hero .mac-dl { display: none; } }
+
 /* ── FOOTER ── */
 .foot { background: var(--night); border-top: 1px solid var(--line); padding: 44px 0 56px; }
 .foot-inner { display: grid; grid-template-columns: auto 1fr auto; gap: 24px 48px; align-items: center; }
