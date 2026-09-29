@@ -651,7 +651,7 @@ em { font-style: normal; }
  * must never sit on top of it. Every state clears 4.5:1 on --night-2. */
 .tour-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
   padding: 4px;
   margin-bottom: 20px;
@@ -728,7 +728,7 @@ em { font-style: normal; }
 }
 @media (max-width: 700px) { .tour-caption { border-radius: 14px; font-size: 15px; } }
 @media (max-width: 700px) {
-  .tour-tabs { grid-template-columns: repeat(2, 1fr); }
+  .tour-tabs { grid-template-columns: repeat(3, 1fr); }
   .tour-tab-d { display: none; }
 }
 
