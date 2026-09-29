@@ -291,9 +291,26 @@
   });
 
   // ── VERSION ───────────────────────────────────────────────────────────
+  // The Mac buttons link to releases/latest, so their version comes from the
+  // same place. It's only shown when that release carries the .dmg: a
+  // release without it would make the link 404, and the label shouldn't
+  // name a version the button can't deliver.
+  var DMG = 'Mycelium-macos-arm64.dmg';
   fetch('https://api.github.com/repos/mycelium-io/mycelium/releases/latest')
     .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (d) { if (d && d.tag_name) $('#version-link').textContent = 'Releases · ' + d.tag_name; })
+    .then(function (d) {
+      if (!d || !d.tag_name) return;
+      $('#version-link').textContent = 'Releases · ' + d.tag_name;
+      var hasDmg = (d.assets || []).some(function (a) { return a.name === DMG; });
+      if (!hasDmg) return;
+      $$('.mac-dl').forEach(function (btn) {
+        var v = document.createElement('span');
+        v.textContent = d.tag_name;
+        v.style.opacity = '0.6';
+        btn.appendChild(v);
+        btn.setAttribute('aria-label', 'Download Mycelium ' + d.tag_name + ' for Mac');
+      });
+    })
     .catch(function () {});
 
   // ── PRODUCT TOUR ──────────────────────────────────────────────────────

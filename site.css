@@ -179,7 +179,7 @@ em { font-style: normal; }
   padding: 110px var(--gutter) 90px var(--edge);
 }
 .hero-inner { max-width: 800px; }
-.hero-inner > :not(.hero-title) { max-width: 580px; }
+.hero-inner > :not(.hero-title):not(.hero-meta) { max-width: 580px; }
 
 .hero-title {
   font-weight: 600;
@@ -852,7 +852,7 @@ em { font-style: normal; }
   padding: 120px var(--gutter) 120px var(--edge);
 }
 .cta-inner { max-width: 820px; }
-.cta-inner > :not(.cta-title) { max-width: 580px; }
+.cta-inner > :not(.cta-title):not(.cta-actions) { max-width: 580px; }
 .cta-title {
   font-size: clamp(48px, 7vw, 104px);
   font-weight: 600;
