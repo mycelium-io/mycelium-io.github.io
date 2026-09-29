@@ -1,0 +1,57 @@
+# Keeps release.json in step with mycelium's latest release.
+#
+# The page shows the latest version on the Mac download buttons and in the
+# footer. Asking GitHub's API from each visitor's browser hits its
+# per-IP limit (60 an hour, shared by everyone behind one office network),
+# so the lookup happens here instead, and the page reads release.json from
+# its own origin. It commits only when the release changes.
+
+name: release info
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # hourly, off the top of the hour
+  workflow_dispatch:        # run by hand after a release to update at once
+
+permissions:
+  contents: write   # commit release.json
+  pages: write      # ask Pages to rebuild after the commit
+
+concurrency:
+  group: release-info
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # dmg: whether the release carries the Mac app, which the
+          # releases/latest download links on the page depend on.
+          gh api repos/mycelium-io/mycelium/releases/latest --jq '{
+            tag: .tag_name,
+            dmg: ([.assets[].name] | index("Mycelium-macos-arm64.dmg") != null)
+          }' > release.json
+          cat release.json
+
+      - name: Commit if it changed, then rebuild Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- release.json; then
+            echo "release.json unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add release.json
+          git commit -m "Update release.json to $(jq -r .tag release.json)"
+          git push
+          # A push made with the workflow's own token may not start a Pages
+          # build, so request one explicitly.
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds"
