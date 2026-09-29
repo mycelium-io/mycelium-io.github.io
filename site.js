@@ -57,7 +57,7 @@
     var base = narrow ? clamp(aspect * 0.9, 0.4, 0.5) : (aspect < 1.4 ? 0.56 : 0.66);
     var toWorld = 3.75 / vh;   // world units per CSS pixel on the scene's plane
     var HERO = {
-      merge: 0, dusk: 0, alpha: 1, scale: 1, veins: 0.2, halo: 0,
+      merge: 0, dusk: 0, alpha: 1, scale: 1, veins: 0.2, halo: 0, logo: 0,
       x: narrow ? 0.5 : 0.77,
       y: narrow ? 0.5 - (1.625 - 1.56 * base) / 3.75 : 0.45,
     };
@@ -122,9 +122,10 @@
     }
     list.push([docTop(yours) + vh * 0.25, drop({ merge: 0.6, alpha: 0, x: HERO.x, y: HERO.y })]);
 
-    // Dawn: the field comes back up behind the last call, the drop whole.
-    list.push([docTop(cta) - vh * 1.0, drop({ alpha: 0, veins: 0.6, x: HERO.x, y: HERO.y })]);
-    list.push([docTop(cta) - vh * 0.2, at({ merge: 1, veins: 0.5 })]);
+    // Dawn: the field comes back up behind the last call, the drop whole and
+    // the mark suspended in it. Its veins step back so the mark reads.
+    list.push([docTop(cta) - vh * 1.0, drop({ alpha: 0, veins: 0.15, logo: 1, x: HERO.x, y: HERO.y })]);
+    list.push([docTop(cta) - vh * 0.2, at({ merge: 1, veins: 0.1, logo: 1 })]);
 
     stops = list.sort(function (a, b) { return a[0] - b[0]; });
   }

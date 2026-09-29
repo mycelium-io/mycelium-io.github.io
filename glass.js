@@ -46,6 +46,8 @@
     'uniform vec2 uMT;',       // one texel of it, in uv
     'uniform vec3 uMC;',       // the cluster's centre in uv, and its size in screen heights
     'uniform float uMycOn;',
+    'uniform sampler2D uLogo;', // the mark, suspended in the drop at the close
+    'uniform float uLogoOn,uLogoR;',
 
     'float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}',
     'float cap(vec3 p,vec3 a,vec3 b,float r){vec3 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h)-r;}',
@@ -204,6 +206,18 @@
     '      vec3 body=mix(refr*vec3(.8,.96,1.15),deep,.38*ct);',
     '      float back=pow(clamp(dot(n,normalize(vec3(.35,-.6,.55))),0.,1.),2.2);',
     '      body+=vec3(.32,.78,1.)*back*mix(.55,.8,uDusk);',
+    // The mark inside the drop: follow the refracted ray to a plane through
+    // the drop's centre and read the logo there, so the glass magnifies and
+    // bends it like something set in a paperweight. Strongest face-on,
+    // fading toward the rim where the glass turns away.
+    '      if(uLogoOn>.01&&rf.z<-.05){',
+    '        vec3 lp=p+rf*((uC.z-p.z)/rf.z);',
+    '        vec2 luv=(lp.xy-uC.xy)/uLogoR*.5+.5;',
+    '        if(luv.x>0.&&luv.y>0.&&luv.x<1.&&luv.y<1.){',
+    '          vec4 lg=texture2D(uLogo,vec2(luv.x,1.-luv.y));',
+    '          body=mix(body,lg.rgb*1.08,lg.a*uLogoOn*smoothstep(.2,.65,ct));',
+    '        }',
+    '      }',
     '      vec3 wp=(p-uC)/uS;',
     '      float pool=smoothstep(.25,.95,.5+.5*sin(dot(n,vec3(2.2,-1.4,.9))*1.5+dot(wp,vec3(.7,1.,-.5))*1.2+uTime*.2));',
     '      float th=.35+.45*pool+.8*(1.-ct);',
@@ -262,7 +276,24 @@
 
   var U = {};
   ['uRes', 'uTime', 'uMerge', 'uDusk', 'uLink', 'uS', 'uWob', 'uVein', 'uBound', 'uCam', 'uC',
-    'uB', 'uBead', 'uTeth', 'uHalo', 'uP', 'uMyc', 'uMT', 'uMC', 'uMycOn'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+    'uB', 'uBead', 'uTeth', 'uHalo', 'uP', 'uMyc', 'uMT', 'uMC', 'uMycOn', 'uLogo', 'uLogoOn', 'uLogoR'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+
+  // The mark, for the closing drop. Until it has loaded the shader just
+  // doesn't draw it (uLogoOn stays 0).
+  var logoTex = gl.createTexture(), logoReady = false;
+  (function () {
+    var img = new Image();
+    img.onload = function () {
+      gl.bindTexture(gl.TEXTURE_2D, logoTex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      logoReady = true;
+    };
+    img.src = 'logo-512.png';
+  })();
 
   // ── the mycelial network ──
   // Hyphae, grown by tip extension (the old splash's growth model), shaped
@@ -374,8 +405,8 @@
   })();
 
   // ── state the page drives, and what's on screen easing toward it ──
-  var KEYS = ['merge', 'dusk', 'alpha', 'x', 'y', 'scale', 'veins', 'halo'];
-  var state = { merge: 0, dusk: 0, alpha: 1, x: 0.77, y: 0.45, scale: 1, veins: 0.2, halo: 0, vel: 0 };
+  var KEYS = ['merge', 'dusk', 'alpha', 'x', 'y', 'scale', 'veins', 'halo', 'logo'];
+  var state = { merge: 0, dusk: 0, alpha: 1, x: 0.77, y: 0.45, scale: 1, veins: 0.2, halo: 0, logo: 0, vel: 0 };
   var shown = {};
   KEYS.forEach(function (k) { shown[k] = state[k]; });
   var wob = 0.018;
@@ -572,6 +603,13 @@
     gl.uniform2f(U.uMT, 1 / gsz[0], 1 / gsz[1]);
     gl.uniform3f(U.uMC, cs.x / W, 1 - cs.y / H, S * cs.s / H);
     gl.uniform1f(U.uMycOn, reduced ? 1 : ease((intro - 0.4) / 1.2));
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, logoTex);
+    gl.uniform1i(U.uLogo, 1);
+    gl.uniform1f(U.uLogoOn, logoReady ? shown.logo : 0);
+    gl.uniform1f(U.uLogoR, 0.62 * S);   // half the mark's width, in world units
+    gl.activeTexture(gl.TEXTURE0);
 
     gl.uniform2f(U.uRes, canvas.width, canvas.height);
     gl.uniform1f(U.uTime, t);
