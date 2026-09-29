@@ -651,7 +651,7 @@ em { font-style: normal; }
  * must never sit on top of it. Every state clears 4.5:1 on --night-2. */
 .tour-tabs {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
   padding: 4px;
   margin-bottom: 20px;
@@ -661,8 +661,8 @@ em { font-style: normal; }
 }
 .tour-tab {
   position: relative;
-  text-align: left;
-  padding: 12px 16px 14px;
+  text-align: center;
+  padding: 12px 12px 14px;
   border: 0;
   border-radius: 12px;
   background: transparent;
@@ -675,8 +675,6 @@ em { font-style: normal; }
 .tour-tab.is-active { color: #fff; background: var(--night-3); box-shadow: inset 0 0 0 1px var(--line-2); }
 .tour-tab:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
 .tour-tab-t { display: block; font-weight: 600; font-size: 16px; }
-.tour-tab-d { display: block; font-size: 13.5px; color: var(--ink-3); }
-.tour-tab.is-active .tour-tab-d { color: var(--ink-2); }
 .tour-tab i {
   position: absolute;
   left: 16px; right: 16px; bottom: 0;
@@ -729,7 +727,6 @@ em { font-style: normal; }
 @media (max-width: 700px) { .tour-caption { border-radius: 14px; font-size: 15px; } }
 @media (max-width: 700px) {
   .tour-tabs { grid-template-columns: repeat(3, 1fr); }
-  .tour-tab-d { display: none; }
 }
 
 .lightbox {
