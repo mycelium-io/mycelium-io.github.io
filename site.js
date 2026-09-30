@@ -56,10 +56,14 @@
     // Mirrors glass.js: the scene's base scale for this viewport.
     var base = narrow ? clamp(aspect * 0.9, 0.4, 0.5) : (aspect < 1.4 ? 0.56 : 0.66);
     var toWorld = 3.75 / vh;   // world units per CSS pixel on the scene's plane
+    // Free-floating placements sit 4rem lower than their layout maths puts
+    // them, clear of the nav. (The product ring and trust drop are centred
+    // on page elements, so they don't take it.)
+    var LOWER = 64 / vh;
     var HERO = {
       merge: 0, dusk: 0, alpha: 1, scale: 1, veins: 0.2, halo: 0, logo: 0,
       x: narrow ? 0.5 : 0.77,
-      y: narrow ? 0.5 - (1.625 - 1.56 * base) / 3.75 : 0.45,
+      y: (narrow ? 0.5 - (1.625 - 1.56 * base) / 3.75 : 0.45) + LOWER,
     };
     function at(o) { var r = {}, k; for (k in HERO) r[k] = HERO[k]; for (k in o) r[k] = o[k]; return r; }
     var DROP = { merge: 1, dusk: 1, veins: 1 };
@@ -85,21 +89,22 @@
 
     if (!narrow) {
       // Results: beside the heading, then behind the stat cards as they rise.
-      list.push([docTop(proof) + vh * 0.12, drop({ x: 0.8, y: 0.34, scale: 0.85 })]);
-      list.push([docTop(how) - vh * 0.25, drop({ x: 0.8, y: 0.34, scale: 0.85 })]);
+      list.push([docTop(proof) + vh * 0.12, drop({ x: 0.8, y: 0.34 + LOWER, scale: 0.85 })]);
+      list.push([docTop(how) - vh * 0.25, drop({ x: 0.8, y: 0.34 + LOWER, scale: 0.85 })]);
     } else {
-      list.push([docTop(proof) + vh * 0.12, drop({ alpha: 0, y: 0.12, scale: 0.8 })]);
+      list.push([docTop(proof) + vh * 0.12, drop({ alpha: 0, y: 0.12 + LOWER, scale: 0.8 })]);
     }
     // The plates carry "how it works"; the scene steps aside, then waits by
     // the product window while unseen.
-    list.push([docTop(how) + vh * 0.1, drop({ alpha: 0, x: 0.8, y: 0.34, scale: 0.85 })]);
+    list.push([docTop(how) + vh * 0.1, drop({ alpha: 0, x: 0.8, y: 0.34 + LOWER, scale: 0.85 })]);
     // Faded in late, once the window covers the middle, so the ring never
     // sits under the section's heading.
     list.push([centred(win) - vh * 0.4, product(0)]);
     list.push([centred(win) - vh * 0.05, product(1)]);
     list.push([centred(win) + vh * 0.2, product(1)]);
 
-    var inPos = narrow ? { x: 0.5, y: 0.27, scale: 1.25 } : { x: 0.72, y: 0.47, scale: 1.15 };
+    // On phones the split-back ring is large, so it sits lower still.
+    var inPos = narrow ? { x: 0.5, y: 0.31 + LOWER, scale: 1.25 } : { x: 0.72, y: 0.47 + LOWER, scale: 1.15 };
     if (!narrow) {
       // Trust: one drop, glowing around the edges of the two readouts.
       var rr = reads.getBoundingClientRect();
@@ -115,8 +120,8 @@
 
     if (!narrow) {
       // Fit: the peers, beside "Built for peers".
-      list.push([docTop(fit) + vh * 0.05, drop({ merge: 0, veins: 0.8, x: 0.8, y: 0.3, scale: 0.75 })]);
-      list.push([docTop(yours) - vh * 0.1, drop({ merge: 0, veins: 0.8, x: 0.8, y: 0.3, scale: 0.75 })]);
+      list.push([docTop(fit) + vh * 0.05, drop({ merge: 0, veins: 0.8, x: 0.8, y: 0.3 + LOWER, scale: 0.75 })]);
+      list.push([docTop(yours) - vh * 0.1, drop({ merge: 0, veins: 0.8, x: 0.8, y: 0.3 + LOWER, scale: 0.75 })]);
     } else {
       list.push([it + ih + vh * 0.4, drop({ merge: 0, veins: 0.85, alpha: 0, x: inPos.x, y: inPos.y, scale: inPos.scale })]);
     }

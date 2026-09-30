@@ -960,7 +960,8 @@ em { font-style: normal; }
 /* ── Narrow screens: the glass sits above the copy. ── */
 /* Same switch as glass.js (aspect ≤ 1.05), so copy and scene always agree. */
 @media (max-aspect-ratio: 105/100) {
-  .hero, .cta { align-items: flex-end; padding-top: 40svh; padding-bottom: 64px; }
+  /* The top band is the glass's; +4rem matches the scene's offset in site.js. */
+  .hero, .cta { align-items: flex-end; padding-top: calc(40svh + 4rem); padding-bottom: 64px; }
   .converge-sticky { align-items: flex-end; padding-bottom: 10vh; }
   .beat { justify-content: flex-end; }
   .hud { display: none; }
