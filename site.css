@@ -142,7 +142,22 @@ em { font-style: normal; }
 .nav-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
 .nav-gh { color: rgba(255, 255, 255, 0.8); display: flex; padding: 6px; transition: color 0.2s; }
 .nav-gh:hover { color: #fff; }
-@media (max-width: 760px) { .nav-links { display: none; } }
+/* Phones drop the in-page section links but keep Docs, moved to the right
+ * beside GitHub and Install. */
+@media (max-width: 760px) {
+  .nav { gap: 14px; }
+  .nav-links { margin-left: auto; }
+  .nav-links a:not(.nav-docs) { display: none; }
+  .nav-right { margin-left: 0; }
+  .nav-brand { flex: none; }
+}
+/* The narrowest phones: tighten the header so Docs clears the wordmark. */
+@media (max-width: 360px) {
+  .nav { gap: 10px; padding: 0 14px; }
+  .nav-brand { font-size: 22px; gap: 7px; }
+  .nav-right { gap: 6px; }
+  .nav-right .btn-sm { padding: 0 12px; }
+}
 
 /* ── BUTTONS ── */
 .btn {
