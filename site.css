@@ -919,15 +919,28 @@ em { font-style: normal; }
 
 /* ── FOOTER ── */
 .foot { background: var(--night); border-top: 1px solid var(--line); padding: 44px 0 56px; }
-.foot-inner { display: grid; grid-template-columns: auto 1fr auto; gap: 24px 48px; align-items: center; }
+/* Brand and links share the top row; the note gets a row of its own below,
+ * so it never squeezes into a narrow column between them at mid widths. */
+.foot-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "brand links" "note note";
+  gap: 24px 48px;
+  align-items: center;
+}
+.foot-brand { grid-area: brand; }
+.foot-links { grid-area: links; }
+.foot-note { grid-area: note; padding-top: 22px; border-top: 1px solid var(--line); }
 .foot-brand { display: flex; align-items: center; gap: 12px; }
 .foot-brand strong { display: block; font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 22px; line-height: 1; }
 .foot-brand span { font-size: 12px; color: var(--ink-3); }
-.foot-note { font-size: 13.5px; color: var(--ink-3); max-width: 46em; }
+.foot-note { font-size: 13.5px; color: var(--ink-3); }
 .foot-note a, .foot-links a { color: var(--ink-2); transition: color 0.2s; }
 .foot-note a:hover, .foot-links a:hover { color: #fff; }
 .foot-links { display: flex; gap: 20px; font-size: 13.5px; color: var(--ink-3); flex-wrap: wrap; }
-@media (max-width: 960px) { .foot-inner { grid-template-columns: 1fr; } }
+@media (max-width: 760px) {
+  .foot-inner { grid-template-columns: 1fr; grid-template-areas: "brand" "links" "note"; gap: 20px; }
+}
 
 /* ── Narrow screens: the glass sits above the copy. ── */
 /* Same switch as glass.js (aspect ≤ 1.05), so copy and scene always agree. */
