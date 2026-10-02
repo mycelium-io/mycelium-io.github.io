@@ -42,7 +42,7 @@
     'uniform vec4 uTeth;',   // the agent the bead is tethered to; w = tether radius
     'uniform vec4 uHalo;',   // major radius, minor radius (0 = absent), tilt, spin
     'uniform vec4 uP[8];',   // message pulses: xyz, brightness
-    'uniform sampler2D uMyc;', // the mycelial network: a trail map from the sim below
+    'uniform sampler2D uMyc;', // meteors between the droplets, drawn by the module below
     'uniform vec2 uMT;',       // one texel of it, in uv
     'uniform vec3 uMC;',       // the cluster's centre in uv, and its size in screen heights
     'uniform float uMycOn;',
@@ -131,10 +131,10 @@
     'float ridge(vec3 q){return 1.-abs(2.*n3(q)-1.);}',
     'float veins(vec3 q){float r=ridge(q)*.7+ridge(q*2.3+vec3(4.1,1.7,2.9))*.3;return pow(r,18.);}',
 
-    // The network, drawn as fine glassy threads on the field: a tube-like
-    // normal from the trail's gradient gives each strand a lit core and a
-    // thin-film sheen at its edges. Frosted white by day, glowing cyan at
-    // night, fading out with distance from the agents it grows between.
+    // The meteors, drawn as glassy streaks on the field: a tube-like normal
+    // from the trail's gradient gives each a lit core and a thin-film sheen
+    // at its edges. Pale by day, cyan at night, fading out with distance
+    // from the agents they fly between.
     'float myc(vec2 uv){return texture2D(uMyc,vec2(uv.x,1.-uv.y)).r;}',
     'vec3 hyphae(vec2 uv){',
     '  if(uMycOn<.01) return vec3(0.);',
@@ -159,8 +159,8 @@
     '  vec3 night=vec3(.16,.52,.7)*line*.42+fl*sheen*line*.06;',
     '  return mix(day,night,uDusk)*uMycOn*root;',
     '}',
-    // Everything behind the glass: the field and the network on it. The glass
-    // refracts this, so the droplets bend and magnify the threads behind them.
+    // Everything behind the glass: the field and the meteors on it. The glass
+    // refracts this, so the droplets bend the streaks passing behind them.
     'vec3 backdrop(vec2 uv){return field(uv)+hyphae(uv);}',
 
     'void bnd(vec3 ro,vec3 rd,vec3 c,float r,inout float t0,inout float t1){',
@@ -295,18 +295,12 @@
     img.src = 'logo-512.png';
   })();
 
-  // ── the mycelial network ──
-  // Hyphae, grown by tip extension (the old splash's growth model), shaped
-  // as a web rather than a halo:
-  //   trunks    long, nearly straight threads that travel from one droplet
-  //             to another (a few wander off to explore)
-  //   branches  leave the trunks at wide angles, short and sparse
-  //   fusion    a branch that meets another hypha joins it and stops
-  //             (anastomosis), which closes the web into loops
-  // Growth is drawn as anti-aliased strokes into an offscreen canvas that
-  // slowly fades, so the web turns over and regrows wherever the agents
-  // move. That canvas is the texture the shader draws as glassy threads,
-  // and the glass refracts it.
+  // ── meteors ──
+  // Messages in flight: short streaks of light that leave one droplet's rim
+  // and arc to another's. Each is drawn as a stroke into an offscreen canvas
+  // that fades fast, so it trails a short tail and is gone soon after it
+  // lands. That canvas is the texture the shader draws behind the glass,
+  // so the droplets refract the streaks as they pass.
   var myc = (function () {
     var tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -317,89 +311,58 @@
 
     var cv = document.createElement('canvas');
     var g = cv.getContext('2d');
-    var w = 0, h = 0, px = 1, tips = [], n = 0, ids = 0;
-    var MAX_TRUNKS = 9, MAX_TIPS = 90;
-    // Who drew where, recently: a coarse grid of hypha ids and frame stamps,
-    // so a branch can tell when it has reached somebody else's thread.
-    var CELL = 5, gcw = 0, gch = 0, occ, occT;
-    var WIDTH = [1.4, 0.95, 0.65], ALPHA = [0.95, 0.75, 0.55];
+    var w = 0, h = 0, px = 1, flying = [];
+    var MAX_FLYING = 4;
 
     // w, h: canvas size; px: canvas pixels per CSS pixel.
     function init(cw, ch, scale) {
       w = cv.width = cw; h = cv.height = ch; px = scale;
       g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
       g.lineCap = 'round';
-      tips = [];
-      gcw = Math.ceil(w / CELL); gch = Math.ceil(h / CELL);
-      occ = new Int32Array(gcw * gch); occT = new Int32Array(gcw * gch);
+      flying = [];
     }
-    function trunks() { var c = 0; for (var i = 0; i < tips.length; i++) if (!tips[i].gen) c++; return c; }
-    function sprout(drops) {
-      var i = (Math.random() * drops.length) | 0, d = drops[i], to = -1, a, max;
-      if (drops.length > 1 && Math.random() < 0.85) {
-        // A bridge: aimed at another agent, arcing a little on the way.
-        to = (i + 1 + ((Math.random() * (drops.length - 1)) | 0)) % drops.length;
-        var dx = drops[to].x - d.x, dy = drops[to].y - d.y;
-        a = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.9;
-        max = Math.hypot(dx, dy) * 1.8;
-      } else {
-        // An explorer: out and away from the cluster.
-        var cx = 0, cy = 0;
-        for (var k = 0; k < drops.length; k++) { cx += drops[k].x; cy += drops[k].y; }
-        cx /= drops.length; cy /= drops.length;
-        a = Math.atan2(d.y - cy, d.x - cx) + (Math.random() - 0.5) * 1.2;
-        max = (140 + Math.random() * 220) * px;
-      }
-      tips.push({
-        id: ++ids, parent: 0, x: d.x + Math.cos(a) * d.r, y: d.y + Math.sin(a) * d.r, a: a, to: to,
-        gen: 0, age: 0, max: max, sp: 1.4 * px, bend: (Math.random() - 0.5) * 0.006,
+    // Launch from a random droplet's rim toward another droplet, bowing
+    // slightly to one side, so each flight is a gentle arc.
+    function launch(drops) {
+      var i = (Math.random() * drops.length) | 0;
+      var j = (i + 1 + ((Math.random() * (drops.length - 1)) | 0)) % drops.length;
+      var a = drops[i], b = drops[j];
+      var dx = b.x - a.x, dy = b.y - a.y, dist = Math.hypot(dx, dy);
+      if (dist < a.r + b.r + 4 * px) return;   // touching or merged: nowhere to fly
+      var ux = dx / dist, uy = dy / dist;
+      var x0 = a.x + ux * a.r, y0 = a.y + uy * a.r, x1 = b.x - ux * b.r, y1 = b.y - uy * b.r;
+      var bow = (Math.random() - 0.5) * 0.5 * dist;
+      flying.push({
+        x0: x0, y0: y0, x1: x1, y1: y1,
+        cx: (x0 + x1) / 2 - uy * bow, cy: (y0 + y1) / 2 + ux * bow,   // the arc's control point
+        t: 0, dt: (3.2 * px) / Math.max(dist, 1),                      // ~3px a frame
       });
     }
+    function at(m, t) {
+      var u = 1 - t;
+      return [u * u * m.x0 + 2 * u * t * m.cx + t * t * m.x1, u * u * m.y0 + 2 * u * t * m.cy + t * t * m.y1];
+    }
     function step(drops) {
-      n++;
-      // Slow turnover. The fade is batched: at 8-bit precision a tiny
-      // per-frame fade stalls, so fade a little harder every eighth frame.
-      if (n % 8 === 0) { g.fillStyle = 'rgba(0,0,0,0.035)'; g.fillRect(0, 0, w, h); }
-      if (drops.length && trunks() < MAX_TRUNKS && Math.random() < 0.1) sprout(drops);
+      // Fade fast: the tail is only the last ~20 frames of flight.
+      g.fillStyle = 'rgba(0,0,0,0.13)'; g.fillRect(0, 0, w, h);
+      if (drops.length > 1 && flying.length < MAX_FLYING && Math.random() < 0.05) launch(drops);
 
-      for (var i = tips.length - 1; i >= 0; i--) {
-        var t = tips[i];
-        t.age += t.sp;
-        // Nearly straight: a faint personal bend and very little wander.
-        t.a += t.bend + (Math.random() - 0.5) * 0.05;
-        var goal = t.to >= 0 ? drops[t.to] : null;
-        if (goal) {
-          var want = Math.atan2(goal.y - t.y, goal.x - t.x);
-          t.a += Math.atan2(Math.sin(want - t.a), Math.cos(want - t.a)) * 0.03;
-        }
-        var nx = t.x + Math.cos(t.a) * t.sp, ny = t.y + Math.sin(t.a) * t.sp;
-        var done = nx < 0 || ny < 0 || nx >= w || ny >= h || t.age > t.max ||
-          (goal && Math.hypot(goal.x - nx, goal.y - ny) < goal.r);
-        // Fusion: a branch meeting another live thread joins it and stops.
-        var c = done ? -1 : ((ny / CELL) | 0) * gcw + ((nx / CELL) | 0);
-        if (c >= 0 && t.gen && t.age > 12 * px && occ[c] && occ[c] !== t.id && occ[c] !== t.parent && n - occT[c] < 900) done = true;
-        g.lineWidth = WIDTH[t.gen] * px;
-        g.strokeStyle = 'rgba(255,255,255,' + ALPHA[t.gen] + ')';
-        g.beginPath(); g.moveTo(t.x, t.y); g.lineTo(nx, ny); g.stroke();
-        if (done) { tips.splice(i, 1); continue; }
-        occ[c] = t.id; occT[c] = n;
-        t.x = nx; t.y = ny;
-        // Branches leave at wide angles; trunks branch most, twigs rarely.
-        var bp = t.gen === 0 ? 0.02 : 0.008;
-        if (t.gen < 2 && t.age > 20 * px && tips.length < MAX_TIPS && Math.random() < bp) {
-          var side = Math.random() < 0.5 ? -1 : 1;
-          tips.push({
-            id: ++ids, parent: t.id, x: t.x, y: t.y, a: t.a + side * (0.9 + Math.random() * 0.6),
-            to: -1, gen: t.gen + 1, age: 0, max: (40 + Math.random() * 150) * px, sp: 1.2 * px,
-            bend: (Math.random() - 0.5) * 0.01,
-          });
-        }
+      for (var i = flying.length - 1; i >= 0; i--) {
+        var m = flying[i];
+        var p0 = at(m, m.t);
+        m.t = Math.min(1, m.t + m.dt);
+        var p1 = at(m, m.t);
+        // Brightest mid-flight, softer as it leaves and arrives.
+        var k = Math.sin(Math.PI * m.t);
+        g.lineWidth = 1.6 * px;
+        g.strokeStyle = 'rgba(255,255,255,' + (0.45 + 0.55 * k).toFixed(3) + ')';
+        g.beginPath(); g.moveTo(p0[0], p0[1]); g.lineTo(p1[0], p1[1]); g.stroke();
+        g.fillStyle = 'rgba(255,255,255,' + (0.6 + 0.4 * k).toFixed(3) + ')';
+        g.beginPath(); g.arc(p1[0], p1[1], 1.6 * px, 0, 6.2832); g.fill();   // the head
+        if (m.t >= 1) flying.splice(i, 1);
       }
-      // Growth is slow; every other frame is plenty to upload.
-      if (n % 2 === 0 || n < 3) {
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv);
-      }
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv);
     }
     return { init: init, step: step, tex: tex, size: function () { return [w, h]; } };
   })();
@@ -481,7 +444,7 @@
   function norm(a) { var l = Math.sqrt(dot(a, a)) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var start = performance.now(), last = start, slow = 0, fast = 0, mycGrown = false;
+  var start = performance.now(), last = start, slow = 0, fast = 0;
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -586,7 +549,8 @@
     var haloR = (1.75 - 0.9 * ease((m - 0.1) / 0.7)) * S;
     var haloTilt = 1.15 + 0.15 * Math.sin(t * 0.4);
 
-    // Feed the network: the droplets, in sim-grid cells.
+    // Feed the meteors: the droplets, in meteor-canvas pixels. With reduced
+    // motion there are none (the canvas stays black).
     var gsz = myc.size(), drops = [];
     for (var dn = 0; dn < 5; dn++) {
       var ps = project(pos[dn]), rpx = balls[dn * 4 + 3] * ps.s;
@@ -594,7 +558,6 @@
       drops.push({ x: ps.x / W * gsz[0], y: ps.y / H * gsz[1], r: Math.max(1.5, rpx / W * gsz[0]) });
     }
     if (!reduced) myc.step(drops);
-    else if (!mycGrown && drops.length) { for (var g0 = 0; g0 < 260; g0++) myc.step(drops); mycGrown = true; }
     var cs = project([cx, cy, 0]);
 
     gl.activeTexture(gl.TEXTURE0);
