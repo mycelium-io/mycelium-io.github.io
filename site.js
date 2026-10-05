@@ -433,3 +433,37 @@
   window.addEventListener('load', function () { sizeRail(); buildStops(); onScroll(); root.classList.add('is-loaded'); });
   requestAnimationFrame(function () { root.classList.add('is-ready'); });
 })();
+
+// ── Driven from a frame ──
+// When this page is shown inside another (the Mycelium workshop deck), that
+// page can't scroll it, so it asks: "hello" is answered with "ready", and
+// "autoscroll" glides to the bottom at a steady pace until it gets there, the
+// deck says "stop", or the viewer touches the page. Only scrolling is offered.
+(function () {
+  if (window.parent === window) return;
+  var raf = 0;
+  var tell = function (type) { parent.postMessage({ source: 'mycelium-site', type: type }, '*'); };
+  var stop = function () { if (raf) cancelAnimationFrame(raf); raf = 0; };
+  addEventListener('message', function (e) {
+    var d = e.data || {};
+    if (d.source !== 'mycelium-deck') return;
+    if (d.type === 'hello') { tell('ready'); return; }
+    if (d.type === 'stop') { stop(); return; }
+    if (d.type !== 'autoscroll') return;
+    stop();
+    var speed = Math.max(20, Math.min(800, +d.pxPerSec || 120));
+    var y = window.scrollY, last = 0;
+    var tick = function (t) {
+      var dt = last ? Math.min(0.05, (t - last) / 1000) : 0; last = t;
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      y = Math.min(max, y + speed * dt);
+      window.scrollTo({ top: y, behavior: 'instant' });
+      if (y >= max) { raf = 0; tell('autoscroll-done'); return; }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  });
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (n) {
+    addEventListener(n, function () { if (raf) { stop(); tell('autoscroll-done'); } }, { passive: true });
+  });
+})();
