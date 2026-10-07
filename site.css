@@ -929,8 +929,11 @@ em { font-style: normal; }
 
 /* Mac app download. A phone or tablet can't run it, so touch devices
  * don't get the hero button; the closing section keeps it. */
-.mac-dl svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-@media (pointer: coarse) { .hero .mac-dl { display: none; } }
+.app-dl svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (pointer: coarse) { .hero .app-dl { display: none; } }
+.app-platforms { margin-top: 14px; font-family: var(--mono); font-size: 12px; color: rgba(255, 255, 255, 0.7); letter-spacing: 0.02em; }
+.app-platforms a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.app-platforms a:hover { color: #fff; }
 
 /* ── FOOTER ── */
 .foot { background: var(--night); border-top: 1px solid var(--line); padding: 44px 0 56px; }

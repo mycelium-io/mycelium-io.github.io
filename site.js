@@ -327,25 +327,64 @@
     });
   });
 
-  // ── VERSION ───────────────────────────────────────────────────────────
+  // ── VERSION + DOWNLOADS ───────────────────────────────────────────────
   // release.json is kept current by .github/workflows/release-info.yml, so
   // the page never calls GitHub's API itself (its per-IP limit is shared by
-  // a whole office network). The Mac buttons link to releases/latest; their
-  // version is only shown when that release carries the .dmg, so the label
-  // never names a version the button can't deliver.
+  // a whole office network). It also says which builds of the app the latest
+  // release carries. The download buttons are the Mac app's in the page, so
+  // they work without script; a visitor on Windows or Linux gets their own
+  // build instead, and a version, only when that release carries it, so a
+  // button never points at a file that isn't there.
+  var LATEST = 'https://github.com/mycelium-io/mycelium/releases/latest/download/';
+  var APPS = {
+    Mac: { asset: 'Mycelium-macos-arm64.dmg', has: 'dmg' },
+    Windows: { asset: 'Mycelium-windows-x86_64-setup.exe', has: 'windows' },
+    Linux: { asset: 'Mycelium-linux-x86_64.AppImage', has: 'appimage' }
+  };
+  // The system this browser runs on, if the app runs there: none on a phone,
+  // a tablet (an iPad's Safari says Macintosh, but has a touch screen) or
+  // ChromeOS.
+  function platform() {
+    var ua = navigator.userAgent;
+    if (/Android|iPhone|iPad|iPod|CrOS/.test(ua)) return null;
+    if (/Windows NT/.test(ua)) return 'Windows';
+    if (/Macintosh/.test(ua)) return navigator.maxTouchPoints > 1 ? null : 'Mac';
+    if (/Linux|X11/.test(ua)) return 'Linux';
+    return null;
+  }
   fetch('release.json', { cache: 'no-cache' })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (d) {
       if (!d || !d.tag) return;
       $('#version-link').textContent = 'Releases · ' + d.tag;
-      if (!d.dmg) return;
-      $$('.mac-dl').forEach(function (btn) {
+      var mine = platform();
+      var app = mine && d[APPS[mine].has] ? mine : d.dmg ? 'Mac' : null;
+      if (!app) return;
+      $$('.app-dl').forEach(function (btn) {
+        btn.href = LATEST + APPS[app].asset;
+        $('[data-app-label]', btn).textContent = 'Download for ' + app;
         var v = document.createElement('span');
         v.textContent = d.tag;
         v.style.opacity = '0.6';
         btn.appendChild(v);
-        btn.setAttribute('aria-label', 'Download Mycelium ' + d.tag + ' for Mac');
+        btn.setAttribute('aria-label', 'Download Mycelium ' + d.tag + ' for ' + app);
       });
+      // The other systems the release has a build for, beside the button.
+      var others = Object.keys(APPS).filter(function (p) { return p !== app && d[APPS[p].has]; });
+      var line = $('[data-app-platforms]');
+      if (!line || !others.length) return;
+      line.appendChild(document.createTextNode('Also for '));
+      others.forEach(function (p, i) {
+        if (i) line.appendChild(document.createTextNode(' · '));
+        var a = document.createElement('a');
+        a.href = LATEST + APPS[p].asset;
+        a.textContent = p;
+        line.appendChild(a);
+      });
+      if (others.some(function (p) { return p !== 'Mac'; })) {
+        line.appendChild(document.createTextNode(' (Windows and Linux are in preview)'));
+      }
+      line.hidden = false;
     })
     .catch(function () {});
 
