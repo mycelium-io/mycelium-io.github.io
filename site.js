@@ -57,8 +57,8 @@
     var base = narrow ? clamp(aspect * 0.9, 0.4, 0.5) : (aspect < 1.4 ? 0.56 : 0.66);
     var toWorld = 3.75 / vh;   // world units per CSS pixel on the scene's plane
     // Free-floating placements sit 4rem lower than their layout maths puts
-    // them, clear of the nav. (The product ring and trust drop are centred
-    // on page elements, so they don't take it.)
+    // them, clear of the nav. (The product ring is centred on a page
+    // element, so it doesn't take it.)
     var LOWER = 64 / vh;
     var HERO = {
       merge: 0, dusk: 0, alpha: 1, scale: 1, veins: 0.2, halo: 0, logo: 0,
@@ -70,7 +70,7 @@
     function drop(o) { var r = at(DROP), k; for (k in o) r[k] = o[k]; return r; }
 
     var ct = docTop(converge), ch = converge.offsetHeight - vh;
-    var proof = $('#proof'), win = $('.window'), reads = $('.readouts');
+    var proof = $('#proof'), win = $('.window');
     var inter = $('#interlude'), fit = $('#fit'), yours = $('#yours');
     var it = docTop(inter), ih = inter.offsetHeight - vh;
 
@@ -105,14 +105,7 @@
 
     // On phones the split-back ring is large, so it sits lower still.
     var inPos = narrow ? { x: 0.5, y: 0.31 + LOWER, scale: 1.25 } : { x: 0.72, y: 0.47 + LOWER, scale: 1.15 };
-    if (!narrow) {
-      // Trust: one drop, glowing around the edges of the two readouts.
-      var rr = reads.getBoundingClientRect();
-      var trustScale = (0.62 * rr.width * toWorld) / (1.26 * base);
-      list.push([centred(reads), drop({ x: (rr.left + rr.width / 2) / vw, y: 0.5, scale: trustScale })]);
-    } else {
-      list.push([centred(reads) - vh * 0.2, drop({ alpha: 0, x: inPos.x, y: inPos.y, scale: inPos.scale })]);
-    }
+    if (narrow) list.push([it - vh * 0.6, drop({ alpha: 0, x: inPos.x, y: inPos.y, scale: inPos.scale })]);
 
     // Interlude: pinned, and the drop splits back into its agents.
     list.push([it + ih * 0.12, drop(inPos)]);
