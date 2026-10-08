@@ -1,7 +1,7 @@
 # Keeps release.json in step with mycelium's latest release.
 #
-# The page shows the latest version on the Mac download buttons and in the
-# footer. Asking GitHub's API from each visitor's browser hits its
+# The page shows the latest version on the download buttons and in the
+# footer, and offers each system the build the release carries for it. Asking GitHub's API from each visitor's browser hits its
 # per-IP limit (60 an hour, shared by everyone behind one office network),
 # so the lookup happens here instead, and the page reads release.json from
 # its own origin. It commits only when the release changes.
@@ -31,11 +31,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # dmg: whether the release carries the Mac app, which the
-          # releases/latest download links on the page depend on.
-          gh api repos/mycelium-io/mycelium/releases/latest --jq '{
+          # Which builds of the app the release carries, which the page's
+          # releases/latest download links depend on: dmg (Mac), windows
+          # (the installer) and appimage (Linux).
+          gh api repos/mycelium-io/mycelium/releases/latest --jq '[.assets[].name] as $names | {
             tag: .tag_name,
-            dmg: ([.assets[].name] | index("Mycelium-macos-arm64.dmg") != null)
+            dmg: ($names | index("Mycelium-macos-arm64.dmg") != null),
+            windows: ($names | index("Mycelium-windows-x86_64-setup.exe") != null),
+            appimage: ($names | index("Mycelium-linux-x86_64.AppImage") != null)
           }' > release.json
           cat release.json
 
