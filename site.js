@@ -1,8 +1,8 @@
 /* ── mycelium · site ──
  *
- * One scroll loop drives everything scroll-linked: the glass scene (merge /
- * dusk / opacity), the converge beats, and the horizontal "how" rail. The
- * rest is small: reveals, counters, the product tour, the install block.
+ * One scroll loop drives the glass scene (merge / dusk / opacity) along the
+ * page. The rest is small: reveals, the install block, the release's version
+ * and downloads.
  */
 (function () {
   var root = document.documentElement;
@@ -14,25 +14,16 @@
 
   // ── SCROLL SCENES ─────────────────────────────────────────────────────
   var nav = $('#nav');
-  var converge = $('#converge');
-  var beats = $$('.beat');
-  var hud = $('.hud');
-  var beatBar = $('.beat-progress span');
   var cta = $('#install');
-  var how = $('#how');
-  var rail = $('#how-rail');
-  var howIdx = $('#how-idx');
-  var cards = $$('.card', rail);
-  var railOn = false;
-  var lastBeat = -1;
-
-  function sizeRail() {
-    railOn = !reduced && window.innerWidth >= 860;
-    how.classList.toggle('is-pinned', railOn);
-    if (!railOn) { how.style.height = ''; rail.style.transform = ''; return; }
-    var travel = rail.scrollWidth - window.innerWidth;
-    how.style.height = (window.innerHeight + Math.max(travel, 0)) + 'px';
-  }
+  var story = $('#how');
+  var beats = $$('.beat', story);
+  var shots = $$('.story-shot', story);
+  var beatBar = $('.beat-progress span', story);
+  var agree = $('#agree');
+  var lastBeat = 0;
+  // The story pins only where it has room and motion is welcome; otherwise
+  // its steps are a plain stack (see .story in site.css).
+  function pinned() { return !reduced && window.innerWidth > 860; }
 
   function glass(s) {
     if (window.Glass) window.Glass.set(s);
@@ -47,18 +38,14 @@
   // their own route (no margins to sit in, so the glass keeps to open space).
   var stops = [];
   function docTop(el) { return el.getBoundingClientRect().top + window.scrollY; }
-  // The scroll position at which `el` sits centred in the viewport.
-  function centred(el) { return docTop(el) + el.offsetHeight / 2 - window.innerHeight / 2; }
 
   function buildStops() {
     var vh = window.innerHeight, vw = window.innerWidth, aspect = vw / vh;
     var narrow = aspect <= 1.05;
     // Mirrors glass.js: the scene's base scale for this viewport.
     var base = narrow ? clamp(aspect * 0.9, 0.4, 0.5) : (aspect < 1.4 ? 0.56 : 0.66);
-    var toWorld = 3.75 / vh;   // world units per CSS pixel on the scene's plane
     // Free-floating placements sit 4rem lower than their layout maths puts
-    // them, clear of the nav. (The product ring is centred on a page
-    // element, so it doesn't take it.)
+    // them, clear of the nav.
     var LOWER = 64 / vh;
     var HERO = {
       merge: 0, dusk: 0, alpha: 1, scale: 1, veins: 0.2, halo: 0, logo: 0,
@@ -69,54 +56,53 @@
     var DROP = { merge: 1, dusk: 1, veins: 1 };
     function drop(o) { var r = at(DROP), k; for (k in o) r[k] = o[k]; return r; }
 
-    var ct = docTop(converge), ch = converge.offsetHeight - vh;
-    var proof = $('#proof'), win = $('.window');
-    var inter = $('#interlude'), fit = $('#fit'), yours = $('#yours');
-    var it = docTop(inter), ih = inter.offsetHeight - vh;
+    var yours = $('#yours');
+    var st = docTop(story), sh = Math.max(story.offsetHeight - vh, 1);
+    var at_ = docTop(agree), ah = agree.offsetHeight;
+    // Beside the "agree" heading: the agents, apart, then drawn into one.
+    // Small and high, so it sits clear of the cards under the heading.
+    var side = { x: 0.86, y: 0.18 + LOWER, scale: 0.4 };
+    function peers(o) { var r = drop({ merge: 0, veins: 0.8, x: side.x, y: side.y, scale: side.scale }), k; for (k in o) r[k] = o[k]; return r; }
 
-    var list = [
-      [0, at({})],
-      [ct + ch * 0.06, at({})],
-      // Mid-negotiation: the aligner's halo is up and the peers are drawing in.
-      [ct + ch * 0.45, at({ merge: 0.42, dusk: 0.35, halo: 1, veins: 0.5 })],
-      [ct + ch * 0.8, at({ merge: 1, dusk: 0.88, veins: 0.95 })],
-      [ct + ch, at(DROP)],
-    ];
-
-    // Product: the peers ring the app window, peeking out around its edges.
-    var ringScale = (0.5 * win.offsetWidth * toWorld) / (1.3 * base);
-    function product(alpha) { return drop({ merge: 0, veins: 0.6, x: 0.5, y: 0.5, scale: ringScale, alpha: alpha }); }
-
-    if (!narrow) {
-      // Results: beside the heading, then behind the stat cards as they rise.
-      list.push([docTop(proof) + vh * 0.12, drop({ x: 0.8, y: 0.34 + LOWER, scale: 0.85 })]);
-      list.push([docTop(how) - vh * 0.25, drop({ x: 0.8, y: 0.34 + LOWER, scale: 0.85 })]);
+    var list = [[0, at({})]];
+    if (pinned()) {
+      // The story: the glass plays each step from behind the picture, peeking
+      // out around it, while night falls. One stop at the middle of each step.
+      var behind = { x: 0.66, y: 0.5, scale: narrow ? 1 : 1.25 };
+      function step(i, o) {
+        var r = at({ x: behind.x, y: behind.y, scale: behind.scale }), k;
+        for (k in o) r[k] = o[k];
+        return [st + sh * (i + 0.5) / beats.length, r];
+      }
+      list.push([st, at({ x: behind.x, y: behind.y, scale: behind.scale })]);
+      // 01 on your machine: each agent its own drop, apart.
+      list.push(step(0, { merge: 0, veins: 0.15, dusk: 0.2 }));
+      // 02 in a room: drawn together, the veins between them lit.
+      list.push(step(1, { merge: 0.25, veins: 0.75, dusk: 0.5 }));
+      // 03 a task: the halo up around them while they work it.
+      list.push(step(2, { merge: 0.2, veins: 0.85, halo: 1, dusk: 0.8 }));
+      // 04 they wake each other: the halo down; site.js wobbles the drops.
+      list.push(step(3, { merge: 0.1, veins: 0.6, halo: 0.2, dusk: 1 }));
+      // 05 what an agent sees: the drops still, close, the veins between them bright.
+      list.push(step(4, { merge: 0.45, veins: 0.95, halo: 0, dusk: 1 }));
+      // 06 what they learn stays: one drop, every vein lit.
+      list.push(step(5, { merge: 1, veins: 1, halo: 0, dusk: 1 }));
+      list.push([st + sh, drop({ alpha: 0, merge: 1, x: behind.x, y: behind.y, scale: behind.scale })]);
     } else {
-      list.push([docTop(proof) + vh * 0.12, drop({ alpha: 0, y: 0.12 + LOWER, scale: 0.8 })]);
+      // Unpinned, the steps carry their own pictures: the scene steps aside.
+      list.push([st - vh * 0.4, at({ dusk: 0.5 })]);
+      list.push([st + vh * 0.2, drop({ alpha: 0, x: side.x, y: side.y, scale: side.scale })]);
     }
-    // The plates carry "how it works"; the scene steps aside, then waits by
-    // the product window while unseen.
-    list.push([docTop(how) + vh * 0.1, drop({ alpha: 0, x: 0.8, y: 0.34 + LOWER, scale: 0.85 })]);
-    // Faded in late, once the window covers the middle, so the ring never
-    // sits under the section's heading.
-    list.push([centred(win) - vh * 0.4, product(0)]);
-    list.push([centred(win) - vh * 0.05, product(1)]);
-    list.push([centred(win) + vh * 0.2, product(1)]);
-
-    // On phones the split-back ring is large, so it sits lower still.
-    var inPos = narrow ? { x: 0.5, y: 0.31 + LOWER, scale: 1.25 } : { x: 0.72, y: 0.47 + LOWER, scale: 1.15 };
-    if (narrow) list.push([it - vh * 0.6, drop({ alpha: 0, x: inPos.x, y: inPos.y, scale: inPos.scale })]);
-
-    // Interlude: pinned, and the drop splits back into its agents.
-    list.push([it + ih * 0.12, drop(inPos)]);
-    list.push([it + ih * 0.85, drop({ merge: 0, veins: 0.85, x: inPos.x, y: inPos.y, scale: inPos.scale })]);
 
     if (!narrow) {
-      // Fit: the peers, beside "Built for peers".
-      list.push([docTop(fit) + vh * 0.05, drop({ merge: 0, veins: 0.8, x: 0.8, y: 0.3 + LOWER, scale: 0.75 })]);
-      list.push([docTop(yours) - vh * 0.1, drop({ merge: 0, veins: 0.8, x: 0.8, y: 0.3 + LOWER, scale: 0.75 })]);
-    } else {
-      list.push([it + ih + vh * 0.4, drop({ merge: 0, veins: 0.85, alpha: 0, x: inPos.x, y: inPos.y, scale: inPos.scale })]);
+      // When they need to agree: the peers come back beside the heading, a
+      // halo up while they work it out, and are one drop by the section's end.
+      list.push([at_ - vh * 0.5, peers({ alpha: 0 })]);
+      list.push([at_ - vh * 0.05, peers({ halo: 0.6 })]);
+      // One drop by the time the second row of cards comes up, and gone
+      // before it would sit over them.
+      list.push([at_ + ah * 0.3, peers({ merge: 1, halo: 0, veins: 0.95 })]);
+      list.push([at_ + ah * 0.45, peers({ merge: 1, alpha: 0 })]);
     }
     list.push([docTop(yours) + vh * 0.25, drop({ merge: 0.6, alpha: 0, x: HERO.x, y: HERO.y })]);
 
@@ -152,39 +138,24 @@
     var vel = (window.scrollY - lastY) / Math.max(now - lastT, 1) * 1000;
     lastY = window.scrollY; lastT = now;
 
-    // Converge: 0 at the top of the pin, 1 when it releases.
-    var cr = converge.getBoundingClientRect();
-    var p = clamp(-cr.top / (cr.height - vh), 0, 1);
-    var beat = p < 0.34 ? 0 : p < 0.68 ? 1 : 2;
-    if (beat !== lastBeat) {
-      beats.forEach(function (b, i) { b.classList.toggle('is-active', i === beat); });
-      if (hud) hud.setAttribute('data-stage', beat);
-      lastBeat = beat;
+    // The story: 0 at the top of the pin, 1 when it releases; each step an
+    // equal share of the way.
+    if (pinned()) {
+      var sr = story.getBoundingClientRect();
+      var p = clamp(-sr.top / Math.max(sr.height - vh, 1), 0, 1);
+      var beat = Math.min(beats.length - 1, Math.floor(p * beats.length));
+      if (beat !== lastBeat) {
+        beats.forEach(function (b, i) { b.classList.toggle('is-active', i === beat); });
+        shots.forEach(function (s, i) { s.classList.toggle('is-active', i === beat); });
+        // Being asked: the drops start, as an agent does when it's woken.
+        if (beat === 3) vel += 2400;
+        lastBeat = beat;
+      }
+      if (beatBar) beatBar.style.transform = 'scaleX(' + p + ')';
     }
-    if (beatBar) beatBar.style.transform = 'scaleX(' + p + ')';
 
     var scene = sceneAt(window.scrollY);
     if (scene) { scene.vel = vel; glass(scene); }
-
-    // How: pin, then slide the rail sideways by the scrolled distance.
-    if (railOn) {
-      var hr = how.getBoundingClientRect();
-      var travel = rail.scrollWidth - window.innerWidth;
-      var hp = clamp(-hr.top / Math.max(hr.height - vh, 1), 0, 1);
-      rail.style.transform = 'translate3d(' + (-hp * travel) + 'px,0,0)';
-      var mid = window.innerWidth / 2, best = 0, bestD = 1e9;
-      cards.forEach(function (c, i) {
-        var r = c.getBoundingClientRect();
-        var d = Math.abs(r.left + r.width / 2 - mid);
-        if (d < bestD) { bestD = d; best = i; }
-        // Plates drift against the rail a little, so they read as depth.
-        var off = (r.left + r.width / 2 - mid) / window.innerWidth;
-        var img = c.querySelector('img');
-        if (img) img.style.transform = 'translate3d(' + (off * -60) + 'px,0,0) scale(1.12)';
-      });
-      if (howIdx) howIdx.textContent = '0' + (best + 1);
-      cards.forEach(function (c, i) { c.classList.toggle('is-current', i === best); });
-    }
   }
 
   var ticking = false;
@@ -194,43 +165,9 @@
     requestAnimationFrame(function () { ticking = false; onScroll(); });
   }
   window.addEventListener('scroll', requestTick, { passive: true });
-  window.addEventListener('resize', function () { sizeRail(); buildStops(); requestTick(); });
+  window.addEventListener('resize', function () { buildStops(); requestTick(); });
   // Scroll velocity decays to zero once the page stops, so the wobble settles.
   setInterval(function () { if (performance.now() - lastT > 120) glass({ vel: 0 }); }, 150);
-
-  // ── CARD TILT ─────────────────────────────────────────────────────────
-  // The "how" cards are panes of glass that lean slightly toward the
-  // pointer; their rim and reflection turn with the tilt (see .card in
-  // site.css). Mouse and trackpad only: touch and reduced-motion readers
-  // get the cards still.
-  if (!reduced && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    cards.forEach(function (card) {
-      var raf = 0, px = 0, py = 0;
-      function apply() {
-        raf = 0;
-        var r = card.getBoundingClientRect();
-        var fx = clamp((px - r.left) / r.width, 0, 1), fy = clamp((py - r.top) / r.height, 0, 1);
-        card.style.setProperty('--tx', ((fx - 0.5) * 2).toFixed(3));
-        card.style.setProperty('--ty', ((fy - 0.5) * 2).toFixed(3));
-        card.style.setProperty('--glare', '1');
-      }
-      card.addEventListener('pointermove', function (e) {
-        px = e.clientX; py = e.clientY;
-        card.classList.add('is-tilting');
-        if (!raf) raf = requestAnimationFrame(apply);
-      });
-      card.addEventListener('pointerleave', function () {
-        if (raf) { cancelAnimationFrame(raf); raf = 0; }
-        card.classList.remove('is-tilting');
-        card.style.setProperty('--tx', '0');
-        card.style.setProperty('--ty', '0');
-        card.style.setProperty('--glare', '0');
-      });
-    });
-  }
-
-  // Clicking "Watch them converge" should land at the start of the story.
-  // (Anchor + sticky already does that; nothing to add.)
 
   // ── REVEALS & COUNTERS ────────────────────────────────────────────────
   function countUp(el) {
@@ -292,7 +229,7 @@
   // ── INSTALL ───────────────────────────────────────────────────────────
   // Both install blocks share one tab, so a pick up top holds at the bottom.
   var CMDS = {
-    prompt: 'Use curl to read https://mycelium-io.github.io/mycelium/agents.md and perform the setup to install Mycelium',
+    prompt: 'Use curl to read https://mycelium-io.github.io/mycelium/agents.md and follow its steps to install Mycelium',
     curl: 'curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash',
     brew: 'brew install mycelium-io/tap/mycelium',
   };
@@ -381,88 +318,11 @@
     })
     .catch(function () {});
 
-  // ── PRODUCT TOUR ──────────────────────────────────────────────────────
-  // Auto-advances with a progress fill on the active tab; any click takes
-  // over for good. Pauses on hover and while off-screen.
-  (function () {
-    var tour = $('#tour');
-    if (!tour) return;
-    var tabs = $$('.tour-tab', tour), shots = $$('.shot', tour), cap = $('#tour-caption');
-    var idx = 0, auto = !reduced, DUR = 6500, t0 = 0, paused = true, acc = 0;
-
-    function show(i) {
-      idx = (i + shots.length) % shots.length;
-      shots.forEach(function (s, j) {
-        s.classList.toggle('is-active', j === idx);
-        s.setAttribute('aria-hidden', j === idx ? 'false' : 'true');
-      });
-      tabs.forEach(function (t, j) {
-        t.classList.toggle('is-active', j === idx);
-        t.setAttribute('aria-selected', j === idx ? 'true' : 'false');
-        // Roving tabindex: Tab lands on the selected view; arrows move between.
-        t.tabIndex = j === idx ? 0 : -1;
-        t.style.setProperty('--p', 0);
-      });
-      if (cap) cap.textContent = shots[idx].getAttribute('data-caption');
-      acc = 0;
-    }
-    function choose(i, focus) {
-      auto = false;
-      show(i);
-      tabs[idx].style.setProperty('--p', 1);
-      if (focus) tabs[idx].focus();
-    }
-    tabs.forEach(function (t, i) {
-      t.addEventListener('click', function () { choose(i); });
-      t.addEventListener('keydown', function (e) {
-        var to = { ArrowRight: idx + 1, ArrowLeft: idx - 1, Home: 0, End: tabs.length - 1 }[e.key];
-        if (to == null) return;
-        e.preventDefault();
-        choose(to, true);
-      });
-    });
-    tour.addEventListener('mouseenter', function () { paused = true; });
-    tour.addEventListener('mouseleave', function () { paused = false; });
-    // Moving content must be stoppable: keyboard or screen-reader focus ends autoplay.
-    tour.addEventListener('focusin', function () { if (auto) choose(idx); });
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) { paused = !es[0].isIntersecting; }, { threshold: 0.35 }).observe(tour);
-    }
-    var last = performance.now();
-    (function loop(now) {
-      requestAnimationFrame(loop);
-      var dt = now - last; last = now;
-      if (!auto || paused) return;
-      acc += dt;
-      tabs[idx].style.setProperty('--p', clamp(acc / DUR, 0, 1));
-      if (acc >= DUR) show(idx + 1);
-    })(last);
-    if (!auto) tabs[0].style.setProperty('--p', 1);
-
-    // Lightbox: the 2x frame, full-size.
-    var box = $('#lightbox'), boxImg = $('img', box);
-    shots.forEach(function (s) {
-      var img = $('img', s);
-      img.addEventListener('click', function () {
-        var hi = (img.getAttribute('srcset') || '').split(',').map(function (x) { return x.trim(); })
-          .filter(function (x) { return /2x$/.test(x); })[0];
-        boxImg.src = hi ? hi.split(' ')[0] : img.src;
-        boxImg.alt = img.alt;
-        box.classList.add('is-open');
-        box.setAttribute('aria-hidden', 'false');
-      });
-    });
-    function close() { box.classList.remove('is-open'); box.setAttribute('aria-hidden', 'true'); }
-    box.addEventListener('click', close);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-  })();
-
   // ── BOOT ──────────────────────────────────────────────────────────────
-  sizeRail();
   buildStops();
   onScroll();
   // Images and fonts shift the layout once loaded; re-measure the route.
-  window.addEventListener('load', function () { sizeRail(); buildStops(); onScroll(); root.classList.add('is-loaded'); });
+  window.addEventListener('load', function () { buildStops(); onScroll(); root.classList.add('is-loaded'); });
   requestAnimationFrame(function () { root.classList.add('is-ready'); });
 })();
 
