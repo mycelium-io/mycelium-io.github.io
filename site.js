@@ -17,7 +17,6 @@
   var cta = $('#install');
   var story = $('#how');
   var beats = $$('.beat', story);
-  var shots = $$('.story-shot', story);
   var beatBar = $('.beat-progress span', story);
   var agree = $('#agree');
   var lastBeat = 0;
@@ -66,9 +65,9 @@
 
     var list = [[0, at({})]];
     if (pinned()) {
-      // The story: the glass plays each step from behind the picture, peeking
-      // out around it, while night falls. One stop at the middle of each step.
-      var behind = { x: 0.66, y: 0.5, scale: narrow ? 1 : 1.25 };
+      // The story: the glass plays each step in the right half, which nothing
+      // covers, while night falls. One stop at the middle of each step.
+      var behind = { x: 0.76, y: 0.5 + LOWER / 2, scale: narrow ? 1 : 1.05 };
       function step(i, o) {
         var r = at({ x: behind.x, y: behind.y, scale: behind.scale }), k;
         for (k in o) r[k] = o[k];
@@ -146,7 +145,6 @@
       var beat = Math.min(beats.length - 1, Math.floor(p * beats.length));
       if (beat !== lastBeat) {
         beats.forEach(function (b, i) { b.classList.toggle('is-active', i === beat); });
-        shots.forEach(function (s, i) { s.classList.toggle('is-active', i === beat); });
         // Being asked: the drops start, as an agent does when it's woken.
         if (beat === 3) vel += 2400;
         lastBeat = beat;

@@ -440,39 +440,28 @@ em { font-style: normal; }
   align-items: center;
   padding: 0 var(--gutter) 0 var(--edge);
 }
-.story-beats { position: relative; flex-shrink: 0; width: min(460px, 36vw); height: 400px; }
-.beat-shot { display: none; }
-.story-stage {
-  position: absolute;
-  right: var(--gutter);
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(52vw, 880px);
-  height: min(74vh, 700px);
-}
-.story-shot {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  transform: translateY(26px) scale(0.98);
-  filter: blur(6px);
-  transition: opacity 0.7s var(--ease), transform 0.9s var(--ease), filter 0.7s var(--ease);
-}
-.story-shot.is-active { opacity: 1; transform: none; filter: none; }
-/* At its own size, a crop reads the way the app does. */
-.story-shot img,
+/* Each step carries its picture under its text, in the left column, so the
+ * right half is the glass's alone and nothing ever sits over it. */
+.story-beats { position: relative; flex-shrink: 0; width: min(600px, 44vw); height: min(calc(100vh - 140px), 760px); margin-top: 64px; }
+.story .beat h2 { font-size: clamp(32px, 3.6vw, 52px); }
+.story .beat p { font-size: 17px; }
+/* At its own size, a crop reads the way the app does. A beat is a flex
+ * column of fixed height: the picture shrinks to what's left under the text
+ * rather than overflowing, and isn't stretched past its own size. */
 .beat-shot {
+  display: block;
+  margin-top: 24px;
+  width: auto;
   max-width: 100%;
   max-height: 100%;
+  min-height: 0;
+  align-self: flex-start;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: var(--night);
   box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 /* A terminal card carries its own frame and backdrop. */
-.story-shot img.is-card,
 .beat-shot.is-card { border: 0; border-radius: 0; background: none; box-shadow: none; }
 .beat p code {
   font-family: var(--mono);
@@ -488,11 +477,10 @@ em { font-style: normal; }
 @media (max-width: 860px), (prefers-reduced-motion: reduce) {
   .story { height: auto; }
   .story-sticky { position: relative; height: auto; display: block; overflow: visible; padding: 96px var(--gutter); }
-  .story-beats { width: auto; height: auto; }
+  .story-beats { width: auto; height: auto; margin-top: 0; }
   .story .beat { position: relative; inset: auto; opacity: 1; transform: none; filter: none; margin-bottom: 80px; }
-  /* A beat is a flex column, which would stretch the picture past its size. */
-  .story .beat-shot { display: block; margin-top: 24px; width: auto; max-width: 100%; align-self: flex-start; }
-  .story-stage, .story .beat-progress { display: none; }
+  .beat-shot { max-height: none; }
+  .story .beat-progress { display: none; }
 }
 
 /* ── AGREE · the coordination systems ── */
