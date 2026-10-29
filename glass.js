@@ -7,7 +7,7 @@
  *   droplets   the agents in a room          (labelled @scout, @sec, …)
  *   hyphae     the room's channel between peers — a ring, no hub
  *   pulses     messages moving along it
- *   halo       the aligner, closing in during a negotiation
+ *   halo       the conductor, closing in during a negotiation
  *   veins      room memory, growing inside the glass as they converge
  *   bead       you: it condenses under the cursor near the network and joins it
  *
@@ -110,7 +110,7 @@
     '    float b=min(length(p-uBead.xyz)-uBead.w,cap(p,uBead.xyz,uTeth.xyz,uTeth.w));',
     '    d=smin(d,b,.22*uS);',
     '  }',
-    // the aligner's halo
+    // the conductor's halo
     '  if(uHalo.y>.002){',
     '    vec3 q=p-uC; q.yz=rot(uHalo.z)*q.yz; q.xz=rot(uHalo.w)*q.xz;',
     '    d=smin(d,length(vec2(length(q.xz)-uHalo.x,q.y))-uHalo.y,.1*uS);',
@@ -394,11 +394,11 @@
   var labelRoot = document.getElementById('glass-labels');
   var labels = [];
   if (labelRoot) {
-    NAMES.concat(['@you', 'aligner']).forEach(function (n, i) {
+    NAMES.concat(['@you', 'conductor']).forEach(function (n, i) {
       var el = document.createElement('span');
       el.textContent = n;
       if (i === 5) el.className = 'is-you';
-      if (i === 6) el.className = 'is-aligner';
+      if (i === 6) el.className = 'is-conductor';
       labelRoot.appendChild(el);
       labels.push(el);
     });
@@ -544,7 +544,7 @@
       pulses[j * 4 + 3] = Math.pow(Math.sin(Math.PI * f), 1.5) * (0.55 + 0.45 * (1 - m)) * linkGrow;
     }
 
-    // The aligner: a halo that closes in, then pools into the drop.
+    // The conductor: a halo that closes in, then pools into the drop.
     var h = shown.halo;
     var haloR = (1.75 - 0.9 * ease((m - 0.1) / 0.7)) * S;
     var haloTilt = 1.15 + 0.15 * Math.sin(t * 0.4);
