@@ -221,6 +221,11 @@ em { font-style: normal; }
   font-size: 1.14em;
   letter-spacing: -0.025em;
   line-height: 0.92;
+  /* The reveal clips each line to its box, and an italic serif's descenders
+     (the g in "working") reach well below a 0.92 line. Room for them, taken
+     back below so the spacing under the title stays the same. */
+  padding-bottom: 0.3em;
+  margin-bottom: -0.3em;
 }
 
 .hero-sub {
