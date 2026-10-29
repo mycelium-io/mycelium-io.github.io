@@ -393,7 +393,7 @@ em { font-style: normal; }
   transform-origin: right center;
 }
 .glass-labels .is-you { color: #7cf0c2; }
-.glass-labels .is-aligner { color: #e2d2ff; }
+.glass-labels .is-conductor { color: #e2d2ff; }
 
 .sec { padding: clamp(96px, 14vh, 160px) 0; position: relative; }
 .yours { padding-bottom: 36vh; }
