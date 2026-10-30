@@ -229,7 +229,7 @@
   var CMDS = {
     prompt: 'Use curl to read https://mycelium-io.github.io/mycelium/agents.md and follow its steps to install Mycelium',
     curl: 'curl -fsSL https://mycelium-io.github.io/mycelium/install.sh | bash',
-    brew: 'brew install mycelium-io/tap/mycelium',
+    brew: 'brew tap mycelium-io/tap && brew trust mycelium-io/tap && brew install mycelium',
   };
   function setTab(tab) {
     $$('[data-install-code]').forEach(function (c) { c.textContent = CMDS[tab]; });
