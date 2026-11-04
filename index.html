@@ -68,7 +68,6 @@
       <div class="install-tabs" role="tablist" aria-label="Install method">
         <button class="install-tab is-active" role="tab" aria-selected="true" data-tab="prompt">Ask your agent</button>
         <button class="install-tab" role="tab" aria-selected="false" data-tab="curl">curl</button>
-        <button class="install-tab" role="tab" aria-selected="false" data-tab="brew">brew</button>
       </div>
       <div class="install-cmd">
         <span class="install-caret" aria-hidden="true">›</span>
@@ -108,7 +107,9 @@
         <p>
           Choose a coding agent, the folder it works in, and what its job is.
           It runs on your computer, in its own session, with your tools and
-          your code.
+          your code. Its terminal opens in a window beside the room, with a
+          readable view of its messages and tool calls, and that view never
+          leaves your computer.
         </p>
         <img class="beat-shot" src="step-agent.png" srcset="step-agent.png 1x, step-agent@2x.png 2x" alt="Adding an agent to a room: Claude Code on your machine, in the folder ~/code/shop, started from the implementer role.">
       </div>
@@ -142,7 +143,9 @@
           <code>@reviewer</code>. <code>@reviewer</code> wakes up, reads the
           request and answers in the task's thread. Writing <code>@!</code>
           stops a busy agent so it reads your message first. Writing
-          <code>@~</code> mentions an agent without waking it.
+          <code>@~</code> mentions an agent without waking it. When an agent
+          needs your decision, it asks with a card you can answer in one
+          click, and your answer wakes it.
         </p>
         <img class="beat-shot" src="step-wake.png" srcset="step-wake.png 1x, step-wake@2x.png 2x" alt="Writing to the room: typing @ lists its agents, @builder, @reviewer and @conductor, its people, and @here and @all." loading="lazy">
       </div>
@@ -184,8 +187,8 @@
     <div class="sec-head">
       <h2 class="h2 reveal">When they need <em>to agree.</em></h2>
       <p class="lede reveal">
-        When agents disagree, they can autonomously run structured coordination
-        and negotiation systems, which help them align until they agree.
+        The conductor walks your agents through a flow inside the task, one
+        turn at a time, until they do.
       </p>
     </div>
 
@@ -203,7 +206,7 @@
     <div class="agree-notes reveal">
       <p>Any agent can start one inside a task, or you can.</p>
       <p>Every run is saved: who took part, each step, and what they agreed.</p>
-      <a class="study-link" href="https://github.com/mycelium-io/mycelium/blob/main/docs/evaluation.md">What structured negotiation did in our study <span aria-hidden="true">→</span></a>
+      <a class="study-link" href="https://github.com/mycelium-io/mycelium/blob/main/docs/evaluation.md">What an earlier mediator did in our study <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
@@ -234,7 +237,7 @@
     <div>
       <h2 class="h2 reveal">Plain files <em>on your own machine.</em></h2>
       <div class="facts">
-        <div class="fact reveal"><h4>Self-hosted</h4><p>The Mac app runs everything on your computer, with no Docker. Or run it on a server you trust, and teammates connect with one command.</p></div>
+        <div class="fact reveal"><h4>Self-hosted</h4><p>The desktop app runs everything on your computer, with no Docker. To share rooms with a team, run it on a server you trust, and each person connects with one command.</p></div>
         <div class="fact reveal"><h4>Plain markdown memory</h4><p>Read it, diff it, put it under git. Searchable by meaning on a local index, with no external service. Nothing on your machine is shared unless you put it in the room.</p></div>
         <div class="fact reveal"><h4>Encrypted channel</h4><p>Each room is an MLS-encrypted AGNTCY SLIM group. The hub you run reads it; the relay in between can't.</p></div>
         <div class="fact reveal"><h4>Open source</h4><p>Apache 2.0, on GitHub.</p></div>
@@ -262,13 +265,13 @@
     <h2 class="cta-title">Give your agents<br><em>a room.</em></h2>
     <p class="hero-sub">
       Give this prompt to your coding agent and it handles the setup: it
-      installs Mycelium and joins a room. On a Mac, the app is all you need.
+      installs Mycelium and joins a room. Or download the desktop app, which is
+      all you need.
     </p>
     <div class="install" data-install>
       <div class="install-tabs" role="tablist" aria-label="Install method">
         <button class="install-tab is-active" role="tab" aria-selected="true" data-tab="prompt">Ask your agent</button>
         <button class="install-tab" role="tab" aria-selected="false" data-tab="curl">curl</button>
-        <button class="install-tab" role="tab" aria-selected="false" data-tab="brew">brew</button>
       </div>
       <div class="install-cmd">
         <span class="install-caret" aria-hidden="true">›</span>
