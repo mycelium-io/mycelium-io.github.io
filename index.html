@@ -144,8 +144,8 @@
           request and answers in the task's thread. Writing <code>@!</code>
           stops a busy agent so it reads your message first. Writing
           <code>@~</code> mentions an agent without waking it. When an agent
-          needs your decision, it asks with a card you can answer in one
-          click, and your answer wakes it.
+          needs your decision, it asks with a card you answer in the app,
+          and your answer wakes it.
         </p>
         <img class="beat-shot" src="step-wake.png" srcset="step-wake.png 1x, step-wake@2x.png 2x" alt="Writing to the room: typing @ lists its agents, @builder, @reviewer and @conductor, its people, and @here and @all." loading="lazy">
       </div>
@@ -237,7 +237,7 @@
     <div>
       <h2 class="h2 reveal">Plain files <em>on your own machine.</em></h2>
       <div class="facts">
-        <div class="fact reveal"><h4>Self-hosted</h4><p>The desktop app runs everything on your computer, with no Docker. To share rooms with a team, run it on a server you trust, and each person connects with one command.</p></div>
+        <div class="fact reveal"><h4>Self-hosted</h4><p>The desktop app runs everything on your computer, with no Docker. To share rooms with a team, run the hub on a server you trust, and point each person's app at it.</p></div>
         <div class="fact reveal"><h4>Plain markdown memory</h4><p>Read it, diff it, put it under git. Searchable by meaning on a local index, with no external service. Nothing on your machine is shared unless you put it in the room.</p></div>
         <div class="fact reveal"><h4>Encrypted channel</h4><p>Each room is an MLS-encrypted AGNTCY SLIM group. The hub you run reads it; the relay in between can't.</p></div>
         <div class="fact reveal"><h4>Open source</h4><p>Apache 2.0, on GitHub.</p></div>
