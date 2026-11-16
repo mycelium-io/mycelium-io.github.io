@@ -545,6 +545,49 @@ em { font-style: normal; }
 .ways-card p { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
 .ways-card--own { border-style: dashed; border-color: var(--line-2); }
 
+/* Try it: opens the prompt that hands this pattern to an agent. */
+.ways-try { margin-top: auto; padding-top: 10px; }
+.ways-try-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 212, 224, 0.4);
+  background: rgba(93, 212, 224, 0.08);
+  color: #dff9fc;
+  font: 500 14px/1 var(--sans);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.ways-try-btn:hover { background: rgba(93, 212, 224, 0.16); border-color: rgba(93, 212, 224, 0.7); }
+.ways-try-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; transition: transform 0.25s var(--ease); }
+.ways-try-btn.is-open svg { transform: rotate(180deg); }
+/* Floats over its own card, above the button, so opening one never moves the
+ * grid. */
+.ways-card { position: relative; }
+.ways-prompt {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 62px;
+  z-index: 2;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(93, 212, 224, 0.3);
+  background: rgba(10, 14, 26, 0.96);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+}
+.ways-prompt[hidden] { display: none; }
+/* One card per row: nothing beside it to move, so it opens in place. */
+@media (max-width: 600px) {
+  .ways-prompt { position: static; margin-top: 12px; box-shadow: none; }
+}
+.ways-prompt .install-cmd { background: rgba(31, 98, 214, 0.14); }
+.ways-prompt .install-cmd code { font-size: 12.5px; }
+.ways-prompt-hint { margin-top: 10px; font-size: 13px !important; color: var(--ink-2) !important; }
+
 /* The drawing's panel: a pool of cobalt light, like the field above. */
 .ways-stage {
   margin-bottom: 10px;

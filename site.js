@@ -242,6 +242,48 @@
     t.addEventListener('mousedown', tick);
     t.addEventListener('click', function () { setTab(t.getAttribute('data-tab')); });
   });
+  // ── TRY A PATTERN ─────────────────────────────────────────────────────
+  // Each ways-to-work card opens a prompt to hand an agent: the install
+  // prompt, then the pattern's own guide (patterns/<name>.md), which tells it
+  // how to set up a room that shows the pattern working. Built here, before
+  // the copy buttons are wired, so its copy button works like the others.
+  var COPY_ICONS =
+    '<svg class="i-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>' +
+    '<svg class="i-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+  $$('[data-try]').forEach(function (slot) {
+    var name = slot.getAttribute('data-try-name');
+    var prompt = CMDS.prompt + '. Then use curl to read https://mycelium-io.github.io/patterns/' +
+      slot.getAttribute('data-try') + '.md and follow it to set up a room that shows me the ' +
+      name + ' pattern.';
+    var open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'ways-try-btn';
+    open.setAttribute('aria-expanded', 'false');
+    open.innerHTML = 'Try it <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+    var box = document.createElement('div');
+    box.className = 'ways-prompt';
+    box.hidden = true;
+    var cmd = document.createElement('div');
+    cmd.className = 'install-cmd';
+    cmd.innerHTML = '<span class="install-caret" aria-hidden="true">›</span><code></code>' +
+      '<button class="copy" data-copy aria-label="Copy the ' + name + ' prompt">' + COPY_ICONS + '</button>';
+    cmd.querySelector('code').textContent = prompt;
+    var hint = document.createElement('p');
+    hint.className = 'ways-prompt-hint';
+    hint.textContent = 'Give this to your coding agent. It installs Mycelium if needed, then sets up a room that shows you ' + name + ' on a task of yours.';
+    box.appendChild(cmd);
+    box.appendChild(hint);
+    open.addEventListener('mousedown', tick);
+    open.addEventListener('click', function () {
+      var show = box.hidden;
+      box.hidden = !show;
+      open.setAttribute('aria-expanded', show ? 'true' : 'false');
+      open.classList.toggle('is-open', show);
+    });
+    slot.appendChild(open);
+    slot.appendChild(box);
+  });
+
   $$('[data-copy]').forEach(function (btn) {
     btn.addEventListener('mousedown', tick);
     btn.addEventListener('click', function () {
