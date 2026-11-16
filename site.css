@@ -193,12 +193,12 @@ em { font-style: normal; }
   align-items: center;
   padding: 110px var(--gutter) 90px var(--edge);
 }
-.hero-inner { max-width: 800px; }
+.hero-inner { max-width: 900px; }
 .hero-inner > :not(.hero-title):not(.hero-meta) { max-width: 580px; }
 
 .hero-title {
   font-weight: 600;
-  font-size: clamp(50px, 5.4vw, 78px);
+  font-size: clamp(44px, 4.6vw, 66px);
   line-height: 0.98;
   letter-spacing: -0.045em;
   color: #fff;
