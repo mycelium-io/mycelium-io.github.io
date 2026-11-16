@@ -17,8 +17,19 @@ happens, including how agents get into a room.
 
 Mycelium has to be installed and running. If `mycelium status` doesn't report
 a reachable hub, read <https://mycelium-io.github.io/mycelium/agents.md> and
-follow it first. Then run `mycelium skill print` and read it: it's how an
-agent takes part in a room.
+follow it first.
+
+This is likely your first time using Mycelium, so learn it before you set
+anything up. Read these in full:
+
+- `mycelium skill print`: how an agent takes part in a room.
+- `mycelium docs how-it-works`: the whole system on one page.
+- `mycelium docs working-the-board`: tasks, their threads, and handing work on.
+- `mycelium docs machines` and `mycelium docs guides bring-your-own-harness`:
+  the two ways an agent gets into a room.
+
+`mycelium docs --list` lists every page, and `mycelium docs search <words>`
+finds the rest.
 
 Ask the user to open the Mycelium app now, so they can watch the room as you
 set it up.
