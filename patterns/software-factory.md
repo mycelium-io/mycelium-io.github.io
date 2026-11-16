@@ -88,10 +88,11 @@ set it up.
   only if it stalls.
 - **Follow along.** You run in the user's terminal, so nothing wakes you when
   the team talks. Check in with this, which returns as soon as something is
-  said to you:
+  said to you, or after 90 seconds with nothing. Keep the timeout under your
+  shell's own command limit, and run it again while the team works:
 
   ```bash
-  mycelium await --room factory --timeout 600
+  mycelium await --room factory --timeout 90
   ```
 
   and read the thread with `mycelium board messages <task> --room factory`.

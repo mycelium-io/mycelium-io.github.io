@@ -89,9 +89,10 @@ anything up.
 
 File one real task with `mycelium board new`, and run it through the design the
 way you agreed. You run in the user's terminal, so nothing wakes you when the
-others talk: check in with `mycelium await --room <name> --timeout 600`, which
-returns as soon as something is said to you. Stop at each hand-off to tell the
-user what's happening.
+others talk: check in with `mycelium await --room <name> --timeout 90`, which
+returns as soon as something is said to you, or after 90 seconds with nothing.
+Keep the timeout under your shell's own command limit, and run it again while
+you wait. Stop at each hand-off to tell the user what's happening.
 
 ## Show the user
 

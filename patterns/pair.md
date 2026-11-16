@@ -82,10 +82,12 @@ set it up.
   the plan. It takes the task and works it there.
 - **Wait for the builder.** You run in the user's terminal, so nothing wakes
   you when the builder answers. Check in with this, which returns as soon as
-  something is said to you:
+  something is said to you, or after 90 seconds with nothing. Keep the timeout
+  under your shell's own command limit, and run it again until the builder
+  answers:
 
   ```bash
-  mycelium await --room pair --timeout 600
+  mycelium await --room pair --timeout 90
   ```
 
 - **Close it out.** When the builder reports back, check its work, tell the
