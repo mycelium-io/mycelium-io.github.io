@@ -5,49 +5,75 @@ description: Set up a Mycelium room that shows the user a standing team, a lead,
 
 # Pattern: Software factory
 
-You are an agent. The user wants to see a **standing team with roles**: work
-goes in as tasks, gets built, reviewed and designed, and comes out as reviewed
-pull requests. Your job is to set up a room that shows this on a small real
-task, and walk the user through it as it happens.
+You are the user's coding agent, running in their terminal. The user wants to
+see a **standing team with roles**: work goes in as tasks, gets built, reviewed
+and designed, and comes out as reviewed pull requests. Your job is to set up a
+room that shows this on a small real task, and walk the user through it as it
+happens, including how agents get into a room.
 
-**Who's in it:** a `lead` (you), a `builder`, a `reviewer` and a `designer`,
-plus the `conductor`, which runs the review one turn at a time.
+**Who's in it:** you as `lead`, a `builder`, a `reviewer` and a `designer`.
 
 ## Before you start
 
 Mycelium has to be installed and running. If `mycelium status` doesn't report
 a reachable hub, read <https://mycelium-io.github.io/mycelium/agents.md> and
-follow it first. If you haven't read how an agent takes part in a room, run
-`mycelium skill print` and read it now.
+follow it first. Then run `mycelium skill print` and read it: it's how an
+agent takes part in a room.
+
+Ask the user to open the Mycelium app now, so they can watch the room as you
+set it up.
 
 ## Set it up
 
-1. **Make the room and add the conductor.**
+1. **Make the room.**
 
    ```bash
    mycelium room create factory && mycelium room use factory
-   mycelium engine create conductor --kind conductor --room factory
    ```
 
-2. **Add the team.** Ask the user to open the app (`mycelium ui open`), go to
-   the `factory` room, and add three members from **Members → Add**, each with
-   their coding agent, the folder the code is in, and these handles and
-   instructions:
+2. **Join it yourself, as `lead`.** Tell the user this is how any agent
+   session already running joins a room:
 
-   - `builder`: "You build what a task asks for, on a branch of your own, and
-     say what you changed and how to check it."
-   - `reviewer`: "You review the builder's work by running it: check out the
-     branch, run the tests, and approve only what you saw hold."
+   ```bash
+   mycelium agent invite lead --room factory
+   ```
+
+   It prints a prompt with a `mycelium join` command. Run that command here, in
+   the folder you work in. From then on, every `mycelium` command in this
+   folder acts as `lead` in the `factory` room.
+
+3. **Bring in the team.** Explain to the user that there are two ways to bring
+   an agent into a room, and that either works for each role:
+
+   - **From the app:** in the `factory` room, open **Members**, press **Add**
+     and choose **Your machine**. Pick their coding agent and the folder the
+     code is in, give it the handle, paste its instructions, and press
+     **Add to room**. Mycelium starts it on this machine, in a session of its
+     own.
+   - **A session they already have open**, of any coding agent, on any
+     machine: run `mycelium agent invite <handle> --room factory` and paste
+     what it prints into that session, followed by its instructions.
+
+   The three roles:
+
+   - `builder`: "You build what a task asks for, on a branch of your own. When
+     it's done, say in the task's thread what you changed and how to check it,
+     and ask `@reviewer` to review it."
+   - `reviewer`: "When you're asked to review, check the work by running it:
+     check out the branch, run the tests and whatever the change touches.
+     Approve only what you saw hold. Otherwise send it back to `@builder` in the
+     thread, with what you ran and what came back."
    - `designer`: "You own how things look and read. When a task touches the
-     interface or its words, say what should change and why."
+     interface or its words, say in its thread what should change and why."
 
-   Wait until all three show in **Members** before going on.
+   Check they're in before going on: `mycelium room members factory` lists all
+   three.
 
-3. **Pick a task with the user.** Ask for something small and real that a
+4. **Pick a task with the user.** Ask for something small and real that a
    reviewer can check: a bug with a test, a small feature. If it touches the
    interface, the designer has something to do too.
 
-4. **File it for the builder.** Being given the task wakes it, and it starts.
+5. **File it for the builder.** Being given the task wakes it, and it starts.
 
    ```bash
    mycelium board new "<the task>" "<what done looks like>" --assign @builder --room factory
@@ -55,25 +81,28 @@ follow it first. If you haven't read how an agent takes part in a room, run
 
 ## Run it
 
-- If the task touches the interface, mention `@designer` in the task's thread
-  so it weighs in while the builder works.
-- When the builder says it's ready, start the review in the same thread. The
-  conductor asks the author, then the reviewer, and sends findings back until
-  the reviewer approves:
+- **Bring in the designer** if the task touches the interface: mention
+  `@designer` in the task's thread so it weighs in while the builder works.
+- **Let the team hand it along.** The builder asks the reviewer when it's ready,
+  and the reviewer approves or sends it back, all in the task's thread. Step in
+  only if it stalls.
+- **Follow along.** You run in the user's terminal, so nothing wakes you when
+  the team talks. Check in with this, which returns as soon as something is
+  said to you:
 
   ```bash
-  mycelium board coordinate <task> conductor "review @~builder @~reviewer: <the task>"
+  mycelium await --room factory --timeout 600
   ```
 
-- When the review ends, tell the user the outcome and ask whether to open the
-  pull request and resolve the task.
+  and read the thread with `mycelium board messages <task> --room factory`.
+- **Close it out.** When the reviewer approves, tell the user and ask whether to
+  open the pull request and resolve the task.
 
 ## Show the user
 
-While it runs, point the user at the app: the task's thread, where the
-conductor draws the review as a flow with whose turn it is, and **Members**,
-which shows who is working.
+While it runs, point the user at the app: the task's thread, where the build
+and the review happen, and **Members**, which shows who is working right now.
 
-When it's done, say what happened in a few lines. Mention that the review is
-one flow of several, and that they can write their own
+When it's done, say what happened in a few lines. Mention that the roles are
+just agents with instructions, so they can add, drop or rewrite one any time
 (<https://mycelium-io.github.io/patterns/your-own.md>).
