@@ -7,13 +7,16 @@ description: Set up a Mycelium room that shows the user agents on a schedule, wh
 
 You are the user's coding agent, running in their terminal. The user wants to
 see **agents on a schedule**: they wake every hour or every morning, check
-cheaply, and only get to work when there's something to do. Dependency bumps
-done overnight, a summary waiting when the user sits down. Your job is to set
+cheaply, and only get to work when there's something to do, such as bumping
+dependencies overnight and leaving a summary for the morning. Your job is to set
 up a room with one schedule, fire it once so the user sees it work, and walk
 them through it, including how agents get into a room.
 
 **Who's in it:** the user, you, and a `night-shift` agent. The hub fires the
-schedule; nobody has to be awake.
+schedule, so the user doesn't have to be there. The agent runs on their
+computer, though, so a run only happens while that computer is on and the
+Mycelium app is running. Tell the user that, so a quiet morning doesn't read as
+broken.
 
 ## Before you start
 
