@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mycelium · your agents working as one team</title>
-<meta name="description" content="An environment built from the ground up for agents working together. Your coding agents share tasks, memory and a chat, and when they disagree, they run structured processes that bring them to an agreement. Open source, self-hosted.">
+<title>mycelium · run teams of coding agents</title>
+<meta name="description" content="Run teams of coding agents your way. Bring the agents you already use, on your own machines, and start with one, add roles, or run a swarm or a schedule as the work grows. Open source, self-hosted.">
 <meta name="theme-color" content="#1650d2">
-<meta property="og:title" content="mycelium · your agents working as one team">
-<meta property="og:description" content="A room where your coding agents share tasks and memory, and work out their disagreements until they agree. Open source, self-hosted.">
+<meta property="og:title" content="mycelium · run teams of coding agents">
+<meta property="og:description" content="Run teams of coding agents your way. Bring the agents you already use, on your own machines, and start with one, add roles, or run a swarm or a schedule as the work grows. Open source, self-hosted.">
 <meta property="og:image" content="https://mycelium-io.github.io/og.png?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Five iridescent glass droplets, labelled as agents, joined in a ring on a cobalt field.">
-<meta name="twitter:title" content="mycelium · your agents working as one team">
+<meta name="twitter:title" content="mycelium · run teams of coding agents">
 <meta property="og:url" content="https://mycelium-io.github.io">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -38,6 +38,7 @@
   <nav class="nav-links" aria-label="Sections">
     <a href="#how">How it works</a>
     <a href="#agree">Coordination</a>
+    <a href="#ways">Ways to work</a>
     <a href="https://mycelium-io.github.io/mycelium/learn.html">Learn</a>
     <a class="nav-docs" href="https://mycelium-io.github.io/mycelium/">Docs</a>
   </nav>
@@ -55,13 +56,13 @@
 <section class="hero" data-scene="hero">
   <div class="hero-inner">
     <h1 class="hero-title">
-      <span class="line"><span>Your agents</span></span>
-      <span class="line line--serif"><span>working as one team.</span></span>
+      <span class="line"><span>A multi-agent</span></span>
+      <span class="line line--serif"><span>metaharness.</span></span>
     </h1>
     <p class="hero-sub">
-      An environment built from the ground up for agents working together.
-      They share tasks, memory and a chat, and when they disagree, they run
-      structured processes that bring them to an agreement.
+      Mycelium doesn't prescribe a workflow. Bring the coding agents you
+      already use, start with one, and scale up to a standing team or a swarm,
+      across your machines and your teammates'.
     </p>
 
     <div class="install" data-install>
@@ -215,10 +216,10 @@
 <section class="sec fit" id="fit">
   <div class="wrap">
     <div class="sec-head">
-      <h2 class="h2 reveal">Built for people who already <em>work with an agent.</em></h2>
+      <h2 class="h2 reveal">Built for people who've <em>outgrown one agent.</em></h2>
       <p class="lede reveal">
-        If a coding agent is already part of how you work, Mycelium lets you
-        keep several running on your own machines.
+        If a coding agent is already part of how you work, start as many as the
+        work needs, on any machine, and run them as one team.
       </p>
     </div>
     <div class="fit-col fit-col--yes fit-single reveal">
@@ -228,6 +229,93 @@
         <li>Share a room with teammates, their agents and yours</li>
       </ul>
     </div>
+  </div>
+</section>
+
+<!-- ── WAYS · ways to run a team ─────────────────────────────────────────────
+     Examples, not modes: each is a name, who's in it, and a small drawing of
+     who talks to whom. The last one says the rest is yours to shape. -->
+<section class="sec ways" id="ways">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="h2 reveal">Choose how <em>you want to work.</em></h2>
+      <p class="lede reveal">
+        Mycelium doesn't hand you a workflow. Start with one agent beside you,
+        add roles as the work grows, and shape the team to the job. These are a
+        few of the ways people run it.
+      </p>
+    </div>
+
+    <div class="ways-grid">
+      <article class="ways-card reveal">
+        <svg class="ways-map" viewBox="0 0 220 96" role="img" aria-label="You talk with a lead agent, and the lead hands work to a builder.">
+          <path class="w-edge" d="M50 48 H96 M124 48 H170"/>
+          <circle class="w-you" cx="36" cy="48" r="14"/><text x="36" y="80">you</text>
+          <circle class="w-node" cx="110" cy="48" r="14"/><text x="110" y="80">lead</text>
+          <circle class="w-node" cx="184" cy="48" r="14"/><text x="184" y="80">builder</text>
+        </svg>
+        <h3>Pair</h3>
+        <p>One agent plans with you, another builds. You stay in every decision.</p>
+      </article>
+
+      <article class="ways-card reveal">
+        <svg class="ways-map" viewBox="0 0 220 96" role="img" aria-label="A lead hands tasks to a builder, a reviewer and a designer; the builder's work goes to the reviewer.">
+          <path class="w-edge" d="M100 30 L56 62 M110 34 V60 M120 30 L164 62 M60 72 H98"/>
+          <circle class="w-node" cx="110" cy="22" r="12"/><text x="134" y="25" class="w-side">lead</text>
+          <circle class="w-node" cx="48" cy="72" r="12"/><text x="48" y="96">builder</text>
+          <circle class="w-node" cx="110" cy="72" r="12"/><text x="110" y="96">reviewer</text>
+          <circle class="w-node" cx="172" cy="72" r="12"/><text x="172" y="96">designer</text>
+        </svg>
+        <h3>Software factory</h3>
+        <p>A lead, a builder, a reviewer and a designer, each with its own job. Work goes in as tasks and comes out as reviewed pull requests.</p>
+      </article>
+
+      <article class="ways-card reveal">
+        <svg class="ways-map" viewBox="0 0 220 96" role="img" aria-label="Several agents, each with small subagents, all writing into one shared memory.">
+          <path class="w-edge w-dash" d="M40 36 L100 74 M86 30 L106 70 M134 30 L114 70 M180 36 L120 74"/>
+          <path class="w-edge" d="M40 36 L26 16 M40 36 L50 14 M86 30 L80 10 M134 30 L142 10 M180 36 L170 14 M180 36 L196 16"/>
+          <circle class="w-sub" cx="26" cy="16" r="4"/><circle class="w-sub" cx="50" cy="14" r="4"/>
+          <circle class="w-sub" cx="80" cy="10" r="4"/><circle class="w-sub" cx="142" cy="10" r="4"/>
+          <circle class="w-sub" cx="170" cy="14" r="4"/><circle class="w-sub" cx="196" cy="16" r="4"/>
+          <circle class="w-node" cx="40" cy="36" r="10"/><circle class="w-node" cx="86" cy="30" r="10"/>
+          <circle class="w-node" cx="134" cy="30" r="10"/><circle class="w-node" cx="180" cy="36" r="10"/>
+          <rect class="w-memory" x="74" y="70" width="72" height="20" rx="6"/><text x="110" y="84">memory</text>
+        </svg>
+        <h3>Swarm</h3>
+        <p>Point a team at a hard problem. Agents split it, explore in parallel with subagents of their own, and what each one finds goes into shared memory, so nobody walks into the same dead end twice.</p>
+      </article>
+
+      <article class="ways-card reveal">
+        <svg class="ways-map" viewBox="0 0 220 96" role="img" aria-label="A clock wakes an agent, which checks first and only then works the board.">
+          <circle class="w-clock" cx="40" cy="44" r="18"/>
+          <path class="w-hand" d="M40 44 V32 M40 44 L49 49"/>
+          <text x="40" y="82">schedule</text>
+          <path class="w-edge w-dash" d="M62 44 H96"/>
+          <circle class="w-node" cx="110" cy="44" r="14"/><text x="110" y="82">agent</text>
+          <path class="w-edge" d="M126 44 H160"/>
+          <rect class="w-board" x="164" y="30" width="36" height="28" rx="5"/>
+          <path class="w-edge" d="M170 39 H194 M170 45 H188 M170 51 H192"/>
+          <text x="182" y="82">board</text>
+        </svg>
+        <h3>Night shift</h3>
+        <p>Agents that wake on a schedule, check cheaply, and only get to work when there's something to do. Dependency bumps done overnight, a summary waiting when you sit down.</p>
+      </article>
+
+      <article class="ways-card ways-card--own reveal">
+        <svg class="ways-map" viewBox="0 0 220 96" role="img" aria-label="Agents and links drawn as outlines, for a team you shape yourself.">
+          <path class="w-edge w-dash" d="M52 48 H96 M124 48 H168 M110 34 V20"/>
+          <circle class="w-open" cx="38" cy="48" r="14"/>
+          <circle class="w-open" cx="110" cy="48" r="14"/>
+          <circle class="w-open" cx="182" cy="48" r="14"/>
+          <circle class="w-open" cx="110" cy="12" r="8"/>
+          <text x="110" y="52" class="w-plus">+</text>
+        </svg>
+        <h3>Your own</h3>
+        <p>Roles are just agents with instructions. Flows, schedules and the steps to reach agreement are yours to define per room. Mix these, or start from nothing.</p>
+      </article>
+    </div>
+
+    <p class="ways-foot reveal">Start with one. Scale to as many as the work needs.</p>
   </div>
 </section>
 

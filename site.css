@@ -520,6 +520,54 @@ em { font-style: normal; }
 .study-link:hover { color: #fff; border-color: #fff; }
 @media (max-width: 600px) { .agree-grid { grid-template-columns: 1fr; } }
 
+/* ── WAYS · ways to run a team ── */
+/* Five small cards, each a drawing of who talks to whom above its name. The
+ * drawings use the page's own marks: cobalt for you, cyan-ringed agents, and
+ * dashed lines for what's shared or yours to draw. */
+/* Three across, then two wider: six tracks so the second row fills the width. */
+.ways-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+.ways-card { grid-column: span 2; }
+.ways-card:nth-child(n + 4) { grid-column: span 3; }
+.ways-card:nth-child(n + 4) .ways-map { max-width: 360px; }
+.ways-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 20px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(31, 98, 214, 0.18), transparent 60%),
+    var(--night-2);
+}
+.ways-card h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.ways-card p { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
+.ways-card--own { border-style: dashed; border-color: var(--line-2); }
+.ways-map { width: 100%; height: auto; margin-bottom: 8px; overflow: visible; }
+.ways-map text { font-family: var(--mono); font-size: 10px; fill: var(--ink-3); text-anchor: middle; }
+.ways-map .w-plus { font-size: 16px; fill: var(--ink-2); }
+.ways-map .w-side { text-anchor: start; }
+.w-edge { fill: none; stroke: var(--line-2); stroke-width: 1.5; stroke-linecap: round; }
+.w-dash { stroke-dasharray: 3 4; stroke: rgba(93, 212, 224, 0.45); }
+.w-node { fill: var(--night-3); stroke: var(--cyan); stroke-width: 1.5; }
+.w-you { fill: var(--cobalt); stroke: rgba(255, 255, 255, 0.35); stroke-width: 1.5; }
+.w-sub { fill: var(--night-3); stroke: rgba(93, 212, 224, 0.6); stroke-width: 1; }
+.w-open { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.w-memory { fill: rgba(93, 212, 224, 0.08); stroke: rgba(93, 212, 224, 0.45); stroke-width: 1.2; }
+.w-clock { fill: var(--night-3); stroke: var(--yellow); stroke-width: 1.5; }
+.w-hand { fill: none; stroke: var(--yellow); stroke-width: 1.5; stroke-linecap: round; }
+.w-board { fill: var(--night-3); stroke: var(--line-2); stroke-width: 1.2; }
+.ways-foot { margin-top: 28px; font-size: clamp(17px, 1.5vw, 19px); color: var(--ink); }
+@media (max-width: 960px) {
+  .ways-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ways-card, .ways-card:nth-child(n + 4) { grid-column: auto; }
+  .ways-card:last-child { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .ways-grid { grid-template-columns: 1fr; }
+  .ways-card:last-child { grid-column: auto; }
+}
+
 /* ── FIT ── */
 .fit-single { max-width: 820px; }
 .fit-col { padding: clamp(28px, 3.5vw, 44px); border-radius: 24px; border: 1px solid var(--line); background: var(--night-2); }
