@@ -54,16 +54,15 @@
     'mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,s,-s,c);}',
     'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'vec2 hash2(vec2 p){return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);}',
-    // Film grain: roughly Gaussian (four uniform hashes summed), one value per
-    // pixel, centred on 0 with a standard deviation of about 1.
-    // A hash with no sine in it: the sine hash above leaves diagonal streaks
-    // when it's read once per pixel across a whole screen.
-    'float gh(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}',
-    'float grain(vec2 p){return (gh(p)+gh(p+vec2(19.19,7.3))+gh(p+vec2(47.3,91.7))+gh(p+vec2(83.7,29.1))-2.)*1.732;}',
-    // The CSS blend modes, so each layer's grain reads as the page's design
-    // asked: multiply on the field, soft light on the glass. b is the grain's
+    // The glass's grain: roughly Gaussian (four uniform hashes summed), centred
+    // on 0 with a standard deviation of about 1. It's read from a point on the
+    // drop's own surface, so the grain moves with the drop as it drifts and
+    // wobbles, instead of sitting on the screen. The hash has no sine in it,
+    // since a sine hash leaves streaks when it's read this finely.
+    'float gh(vec3 p){p=fract(p*.1031);p+=dot(p,p.zyx+31.32);return fract((p.x+p.y)*p.z);}',
+    'float grain(vec3 p){vec3 c=floor(p);return (gh(c)+gh(c+19.19)+gh(c+47.3)+gh(c+83.7)-2.)*1.732;}',
+    // CSS's soft-light blend, for the grain over the glass. b is the grain's
     // grey (0.5 when there's none); k its strength.
-    'vec3 multiplyGrain(vec3 c,float b,float k){return mix(c,c*b,k);}',
     'vec3 softLightGrain(vec3 c,float b,float k){',
     '  vec3 d=mix(sqrt(c),((16.*c-12.)*c+4.)*c,step(c,vec3(.25)));',
     '  vec3 s=b<=.5?c-(1.-2.*b)*c*(1.-c):c+(2.*b-1.)*(d-c);',
@@ -191,8 +190,6 @@
     '  vec3 ww=normalize(ta-ro),uu=normalize(cross(ww,vec3(0.,1.,0.))),vv=cross(uu,ww);',
     '  vec3 rd=normalize(q.x*uu+q.y*vv+1.6*ww);',
     '  vec3 col=backdrop(uv)+spores(q);',
-    '  float gb=.5+grain(gl_FragCoord.xy)*.164;',
-    '  col=multiplyGrain(col,gb,.3);',
 
     // Night-side glow around the cluster, so the glass has light to live in.
     '  vec3 oc=uC-ro; float perp=length(cross(rd,oc))/uS;',
@@ -257,9 +254,12 @@
     '      float s2=pow(max(dot(r,normalize(vec3(.75,.35,.55))),0.),16.);',
     '      g+=vec3(1.)*s1*2.4+vec3(1.,.95,.9)*s2*.35;',
     '      g+=fr*.3+pow(1.-ct,7.)*.35;',
-    // The glass's own grain, apart from the field's multiply: soft light,
-    // so the drops read as a different material from the ground behind.
-    '      g=softLightGrain(clamp(g,0.,1.),gb,.3)+max(g-1.,0.);',
+    // The glass's grain, in soft light: read relative to the nearest drop's
+    // centre, so each drop carries its own grain as it moves.
+    '      vec3 gc=uB[0].xyz; float gd=length(p-gc);',
+    '      for(int i=1;i<5;i++){float e=length(p-uB[i].xyz); if(e<gd){gd=e;gc=uB[i].xyz;}}',
+    '      float gb=.5+grain((p-gc)/uS*450.)*.164;',
+    '      g=softLightGrain(clamp(g,0.,1.),gb,.45)+max(g-1.,0.);',
     '      col=mix(col,g,cov);',
     '    }',
     '  }',
