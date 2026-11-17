@@ -240,6 +240,11 @@
     '      float s2=pow(max(dot(r,normalize(vec3(.75,.35,.55))),0.),16.);',
     '      g+=vec3(1.)*s1*2.4+vec3(1.,.95,.9)*s2*.35;',
     '      g+=fr*.3+pow(1.-ct,7.)*.35;',
+    // The glass's own grain, apart from the field's (the CSS layer over the
+    // page): finer, in colour, and strongest where the film is brightest,
+    // so the drops read as a different material from the ground behind.
+    '      vec3 gn=vec3(hash(gl_FragCoord.xy),hash(gl_FragCoord.xy+17.3),hash(gl_FragCoord.xy+41.9))-.5;',
+    '      g+=gn*(.09+.16*w);',
     '      col=mix(col,g,cov);',
     '    }',
     '  }',
