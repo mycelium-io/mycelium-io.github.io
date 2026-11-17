@@ -167,30 +167,6 @@
   // Scroll velocity decays to zero once the page stops, so the wobble settles.
   setInterval(function () { if (performance.now() - lastT > 120) glass({ vel: 0 }); }, 150);
 
-  // ── GRAIN ─────────────────────────────────────────────────────────────
-  // One tile of grey Gaussian noise (Box-Muller), one tile pixel to one
-  // screen pixel, repeated over the glass. Made once; it never redraws.
-  (function grain() {
-    var el = $('.glass-grain');
-    if (!el) return;
-    var N = 256, dpr = window.devicePixelRatio || 1;
-    var c = document.createElement('canvas');
-    c.width = c.height = N;
-    var ctx = c.getContext('2d');
-    if (!ctx) return;
-    var img = ctx.createImageData(N, N), d = img.data;
-    for (var i = 0; i < d.length; i += 4) {
-      var u = 1 - Math.random(), v = Math.random();
-      var g = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-      var x = clamp(128 + g * 42, 0, 255);
-      d[i] = d[i + 1] = d[i + 2] = x;
-      d[i + 3] = 255;
-    }
-    ctx.putImageData(img, 0, 0);
-    el.style.backgroundImage = 'url(' + c.toDataURL() + ')';
-    el.style.backgroundSize = (N / dpr) + 'px ' + (N / dpr) + 'px';
-  })();
-
   // ── REVEALS & COUNTERS ────────────────────────────────────────────────
   function countUp(el) {
     var to = parseFloat(el.getAttribute('data-count'));

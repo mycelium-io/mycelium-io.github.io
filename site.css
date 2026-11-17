@@ -103,17 +103,6 @@ em { font-style: normal; }
   background: var(--night);
   opacity: var(--dusk);
 }
-/* Grain over the glass: a tile of Gaussian noise that site.js makes once, at
-   the screen's own pixels, so it stays crisp however the canvas is scaled.
-   It fades with the glass, so the night side of the page stays clean. */
-.glass-grain {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  mix-blend-mode: overlay;
-  opacity: calc(var(--grain, 0.3) * var(--glass-alpha));
-}
 
 /* ── NAV ── */
 .nav {
