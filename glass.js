@@ -259,7 +259,7 @@
     '      vec3 gc=uB[0].xyz; float gd=length(p-gc);',
     '      for(int i=1;i<5;i++){float e=length(p-uB[i].xyz); if(e<gd){gd=e;gc=uB[i].xyz;}}',
     '      float gb=.5+grain((p-gc)/uS*450.)*.164;',
-    '      g=softLightGrain(clamp(g,0.,1.),gb,.3)+max(g-1.,0.);',
+    '      g=softLightGrain(clamp(g,0.,1.),gb,.45)+max(g-1.,0.);',
     '      col=mix(col,g,cov);',
     '    }',
     '  }',
